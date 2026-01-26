@@ -44,8 +44,8 @@ src/
 
 **Deploy (Vercel):**
 
-- `vercel.json` configured
-- Next commit -> Push to GitHub → deploy on Vercel
+- `vercel.json` configured ✅
+- Deployed to production: https://fsweb0825-ecommerce-project.vercel.app/ ✅
 
 **Design constraints:**
 

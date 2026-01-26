@@ -9,7 +9,8 @@
   - [x] Axios
   - [x] Toastify
   - [x] Icon Library - (https://lucide.dev/guide/packages/lucide-react)
-- [ ] Deploy your project to Vercel/Render/Netlify
+- [x] Deploy your project to Vercel/Render/Netlify
+  - Deployed to: https://fsweb0825-ecommerce-project.vercel.app/
 
 Tip: Here is a Youtube Playlist [Workintech E-Comm Projesi Doping](https://youtube.com/playlist?list=PL-w1xOwMMQ1PTMXidBINRj9diBko1X86U&feature=shared) for tips and tricks, relevant to the project.
 
