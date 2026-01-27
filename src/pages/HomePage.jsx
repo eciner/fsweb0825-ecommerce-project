@@ -15,14 +15,70 @@ import product7 from "../assets/products/product-7.jpg";
 import product8 from "../assets/products/product-8.jpg";
 
 const bestsellerProducts = [
-  { id: 1, image: product1 },
-  { id: 2, image: product2 },
-  { id: 3, image: product3 },
-  { id: 4, image: product4 },
-  { id: 5, image: product5 },
-  { id: 6, image: product6 },
-  { id: 7, image: product7 },
-  { id: 8, image: product8 },
+  {
+    id: 1,
+    image: product1,
+    title: "Everyday Cotton Tee",
+    category: "Men's Essentials",
+    price: "$24.00",
+    salePrice: "$18.00",
+  },
+  {
+    id: 2,
+    image: product2,
+    title: "Cozy Knit Sweater",
+    category: "Women's Collection",
+    price: "$42.00",
+    salePrice: "$32.00",
+  },
+  {
+    id: 3,
+    image: product3,
+    title: "Weekend Chino Shorts",
+    category: "Casual Staples",
+    price: "$29.00",
+    salePrice: "$21.00",
+  },
+  {
+    id: 4,
+    image: product4,
+    title: "Textured Linen Shirt",
+    category: "Summer Drop",
+    price: "$34.00",
+    salePrice: "$26.00",
+  },
+  {
+    id: 5,
+    image: product5,
+    title: "City Runner Sneakers",
+    category: "New Arrivals",
+    price: "$68.00",
+    salePrice: "$54.00",
+  },
+  {
+    id: 6,
+    image: product6,
+    title: "Minimal Leather Belt",
+    category: "Accessories",
+    price: "$28.00",
+    salePrice: "$20.00",
+  },
+  {
+    id: 7,
+    image: product7,
+    title: "Heritage Denim Jacket",
+    category: "Best Sellers",
+    price: "$92.00",
+    salePrice: "$76.00",
+  },
+  {
+    id: 8,
+    image: product8,
+    title: "Everyday Tote Bag",
+    category: "Carry Goods",
+    price: "$36.00",
+    salePrice: "$28.00",
+  },
 ];
 
 export default function HomePage() {
@@ -35,10 +91,10 @@ export default function HomePage() {
         <div className="mb-12 text-center">
           <p className="text-sm text-[#737373]">Featured Products</p>
           <h2 className="text-2xl font-bold text-[#252B42]">
-            BESTSELLER PRODUCTS
+            Bestseller Products
           </h2>
           <p className="text-sm text-[#737373]">
-            Problems trying to resolve the conflict between
+            Our community-driven favorites, refreshed each week
           </p>
         </div>
 
@@ -48,7 +104,13 @@ export default function HomePage() {
               key={product.id}
               className="w-full sm:w-[calc(50%-16px)] md:w-[calc(25%-24px)]"
             >
-              <BestsellerCard image={product.image} />
+              <BestsellerCard
+                image={product.image}
+                title={product.title}
+                category={product.category}
+                price={product.price}
+                salePrice={product.salePrice}
+              />
             </div>
           ))}
         </div>

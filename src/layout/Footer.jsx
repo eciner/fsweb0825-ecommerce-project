@@ -1,6 +1,7 @@
 import { memo } from "react";
 import { Link } from "react-router-dom";
 import { Facebook, Instagram, Twitter, Mail } from "lucide-react";
+import { interactiveButton } from "../utils/buttonClasses";
 
 function Footer() {
   const currentYear = new Date().getFullYear();
@@ -58,21 +59,21 @@ function Footer() {
           <div className="flex items-center gap-4 text-[#252B42]">
             <button
               type="button"
-              className="transition-colors hover:text-[#23A6F0]"
+              className="transition-colors hover:text-[#23A6F0] cursor-pointer"
               aria-label="Facebook"
             >
               <Facebook size={20} />
             </button>
             <button
               type="button"
-              className="transition-colors hover:text-[#23A6F0]"
+              className="transition-colors hover:text-[#23A6F0] cursor-pointer"
               aria-label="Instagram"
             >
               <Instagram size={20} />
             </button>
             <button
               type="button"
-              className="transition-colors hover:text-[#23A6F0]"
+              className="transition-colors hover:text-[#23A6F0] cursor-pointer"
               aria-label="Twitter"
             >
               <Twitter size={20} />
@@ -146,7 +147,7 @@ function Footer() {
             </div>
             <button
               type="submit"
-              className="rounded bg-[#23A6F0] px-6 py-3 text-sm font-semibold text-white transition-colors hover:bg-[#1b8dd6] sm:rounded-none"
+              className={`${interactiveButton} rounded bg-[#23A6F0] px-6 py-3 text-sm font-semibold text-white hover:bg-[#23A6F0]-dark sm:rounded-none focus:ring-brand-accent`}
             >
               Subscribe
             </button>

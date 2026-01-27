@@ -1,10 +1,12 @@
-import { memo } from "react";
+import { memo, useRef } from "react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Autoplay } from "swiper/modules";
 import "swiper/css";
 
 import heroWoman from "../assets/hero-woman.jpg";
 import heroWoman2 from "../assets/hero-woman-2.png";
+import { interactiveButton } from "../utils/buttonClasses";
 
 const slides = [
   {
@@ -26,6 +28,8 @@ const slides = [
 ];
 
 function Slider() {
+  const swiperRef = useRef(null);
+
   return (
     <div className="w-full overflow-hidden">
       <Swiper
@@ -37,6 +41,9 @@ function Slider() {
           disableOnInteraction: false,
         }}
         loop={true}
+        onSwiper={(swiper) => {
+          swiperRef.current = swiper;
+        }}
         className="w-full"
       >
         {slides.map((slide, index) => (
@@ -67,7 +74,7 @@ function Slider() {
 
                   <button
                     type="button"
-                    className="flex w-fit items-center justify-center rounded-md bg-[#2DC071] px-6 py-3 text-sm font-bold text-white md:text-base"
+                    className={`${interactiveButton} flex w-fit items-center justify-center rounded-md bg-[#2DC071] px-6 py-3 text-sm font-bold text-white hover:bg-[#2DC071]-dark focus:ring-[#2DC071] md:text-base`}
                   >
                     SHOP NOW
                   </button>
@@ -76,17 +83,19 @@ function Slider() {
 
               <button
                 type="button"
-                className="absolute left-4 top-1/2 -translate-y-1/2 text-4xl font-light text-white/70 md:left-8"
+                onClick={() => swiperRef.current?.slidePrev()}
+                className="absolute left-4 top-1/2 flex h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full bg-white/85 text-[#252B42] shadow-lg backdrop-blur transition-all duration-200 hover:bg-white hover:shadow-2xl focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-accent cursor-pointer md:left-8"
                 aria-label="Previous slide"
               >
-                ‹
+                <ChevronLeft size={22} />
               </button>
               <button
                 type="button"
-                className="absolute right-4 top-1/2 -translate-y-1/2 text-4xl font-light text-white/70 md:right-8"
+                onClick={() => swiperRef.current?.slideNext()}
+                className="absolute right-4 top-1/2 flex h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full bg-white/85 text-[#252B42] shadow-lg backdrop-blur transition-all duration-200 hover:bg-white hover:shadow-2xl focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-accent cursor-pointer md:right-8"
                 aria-label="Next slide"
               >
-                ›
+                <ChevronRight size={22} />
               </button>
             </section>
           </SwiperSlide>

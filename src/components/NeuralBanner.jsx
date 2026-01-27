@@ -1,5 +1,6 @@
 import { memo } from "react";
 import bannerImg from "../assets/banners/banner-neural.jpg";
+import { interactiveButton } from "../utils/buttonClasses";
 
 function NeuralBanner() {
   return (
@@ -30,14 +31,14 @@ function NeuralBanner() {
           <div className="mt-2 flex gap-4">
             <button
               type="button"
-              className="rounded-md bg-[#2DC071] px-8 py-3 text-sm font-bold text-white"
+              className={`${interactiveButton} rounded-md bg-[#2DC071] px-8 py-3 text-sm font-bold text-white hover:bg-[#2DC071]-dark focus:ring-[#2DC071]`}
             >
               BUY NOW
             </button>
 
             <button
               type="button"
-              className="rounded-md border border-[#2DC071] px-8 py-3 text-sm font-bold text-[#2DC071]"
+              className={`${interactiveButton} rounded-md border border-green-light px-8 py-3 text-sm font-bold text-[#2DC071] hover:bg-[#2DC071]/10 focus:ring-[#2DC071]`}
             >
               Learn More
             </button>

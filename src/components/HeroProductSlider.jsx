@@ -1,5 +1,6 @@
 import { memo, useEffect, useRef, useState } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import { interactiveButton } from "../utils/buttonClasses";
 
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Autoplay } from "swiper/modules";
@@ -66,7 +67,7 @@ function HeroProductSlider() {
     <section className="relative w-full overflow-hidden bg-[#23856D]">
       <button
         onClick={prevSlide}
-        className="hidden md:flex absolute left-5 top-1/2 z-10 -translate-y-1/2 items-center justify-center rounded-full bg-white/20 p-3 text-white hover:bg-white/40"
+        className={`${interactiveButton} hidden md:flex absolute left-5 top-1/2 z-10 -translate-y-1/2 items-center justify-center rounded-full bg-white/20 p-3 text-white hover:scale-105 hover:bg-white/40 focus:ring-white focus:ring-offset-green-accent`}
         aria-label="Previous"
       >
         <ChevronLeft size={28} />
@@ -74,7 +75,7 @@ function HeroProductSlider() {
 
       <button
         onClick={nextSlide}
-        className="hidden md:flex absolute right-5 top-1/2 z-10 -translate-y-1/2 items-center justify-center rounded-full bg-white/20 p-3 text-white hover:bg-white/40"
+        className={`${interactiveButton} hidden md:flex absolute right-5 top-1/2 z-10 -translate-y-1/2 items-center justify-center rounded-full bg-white/20 p-3 text-white hover:scale-105 hover:bg-white/40 focus:ring-white focus:ring-offset-green-accent`}
         aria-label="Next"
       >
         <ChevronRight size={28} />
@@ -115,7 +116,7 @@ function HeroProductSlider() {
 
                   <button
                     type="button"
-                    className="rounded-md bg-[#2DC071] px-8 py-3 text-sm font-bold text-white"
+                    className={`${interactiveButton} rounded-md bg-[#2DC071] px-8 py-3 text-sm font-bold text-white hover:bg-[#2DC071]-dark focus:ring-white`}
                   >
                     ADD TO CART
                   </button>

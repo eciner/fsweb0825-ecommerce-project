@@ -1,4 +1,5 @@
 import { memo } from "react";
+import { interactiveButton } from "../utils/buttonClasses";
 import menImg from "../assets/editors-men.png";
 import womenImg from "../assets/editors-women.png";
 import kidsImg from "../assets/editors-kids.png";
@@ -14,9 +15,12 @@ const Card = memo(function Card({ img, label, position = "object-center" }) {
         className={`h-full w-full object-cover ${position}`}
       />
 
-      <div className="absolute left-6 bottom-6 bg-white px-8 py-3 text-sm font-bold tracking-wide text-[#252B42]">
+      <button
+        type="button"
+        className={`${interactiveButton} absolute left-6 bottom-6 rounded-md bg-white/95 px-8 py-3 text-sm font-bold tracking-wide text-[#252B42] hover:bg-white focus:ring-brand-accent`}
+      >
         {label}
-      </div>
+      </button>
     </div>
   );
 });
@@ -30,7 +34,7 @@ function EditorsPick() {
           EDITOR&apos;S PICK
         </h2>
         <p className="mt-2 text-sm text-[#737373]">
-          Problems trying to resolve the conflict between
+          Curated looks from our editors for every occasion
         </p>
       </div>
 

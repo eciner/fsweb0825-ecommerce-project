@@ -1,5 +1,6 @@
 import { memo } from "react";
 import { Heart } from "lucide-react";
+import { interactiveButton } from "../utils/buttonClasses";
 
 function ProductCard({ title, price, image }) {
   return (
@@ -18,7 +19,7 @@ function ProductCard({ title, price, image }) {
           <h3 className="flex text-sm font-semibold md:text-base">{title}</h3>
           <button
             type="button"
-            className="flex items-center justify-center rounded-lg border px-2 py-2"
+            className={`${interactiveButton} flex items-center justify-center rounded-lg border px-2 py-2 text-[#252B42] hover:border-green-light hover:text-[#2DC071] focus:ring-[#2DC071]`}
             aria-label="Add to favorites"
           >
             <Heart size={16} />
@@ -29,7 +30,7 @@ function ProductCard({ title, price, image }) {
           <span className="flex text-sm font-bold md:text-base">${price}</span>
           <button
             type="button"
-            className="flex items-center justify-center rounded-lg bg-black px-3 py-2 text-xs font-semibold text-white md:text-sm"
+            className={`${interactiveButton} flex items-center justify-center rounded-lg bg-black px-3 py-2 text-xs font-semibold text-white hover:bg-[#1f1f1f] focus:ring-[#2DC071] md:text-sm`}
           >
             Add to cart
           </button>

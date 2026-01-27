@@ -30,8 +30,7 @@ function FeaturedPosts() {
         <p className="text-sm font-semibold text-[#23A6F0]">Practice Advice</p>
         <h2 className="text-3xl font-bold text-[#252B42]">Featured Posts</h2>
         <p className="mt-2 text-sm text-[#737373]">
-          Problems trying to resolve the conflict between the two major realms
-          of Classical physics: Newtonian mechanics
+          Stories on style, sustainability, and how we build pieces that last
         </p>
       </div>
 

@@ -29,12 +29,19 @@ function Header() {
           <div className="flex flex-col items-start gap-4 sm:flex-row sm:gap-6">
             <div className="flex items-center gap-2">
               <Phone size={14} />
-              <span>(225) 555-0118</span>
+              <a href="tel:(225)555-0118" className="hover:text-[#23A6F0]">
+                (225) 555-0118
+              </a>
             </div>
 
             <div className="flex items-center gap-2">
               <Mail size={14} />
-              <span>michelle.rivera@example.com</span>
+              <a
+                href="mailto:michelle.rivera@example.com"
+                className="hover:text-[#23A6F0]"
+              >
+                michelle.rivera@example.com
+              </a>
             </div>
           </div>
 
@@ -83,7 +90,7 @@ function Header() {
 
             <button
               type="button"
-              className="flex items-center gap-1 text-sm font-semibold text-[#737373] transition-colors hover:text-[#252B42]"
+              className="flex items-center gap-1 text-sm font-semibold text-[#737373] transition-colors hover:text-[#252B42] cursor-pointer"
               aria-label="Shop menu"
             >
               Shop <ChevronDown size={16} />
@@ -110,7 +117,7 @@ function Header() {
 
             <button
               type="button"
-              className="flex items-center gap-1 text-sm font-semibold text-[#737373] transition-colors hover:text-[#252B42]"
+              className="flex items-center gap-1 text-sm font-semibold text-[#737373] transition-colors hover:text-[#252B42] cursor-pointer"
               aria-label="Pages menu"
             >
               Pages <ChevronDown size={16} />
@@ -121,7 +128,7 @@ function Header() {
           <div className="flex items-center gap-4">
             <Link
               to="/"
-              className="hidden items-center gap-2 text-xs font-semibold text-[#23A6F0] transition-colors hover:text-[#1b8dd6] md:flex"
+              className="hidden items-center gap-2 text-xs font-semibold text-[#23A6F0] transition-colors hover:text-[#23A6F0]-dark md:flex"
             >
               <User size={16} />
               <span>Login</span>
@@ -129,7 +136,7 @@ function Header() {
 
             <button
               type="button"
-              className="flex items-center justify-center text-[#252B42] transition-colors hover:text-[#23A6F0]"
+              className="flex items-center justify-center text-[#252B42] transition-colors hover:text-[#23A6F0] cursor-pointer"
               aria-label="Search"
             >
               <Search size={20} />
@@ -137,7 +144,7 @@ function Header() {
 
             <button
               type="button"
-              className="flex items-center gap-1 text-[#252B42] transition-colors hover:text-[#23A6F0]"
+              className="flex items-center gap-1 text-[#252B42] transition-colors hover:text-[#23A6F0] cursor-pointer"
               aria-label="Cart"
             >
               <ShoppingCart size={20} />
@@ -146,7 +153,7 @@ function Header() {
 
             <button
               type="button"
-              className="flex items-center gap-1 text-[#252B42] transition-colors hover:text-[#23A6F0]"
+              className="flex items-center gap-1 text-[#252B42] transition-colors hover:text-[#23A6F0] cursor-pointer"
               aria-label="Favorites"
             >
               <Heart size={20} />
@@ -156,7 +163,7 @@ function Header() {
             {/* Mobile Menu Toggle */}
             <button
               type="button"
-              className="flex items-center justify-center text-[#252B42] md:hidden"
+              className="flex items-center justify-center text-[#252B42] md:hidden cursor-pointer"
               onClick={toggleMenu}
               aria-label="Toggle menu"
             >
@@ -179,7 +186,7 @@ function Header() {
             </Link>
             <button
               type="button"
-              className="border-b border-[#E8E8E8] py-3 text-left text-sm font-semibold text-[#737373] transition-colors hover:text-[#252B42]"
+              className="border-b border-[#E8E8E8] py-3 text-left text-sm font-semibold text-[#737373] transition-colors hover:text-[#252B42] cursor-pointer"
             >
               Shop
             </button>
@@ -206,7 +213,7 @@ function Header() {
             </Link>
             <Link
               to="/"
-              className="flex items-center gap-2 py-3 text-sm font-semibold text-[#23A6F0] transition-colors hover:text-[#1b8dd6]"
+              className="flex items-center gap-2 py-3 text-sm font-semibold text-[#23A6F0] transition-colors hover:text-[#23A6F0]-dark"
               onClick={() => setIsMenuOpen(false)}
             >
               <User size={16} />
