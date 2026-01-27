@@ -1,18 +1,13 @@
-import { Route, Switch } from "react-router-dom";
-import Header from "./layout/Header.jsx";
-import Footer from "./layout/Footer.jsx";
-import HomePage from "./pages/HomePage.jsx";
+import Header from "./layout/Header";
+import PageContent from "./layout/PageContent";
+import Footer from "./layout/Footer";
 
-function App() {
+export default function App() {
   return (
-    <div className="min-h-screen flex flex-col bg-gray-50">
+    <div className="flex min-h-screen w-full flex-col overflow-hidden bg-gray-50">
       <Header />
-      <Switch>
-        <Route exact path="/" component={HomePage} />
-      </Switch>
+      <PageContent />
       <Footer />
     </div>
   );
 }
-
-export default App;

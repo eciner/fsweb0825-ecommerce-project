@@ -1,68 +1,62 @@
-import React from "react";
-import ProductCard from "../components/ProductCard.jsx";
-import PageContent from "../layout/PageContent.jsx";
+import Slider from "../components/Slider";
+import EditorsPick from "../components/EditorsPick";
+import HeroProductSlider from "../components/HeroProductSlider";
+import BestsellerCard from "../components/BestsellerCard";
+import NeuralBanner from "../components/NeuralBanner";
+import FeaturedPosts from "../components/FeaturedPosts";
 
-const demoProducts = [
-  {
-    id: 1,
-    name: "Wireless Headphones",
-    price: 129.99,
-    badge: "New",
-  },
-  {
-    id: 2,
-    name: "Smartwatch",
-    price: 199.99,
-    badge: "Hot",
-  },
-  {
-    id: 3,
-    name: "Mechanical Keyboard",
-    price: 89.99,
-  },
+import product1 from "../assets/products/product-1.jpg";
+import product2 from "../assets/products/product-2.jpg";
+import product3 from "../assets/products/product-3.jpg";
+import product4 from "../assets/products/product-4.jpg";
+import product5 from "../assets/products/product-5.jpg";
+import product6 from "../assets/products/product-6.jpg";
+import product7 from "../assets/products/product-7.jpg";
+import product8 from "../assets/products/product-8.jpg";
+
+const bestsellerProducts = [
+  { id: 1, image: product1 },
+  { id: 2, image: product2 },
+  { id: 3, image: product3 },
+  { id: 4, image: product4 },
+  { id: 5, image: product5 },
+  { id: 6, image: product6 },
+  { id: 7, image: product7 },
+  { id: 8, image: product8 },
 ];
 
-function HomePage() {
+export default function HomePage() {
   return (
-    <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white">
-      <PageContent>
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6 mb-10">
-          <div>
-            <p className="text-sm uppercase tracking-wide text-indigo-600 font-semibold">
-              Welcome
-            </p>
-            <h1 className="text-4xl font-bold text-gray-900 mt-2">
-              Your store is ready
-            </h1>
-            <p className="text-gray-600 mt-3 max-w-2xl">
-              Start adding products, categories, and collections. The core stack
-              is installed and configured—focus on building the shopping
-              experience.
-            </p>
-          </div>
-          <div className="bg-white shadow-md rounded-lg p-5 border border-indigo-50">
-            <h2 className="text-lg font-semibold text-gray-800">Next steps</h2>
-            <ul className="mt-3 space-y-2 text-sm text-gray-600 list-disc list-inside">
-              <li>Add product data and images</li>
-              <li>Hook up real API endpoints</li>
-              <li>Wire cart and checkout flows</li>
-            </ul>
-          </div>
+    <div className="w-full">
+      <Slider />
+      <EditorsPick />
+
+      <section className="mx-auto w-full max-w-[1200px] px-4 py-16">
+        <div className="mb-12 text-center">
+          <p className="text-sm text-[#737373]">Featured Products</p>
+          <h2 className="text-2xl font-bold text-[#252B42]">
+            BESTSELLER PRODUCTS
+          </h2>
+          <p className="text-sm text-[#737373]">
+            Problems trying to resolve the conflict between
+          </p>
         </div>
 
-        <div className="flex flex-wrap gap-6">
-          {demoProducts.map((product) => (
+        <div className="flex flex-wrap gap-8">
+          {bestsellerProducts.map((product) => (
             <div
               key={product.id}
-              className="w-full sm:w-[calc(50%-12px)] lg:w-[calc(33.333%-16px)]"
+              className="w-full sm:w-[calc(50%-16px)] md:w-[calc(25%-24px)]"
             >
-              <ProductCard product={product} />
+              <BestsellerCard image={product.image} />
             </div>
           ))}
         </div>
-      </PageContent>
+      </section>
+
+      <HeroProductSlider />
+      <NeuralBanner />
+      <FeaturedPosts />
     </div>
   );
 }
-
-export default HomePage;

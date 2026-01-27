@@ -1,36 +1,42 @@
-import React from "react";
+import { memo } from "react";
+import { Heart } from "lucide-react";
 
-function ProductCard({ product }) {
-  if (!product) return null;
-
-  const { name, price, image, badge } = product;
-
+function ProductCard({ title, price, image }) {
   return (
-    <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-150 flex flex-col">
-      {image ? (
-        <img src={image} alt={name} className="w-full h-40 object-cover" />
-      ) : (
-        <div className="w-full h-40 bg-gray-100 flex items-center justify-center text-gray-400 text-sm">
-          No image
+    <div className="flex w-full flex-col overflow-hidden rounded-xl border bg-white">
+      <div className="flex w-full">
+        <img
+          src={image}
+          alt={title || "Product"}
+          loading="lazy"
+          className="h-44 w-full object-cover md:h-56"
+        />
+      </div>
+
+      <div className="flex flex-col gap-2 p-4">
+        <div className="flex items-start justify-between gap-3">
+          <h3 className="flex text-sm font-semibold md:text-base">{title}</h3>
+          <button
+            type="button"
+            className="flex items-center justify-center rounded-lg border px-2 py-2"
+            aria-label="Add to favorites"
+          >
+            <Heart size={16} />
+          </button>
         </div>
-      )}
-      <div className="p-4 flex flex-col gap-2 flex-1">
+
         <div className="flex items-center justify-between">
-          <h3 className="text-lg font-semibold text-gray-800">{name}</h3>
-          {badge && (
-            <span className="text-xs font-semibold text-indigo-700 bg-indigo-100 px-2 py-1 rounded-full">
-              {badge}
-            </span>
-          )}
+          <span className="flex text-sm font-bold md:text-base">${price}</span>
+          <button
+            type="button"
+            className="flex items-center justify-center rounded-lg bg-black px-3 py-2 text-xs font-semibold text-white md:text-sm"
+          >
+            Add to cart
+          </button>
         </div>
-        <p className="text-indigo-700 font-bold">${price.toFixed(2)}</p>
-        <div className="flex-1" />
-        <button className="w-full bg-indigo-600 text-white py-2 px-3 rounded-md hover:bg-indigo-700 transition-colors duration-150">
-          Add to cart
-        </button>
       </div>
     </div>
   );
 }
 
-export default ProductCard;
+export default memo(ProductCard);

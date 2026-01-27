@@ -1,8 +1,10 @@
 {
   "name": "fsweb0825-ecommerce-project",
+  "description": "E-Commerce Capstone Project - WorkinTech Frontend Development Bootcamp",
   "private": true,
   "version": "0.0.0",
   "type": "module",
+  "author": "Emre Ciner",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
