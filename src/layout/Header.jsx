@@ -1,5 +1,6 @@
 import { memo, useState } from "react";
 import { Link } from "react-router-dom";
+import { useSelector } from "react-redux";
 import {
   Phone,
   Mail,
@@ -18,6 +19,11 @@ import {
 
 function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const cart = useSelector((state) => state.cart);
+  const favorites = useSelector((state) => state.favorites);
+  
+  const cartCount = cart.reduce((total, item) => total + item.quantity, 0);
+  const favoritesCount = favorites.length;
 
   const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
 
@@ -88,40 +94,32 @@ function Header() {
               Home
             </Link>
 
-            <button
-              type="button"
-              className="flex items-center gap-1 text-sm font-semibold text-[#737373] transition-colors hover:text-[#252B42] cursor-pointer"
-              aria-label="Shop menu"
+            <Link
+              to="/shop"
+              className="flex items-center gap-1 text-sm font-semibold text-[#737373] transition-colors hover:text-[#252B42]"
+              aria-label="Shop page"
             >
               Shop <ChevronDown size={16} />
-            </button>
+            </Link>
 
             <Link
-              to="/"
+              to="/about"
               className="text-sm font-semibold text-[#737373] transition-colors hover:text-[#252B42]"
             >
               About
             </Link>
             <Link
-              to="/"
+              to="/team"
               className="text-sm font-semibold text-[#737373] transition-colors hover:text-[#252B42]"
             >
-              Blog
+              Team
             </Link>
             <Link
-              to="/"
+              to="/contact"
               className="text-sm font-semibold text-[#737373] transition-colors hover:text-[#252B42]"
             >
               Contact
             </Link>
-
-            <button
-              type="button"
-              className="flex items-center gap-1 text-sm font-semibold text-[#737373] transition-colors hover:text-[#252B42] cursor-pointer"
-              aria-label="Pages menu"
-            >
-              Pages <ChevronDown size={16} />
-            </button>
           </div>
 
           {/* Right Side Icons */}
@@ -148,7 +146,7 @@ function Header() {
               aria-label="Cart"
             >
               <ShoppingCart size={20} />
-              <span className="text-xs font-bold">1</span>
+              {cartCount > 0 && <span className="text-xs font-bold">{cartCount}</span>}
             </button>
 
             <button
@@ -157,7 +155,7 @@ function Header() {
               aria-label="Favorites"
             >
               <Heart size={20} />
-              <span className="text-xs font-bold">1</span>
+              {favoritesCount > 0 && <span className="text-xs font-bold">{favoritesCount}</span>}
             </button>
 
             {/* Mobile Menu Toggle */}
@@ -184,28 +182,29 @@ function Header() {
             >
               Home
             </Link>
-            <button
-              type="button"
-              className="border-b border-[#E8E8E8] py-3 text-left text-sm font-semibold text-[#737373] transition-colors hover:text-[#252B42] cursor-pointer"
+            <Link
+              to="/shop"
+              className="border-b border-[#E8E8E8] py-3 text-left text-sm font-semibold text-[#737373] transition-colors hover:text-[#252B42]"
+              onClick={() => setIsMenuOpen(false)}
             >
               Shop
-            </button>
+            </Link>
             <Link
-              to="/"
+              to="/team"
+              className="border-b border-[#E8E8E8] py-3 text-sm font-semibold text-[#737373] transition-colors hover:text-[#252B42]"
+              onClick={() => setIsMenuOpen(false)}
+            >
+              Team
+            </Link>
+            <Link
+              to="/about"
               className="border-b border-[#E8E8E8] py-3 text-sm font-semibold text-[#737373] transition-colors hover:text-[#252B42]"
               onClick={() => setIsMenuOpen(false)}
             >
               About
             </Link>
             <Link
-              to="/"
-              className="border-b border-[#E8E8E8] py-3 text-sm font-semibold text-[#737373] transition-colors hover:text-[#252B42]"
-              onClick={() => setIsMenuOpen(false)}
-            >
-              Blog
-            </Link>
-            <Link
-              to="/"
+              to="/contact"
               className="border-b border-[#E8E8E8] py-3 text-sm font-semibold text-[#737373] transition-colors hover:text-[#252B42]"
               onClick={() => setIsMenuOpen(false)}
             >

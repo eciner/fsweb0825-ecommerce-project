@@ -1,7 +1,6 @@
 import { memo } from "react";
 import { Link } from "react-router-dom";
 import { Facebook, Instagram, Twitter, Mail } from "lucide-react";
-import { interactiveButton } from "../utils/buttonClasses";
 
 function Footer() {
   const currentYear = new Date().getFullYear();
@@ -10,7 +9,7 @@ function Footer() {
     {
       title: "Company Info",
       links: [
-        { label: "About Us", href: "/" },
+        { label: "About Us", href: "/about" },
         { label: "Carrier", href: "/" },
         { label: "We are hiring", href: "/" },
         { label: "Blog", href: "/" },
@@ -47,124 +46,93 @@ function Footer() {
 
   return (
     <footer className="flex w-full flex-col bg-white">
-      {/* Main Footer Content */}
-      <div className="mx-auto w-full max-w-6xl px-4 py-12">
-        {/* Brand and Social Section */}
-        <div className="mb-12 flex flex-col items-start gap-6 border-b border-[#E8E8E8] pb-8 sm:flex-row sm:items-center sm:justify-between">
-          <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
-            <h3 className="text-2xl font-bold text-[#252B42]">WiT</h3>
-            <p className="text-sm text-[#737373]">E-Commerce Solutions</p>
-          </div>
-
-          <div className="flex items-center gap-4 text-[#252B42]">
-            <button
-              type="button"
-              className="transition-colors hover:text-[#23A6F0] cursor-pointer"
+      {/* Brand and Social Section */}
+      <div className="w-full border-b border-[#E6E6E6] bg-[#FAFAFA]">
+        <div className="mx-auto flex w-full max-w-6xl flex-col items-start justify-between gap-5 px-5 py-10 sm:flex-row sm:items-center md:px-0">
+          <h3 className="text-2xl font-bold text-[#252B42]">WiT</h3>
+          <div className="flex items-center gap-5">
+            <Link
+              to="/"
+              className="text-[#23A6F0] transition-colors hover:text-[#1a8cd4]"
               aria-label="Facebook"
             >
-              <Facebook size={20} />
-            </button>
-            <button
-              type="button"
-              className="transition-colors hover:text-[#23A6F0] cursor-pointer"
+              <Facebook size={24} />
+            </Link>
+            <Link
+              to="/"
+              className="text-[#23A6F0] transition-colors hover:text-[#1a8cd4]"
               aria-label="Instagram"
             >
-              <Instagram size={20} />
-            </button>
-            <button
-              type="button"
-              className="transition-colors hover:text-[#23A6F0] cursor-pointer"
+              <Instagram size={24} />
+            </Link>
+            <Link
+              to="/"
+              className="text-[#23A6F0] transition-colors hover:text-[#1a8cd4]"
               aria-label="Twitter"
             >
-              <Twitter size={20} />
-            </button>
+              <Twitter size={24} />
+            </Link>
           </div>
         </div>
+      </div>
 
-        {/* Footer Links Grid */}
-        <div className="mb-12 flex flex-col gap-10 sm:gap-8">
-          <div className="flex flex-col gap-10 sm:flex-row sm:gap-8">
-            {/* Column 1 & 2 */}
-            {footerSections.slice(0, 2).map((section) => (
-              <div
-                key={section.title}
-                className="flex flex-col gap-3 sm:flex-1"
-              >
-                <h4 className="font-bold text-[#252B42]">{section.title}</h4>
-                <div className="flex flex-col gap-2">
-                  {section.links.map((link) => (
-                    <Link
-                      key={link.label}
-                      to={link.href}
-                      className="text-sm text-[#737373] transition-colors hover:text-[#252B42]"
-                    >
-                      {link.label}
-                    </Link>
-                  ))}
-                </div>
-              </div>
-            ))}
-          </div>
-
-          <div className="flex flex-col gap-10 sm:flex-row sm:gap-8">
-            {/* Column 3 & 4 */}
-            {footerSections.slice(2, 4).map((section) => (
-              <div
-                key={section.title}
-                className="flex flex-col gap-3 sm:flex-1"
-              >
-                <h4 className="font-bold text-[#252B42]">{section.title}</h4>
-                <div className="flex flex-col gap-2">
-                  {section.links.map((link) => (
-                    <Link
-                      key={link.label}
-                      to={link.href}
-                      className="text-sm text-[#737373] transition-colors hover:text-[#252B42]"
-                    >
-                      {link.label}
-                    </Link>
-                  ))}
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Newsletter Signup */}
-        <div className="mb-8 flex flex-col gap-3 rounded-lg border border-[#E8E8E8] bg-[#FAFAFA] p-6 sm:p-8">
-          <h4 className="font-bold text-[#252B42]">Get in Touch</h4>
-          <p className="text-sm text-[#737373]">
-            Subscribe to our newsletter for updates and exclusive offers.
-          </p>
-          <form className="flex flex-col gap-3 sm:flex-row sm:gap-0">
-            <div className="flex flex-1 overflow-hidden rounded border border-[#E8E8E8] bg-white">
-              <input
-                type="email"
-                placeholder="Your Email"
-                className="flex-1 px-4 py-3 text-sm outline-none"
-                required
-              />
+      {/* Footer Links Grid */}
+      <div className="w-full py-12">
+        <div className="mx-auto flex w-full max-w-6xl flex-col gap-8 px-5 md:flex-row md:justify-between md:gap-7.5 md:px-0">
+          {/* Footer Columns */}
+          {footerSections.map((section) => (
+            <div key={section.title} className="flex flex-col gap-5">
+              <h5 className="text-base font-bold text-[#252B42]">
+                {section.title}
+              </h5>
+              <nav className="flex flex-col gap-2.5">
+                {section.links.map((link) => (
+                  <Link
+                    key={link.label}
+                    to={link.href}
+                    className="text-sm font-bold text-[#737373] transition-colors hover:text-[#252B42]"
+                  >
+                    {link.label}
+                  </Link>
+                ))}
+              </nav>
             </div>
-            <button
-              type="submit"
-              className={`${interactiveButton} rounded bg-[#23A6F0] px-6 py-3 text-sm font-semibold text-white hover:bg-[#23A6F0]-dark sm:rounded-none focus:ring-brand-accent`}
+          ))}
+
+          {/* Newsletter Column */}
+          <div className="flex flex-col gap-5">
+            <h5 className="text-base font-bold text-[#252B42]">Get In Touch</h5>
+            <form
+              className="flex flex-col gap-2.5"
+              onSubmit={(e) => e.preventDefault()}
             >
-              Subscribe
-            </button>
-          </form>
-          <p className="text-xs text-[#737373]">
-            Stay in touch for updates and special offers.
-          </p>
+              <div className="flex h-14.5 overflow-hidden rounded-[5px] border border-[#E6E6E6] bg-[#F9F9F9]">
+                <input
+                  type="email"
+                  placeholder="Your Email"
+                  className="flex-1 bg-transparent px-5 text-sm text-[#737373] outline-none placeholder:text-[#737373]"
+                  required
+                />
+                <button
+                  type="submit"
+                  className="border-l border-[#E6E6E6] bg-[#23A6F0] px-[22.5px] text-sm text-white transition-colors hover:bg-[#1a8cd4]"
+                >
+                  Subscribe
+                </button>
+              </div>
+              <p className="text-xs text-[#737373]">Lore imp sum dolor Amit</p>
+            </form>
+          </div>
         </div>
       </div>
 
       {/* Bottom Bar */}
-      <div className="flex w-full border-t border-[#E8E8E8] bg-[#FAFAFA]">
-        <div className="mx-auto flex w-full max-w-6xl flex-col items-center gap-4 px-4 py-6 text-center sm:flex-row sm:justify-between sm:text-left">
-          <p className="text-xs font-semibold text-[#737373]">
+      <div className="w-full bg-[#FAFAFA] py-6">
+        <div className="mx-auto flex w-full max-w-6xl flex-col items-center gap-2 px-5 text-center sm:flex-row sm:justify-between md:px-0">
+          <h6 className="text-sm font-bold text-[#737373]">
             © {currentYear} WiT. All rights reserved.
-          </p>
-          <p className="text-xs text-[#737373]">Made by Emre Ciner</p>
+          </h6>
+          <p className="text-sm font-bold text-[#737373]">Made by Emre Ciner</p>
         </div>
       </div>
     </footer>
