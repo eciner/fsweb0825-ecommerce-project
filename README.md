@@ -27,6 +27,12 @@
 | T05    | Contact         | ✅                                                              |
 | T06    | Team            | ✅                                                              |
 | T07    | About Us        | ✅                                                              |
+| T08    | Sign Up Form    | 🔜                                                              |
+| T09    | Redux Init      | 🔜                                                              |
+| T10    | Login Form      | 🔜                                                              |
+| T11    | Auto Login      | 🔜                                                              |
+| T12    | Fetch Categories| 🔜                                                              |
+| T13    | Fetch Products  | 🔜                                                              |
 | Build  | `npm run dev`   | ✅                                                              |
 | Build  | `npm run build` | ✅                                                              |
 | Deploy | Live            | [🌐 View Site](https://fsweb0825-ecommerce-project.vercel.app/) |
@@ -92,6 +98,12 @@ npm run lint
 - **T05:** Contact page completed (mobile + desktop); route active with shared global layout.
 - **T06:** Team page completed (mobile + desktop); route active; required team members added.
 - **T07:** About Us page completed (mobile + desktop); route active with shared global layout.
+- **T08:** Sign up form with react-hook-form; role selection; conditional store fields; API integration at `/signup`.
+- **T09:** Redux store initialization with Client, Product, and ShoppingCart reducers; action creators; thunk actions.
+- **T10:** Login form with react-hook-form; gravatar integration; localStorage token management; error handling.
+- **T11:** Auto-login on app load; token verification via `/verify`; axios authorization header setup.
+- **T12:** Fetch categories from API; dynamic routing; top 5 by rating; dropdown menu integration.
+- **T13:** Fetch products from API; product list UI; loading spinner; total count management.
 
 ---
 

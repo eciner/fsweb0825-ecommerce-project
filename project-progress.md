@@ -10,7 +10,7 @@
 
 | Category           | Status                                                                                                      |
 | ------------------ | ----------------------------------------------------------------------------------------------------------- |
-| **Project Phase**  | T01 ✅ · T02 (Home) ✅ · T03 (Shop) ✅ · T04 (Product Detail) ✅ · T05 (Contact) ✅ · T06 (Team) ✅ · T07 (About) ✅ |
+| **Project Phase**  | T01 ✅ · T02 (Home) ✅ · T03 (Shop) ✅ · T04 (Product Detail) ✅ · T05 (Contact) ✅ · T06 (Team) ✅ · T07 (About) ✅ · T08 (Sign Up) 🔜 · T09 (Redux) 🔜 · T10 (Login) 🔜 · T11 (Auto Login) 🔜 · T12 (Categories) 🔜 · T13 (Products) 🔜 |
 | **Build Commands** | `npm run dev` ✅ · `npm run build` ✅                                                                       |
 | **Deployment**     | Live on Vercel ✅                                                                                           |
 
@@ -235,7 +235,153 @@ src/
 
 ---
 
-## 🚀 Additional Improvements & Optimizations
+## � T08: Sign Up User Form Page 🔜
+
+### **Implementation Highlights**
+
+| Feature                                  | Status         |
+| ---------------------------------------- | -------------- |
+| Postman Collection Setup                 | 🔜 Planned     |
+| Sign Up Form with react-hook-form        | 🔜 Planned     |
+| Sign Up Route (`/signup`)                | 🔜 Planned     |
+| Axios Instance Configuration             | 🔜 Planned     |
+| Form Validation (Name, Email, Password)  | 🔜 Planned     |
+| Role Selection with API Integration      | 🔜 Planned     |
+| Store-specific Fields (conditional)      | 🔜 Planned     |
+| Submit Spinner & Error Handling          | 🔜 Planned     |
+
+### **Technical Notes**
+
+- 🔐 **API Endpoint** — `/signup` with baseURL: `https://workintech-fe-ecommerce.onrender.com`
+- 📋 **Form Library** — React Hook Form for validation
+- 🏪 **Store Role** — Conditional fields for store registration (name, phone, tax_no, bank_account)
+- ✅ **Validation Rules** — Min 8 char password with complexity; valid email; min 3 char name
+
+---
+
+---
+
+## 🗄️ T09: Initialize Redux, Reducers with Action Creators 🔜
+
+### **Implementation Highlights**
+
+| Feature                                  | Status         |
+| ---------------------------------------- | -------------- |
+| Redux Store with Thunk & Logger          | 🔜 Planned     |
+| Client Reducer (user, roles, theme, lang)| 🔜 Planned     |
+| Product Reducer (categories, products)   | 🔜 Planned     |
+| ShoppingCart Reducer (cart, payment)     | 🔜 Planned     |
+| Action Creators for All Reducers         | 🔜 Planned     |
+| Thunk Action for Roles API               | 🔜 Planned     |
+
+### **Technical Notes**
+
+- 🔴 **Vanilla Redux** — Not Redux Toolkit (RTK)
+- 🛍️ **Cart Structure** — Array of objects with count & product
+- 📊 **Product State** — Includes pagination (limit: 25, offset: 0) and fetch state tracking
+- 🎨 **Client State** — User info, address list, credit cards, roles, theme, language
+
+---
+
+---
+
+## 🔐 T10: Login Form 🔜
+
+### **Implementation Highlights**
+
+| Feature                                  | Status         |
+| ---------------------------------------- | -------------- |
+| Login Form with react-hook-form          | 🔜 Planned     |
+| Email & Password Validation              | 🔜 Planned     |
+| Thunk Action for Login API               | 🔜 Planned     |
+| User Info in Client Reducer              | 🔜 Planned     |
+| Gravatar Integration for User Avatar     | 🔜 Planned     |
+| localStorage Token Management            | 🔜 Planned     |
+| Error Handling with Toaster              | 🔜 Planned     |
+
+### **Technical Notes**
+
+- 🔗 **API Endpoint** — `/login` via thunk action
+- 👤 **Public Test Users** — customer@commerce.com, store@commerce.com, admin@commerce.com (Password: 123456)
+- 🖼️ **Avatar** — Gravatar image fetched by email
+- 💾 **Remember Me** — Token saved to localStorage if checked
+
+---
+
+---
+
+## 🔄 T11: Auto Login by Token from localStorage 🔜
+
+### **Implementation Highlights**
+
+| Feature                                  | Status         |
+| ---------------------------------------- | -------------- |
+| Token Verification on App Load           | 🔜 Planned     |
+| Axios Authorization Header Setup         | 🔜 Planned     |
+| GET Request to `/verify` Endpoint        | 🔜 Planned     |
+| Auto-login User Object to Reducer        | 🔜 Planned     |
+| Token Renewal in localStorage & Axios    | 🔜 Planned     |
+| Token Cleanup on Authorization Failure   | 🔜 Planned     |
+
+### **Technical Notes**
+
+- 🔑 **Token Verification** — `/verify` endpoint validates stored token
+- 🔒 **Authorization Header** — `{ Authorization: token }` (no "Bearer" prefix)
+- 🔄 **Auto-login Flow** — Check localStorage → Verify token → Load user → Renew token
+- 🗑️ **Cleanup** — Remove token from localStorage and axios header if unauthorized
+
+---
+
+---
+
+## 📂 T12: Fetch Categories 🔜
+
+### **Implementation Highlights**
+
+| Feature                                  | Status         |
+| ---------------------------------------- | -------------- |
+| Fetch Categories via Thunk Action        | 🔜 Planned     |
+| Store Categories in Global Reducer       | 🔜 Planned     |
+| Dynamic Category Links                   | 🔜 Planned     |
+| Category Navigation (gender/name/id)     | 🔜 Planned     |
+| Top 5 Categories by Rating               | 🔜 Planned     |
+| Dropdown Menu with All Categories        | 🔜 Planned     |
+
+### **Technical Notes**
+
+- 🔗 **API Endpoint** — `/categories`
+- 🧭 **Route Pattern** — `shop/:gender/:categoryName/:categoryId` (e.g., shop/kadin/ayakkabi/2)
+- ⭐ **Top Categories** — Display top 5 based on rating value
+- 📋 **Header Dropdown** — All categories accessible from header navigation
+
+---
+
+---
+
+## 🛒 T13: Fetch Products 🔜
+
+### **Implementation Highlights**
+
+| Feature                                  | Status         |
+| ---------------------------------------- | -------------- |
+| Fetch Products via Thunk Action          | 🔜 Planned     |
+| Store Products in Product Reducer        | 🔜 Planned     |
+| Store Total Count in Reducer             | 🔜 Planned     |
+| Product List UI in Shop Page             | 🔜 Planned     |
+| Loading Spinner During Fetch             | 🔜 Planned     |
+
+### **Technical Notes**
+
+- 🔗 **API Endpoint** — `/products`
+- 📊 **Response Structure** — `{ total: Number, products: Array }`
+- 🔄 **Loading State** — Show spinner while fetching
+- 🗄️ **Redux Actions** — Set total and products to Product Reducer
+
+---
+
+---
+
+## �🚀 Additional Improvements & Optimizations
 
 ### **⚡ Performance Enhancements**
 
