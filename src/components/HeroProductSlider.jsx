@@ -101,8 +101,8 @@ function HeroProductSlider() {
       >
         {slides.map((s, i) => (
           <SwiperSlide key={i}>
-            <div className="mx-auto flex min-h-[520px] w-full max-w-[1200px] flex-col items-center gap-10 px-6 py-16 md:flex-row md:justify-between md:py-20">
-              <div className="flex max-w-[520px] flex-col gap-6 text-white">
+            <div className="mx-auto flex min-h-130 w-full max-w-6xl flex-col items-center gap-10 px-6 py-16 md:flex-row md:justify-between md:py-20">
+              <div className="flex max-w-130 flex-col gap-6 text-white">
                 <p className="text-sm font-bold tracking-[0.2em]">{s.season}</p>
 
                 <h2 className="text-4xl font-bold leading-tight md:text-6xl">
@@ -123,7 +123,7 @@ function HeroProductSlider() {
                 </div>
               </div>
 
-              <div className="relative flex w-full max-w-[420px] justify-center">
+              <div className="relative flex w-full max-w-105 justify-center">
                 <img
                   src={s.image}
                   alt={s.alt}
@@ -140,8 +140,8 @@ function HeroProductSlider() {
       </Swiper>
 
       {/* Progress bar */}
-      <div className="absolute bottom-8 left-1/2 flex w-[140px] -translate-x-1/2">
-        <div className="flex h-[6px] w-full bg-white/35">
+      <div className="absolute bottom-8 left-1/2 flex w-35 -translate-x-1/2">
+        <div className="flex h-1.5 w-full bg-white/35">
           <div
             className="h-full bg-white transition-all duration-100"
             style={{ width: `${progress}%` }}

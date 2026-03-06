@@ -8,7 +8,7 @@ function BestsellerCard({ image, title, category, price, salePrice }) {
           src={image}
           alt={title}
           loading="lazy"
-          className="h-[300px] w-full object-cover"
+          className="h-75 w-full object-cover"
         />
       </div>
 

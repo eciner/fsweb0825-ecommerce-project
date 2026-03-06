@@ -40,9 +40,9 @@ function EditorsPick() {
 
       {/* FLEX LAYOUT */}
       <div className="mx-auto mt-12 w-full max-w-6xl px-4">
-        <div className="flex flex-col gap-6 md:flex-row md:h-[560px] md:items-stretch">
+        <div className="flex flex-col gap-6 md:flex-row md:h-140 md:items-stretch">
           {/* MEN */}
-          <div className="md:flex-[2] md:h-full min-h-0">
+          <div className="md:flex-2 md:h-full min-h-0">
             <Card img={menImg} label="MEN" position="object-[50%_15%]" />
           </div>
 
