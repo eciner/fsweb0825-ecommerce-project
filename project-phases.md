@@ -79,10 +79,10 @@ src/
 
 > ⚠️ **NOTE:** There should be only ONE Header, Footer components for all pages, no color changes needed!
 
-- [ ] Create Shop Page Component Mobile View
-- [ ] Create Shop Page Component Desktop View
-- [ ] Activate **React Router and Links** for Shop Page
-- [ ] the url should be `/shop`
+- [x] Create Shop Page Component Mobile View
+- [x] Create Shop Page Component Desktop View
+- [x] Activate **React Router and Links** for Shop Page
+- [x] the url should be `/shop`
 
 ---
 
@@ -90,9 +90,9 @@ src/
 
 > ⚠️ **NOTE:** There should be only ONE Header, Footer components for all pages, no color changes needed!
 
-- [ ] Create Product Detail Page Component Mobile
-- [ ] Create Product Detail Page Component Desktop View
-- [ ] Activate **React Router and Links** for Product Detail Page (Product card click should navigate to Product Detail)
+- [x] Create Product Detail Page Component Mobile
+- [x] Create Product Detail Page Component Desktop View
+- [x] Activate **React Router and Links** for Product Detail Page (Product card click should navigate to Product Detail)
 
 ---
 
@@ -100,9 +100,9 @@ src/
 
 > ⚠️ **NOTE:** There should be only ONE Header, Footer components for all pages, no color changes needed!
 
-- [ ] Create Contact Page Component Mobile View
-- [ ] Create Contact Page Component Desktop View
-- [ ] Activate **React Router and Links** for Contact Page
+- [x] Create Contact Page Component Mobile View
+- [x] Create Contact Page Component Desktop View
+- [x] Activate **React Router and Links** for Contact Page
 
 ---
 
@@ -110,12 +110,12 @@ src/
 
 > ⚠️ **NOTE:** There should be only ONE Header, Footer components for all pages, no color changes needed!
 
-- [ ] Create Team Page Component Mobile View
-- [ ] Create Team Page Component Desktop View
-- [ ] Activate **React Router and Links** for Team Page
-  - [ ] Add "Gökhan Özdemir" as Project Manager (You can use LinkedIn profile image)
-  - [ ] Add yourself as a Full Stack Developer
-  - [ ] Add your team members
+- [x] Create Team Page Component Mobile View
+- [x] Create Team Page Component Desktop View
+- [x] Activate **React Router and Links** for Team Page
+  - [x] Add "Gökhan Özdemir" as Project Manager (You can use LinkedIn profile image)
+  - [x] Add yourself as a Full Stack Developer
+  - [x] Add your team members
 
 ---
 
@@ -123,6 +123,6 @@ src/
 
 > ⚠️ **NOTE:** There should be only ONE Header, Footer components for all pages, no color changes needed!
 
-- [ ] Create About Us Page Component Mobile View
-- [ ] Create About Us Page Component Desktop View
-- [ ] Activate **React Router and Links** for About Us Page
+- [x] Create About Us Page Component Mobile View
+- [x] Create About Us Page Component Desktop View
+- [x] Activate **React Router and Links** for About Us Page

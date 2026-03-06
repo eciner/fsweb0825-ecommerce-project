@@ -8,11 +8,11 @@
 
 ## 🎯 Snapshot
 
-| Category           | Status                                |
-| ------------------ | ------------------------------------- |
-| **Project Phase**  | T01 ✅ · T02 (Home) ✅                |
-| **Build Commands** | `npm run dev` ✅ · `npm run build` ✅ |
-| **Deployment**     | Live on Vercel ✅                     |
+| Category           | Status                                                                                                      |
+| ------------------ | ----------------------------------------------------------------------------------------------------------- |
+| **Project Phase**  | T01 ✅ · T02 (Home) ✅ · T03 (Shop) ✅ · T04 (Product Detail) ✅ · T05 (Contact) ✅ · T06 (Team) ✅ · T07 (About) ✅ |
+| **Build Commands** | `npm run dev` ✅ · `npm run build` ✅                                                                       |
+| **Deployment**     | Live on Vercel ✅                                                                                           |
 
 ---
 
@@ -25,6 +25,26 @@ Vite + React 18 · Redux + Redux Thunk · React Router v5 (not v6) · Tailwind �
 ### **T02 (Home)**
 
 Flex-only layouts (no CSS Grid) · Tailwind-only styling (no custom classes) · mobile-first · arbitrary Tailwind values · single global Header/PageContent/Footer · Home route active with links · slider via Swiper · reusable components (ProductCard, etc.)
+
+### **T03 (Shop)**
+
+Flex-only layouts (no CSS Grid) · Tailwind-only styling (no custom classes) · mobile-first · single global Header/PageContent/Footer · Shop route active with links · URL configured as `/shop`
+
+### **T04 (Product Detail)**
+
+Flex-only layouts (no CSS Grid) · Tailwind-only styling (no custom classes) · mobile-first · single global Header/PageContent/Footer · Product detail route active with links · product card navigation wired to detail page
+
+### **T05 (Contact)**
+
+Flex-only layouts (no CSS Grid) · Tailwind-only styling (no custom classes) · mobile-first · single global Header/PageContent/Footer · Contact route active with links
+
+### **T06 (Team)**
+
+Flex-only layouts (no CSS Grid) · Tailwind-only styling (no custom classes) · mobile-first · single global Header/PageContent/Footer · Team route active with links · team roster includes Project Manager and developer profiles
+
+### **T07 (About Us)**
+
+Flex-only layouts (no CSS Grid) · Tailwind-only styling (no custom classes) · mobile-first · single global Header/PageContent/Footer · About route active with links
 
 ---
 
@@ -57,6 +77,12 @@ src/
     Footer.jsx
   pages/
     HomePage.jsx
+    ShopPage.jsx
+    ProductDetailPage.jsx
+    ContactPage.jsx
+    TeamPage.jsx
+    AboutPage.jsx
+    NotFound.jsx
   services/
     api.js (Axios config)
   store/
@@ -104,6 +130,111 @@ src/
 
 ---
 
+## 🛍️ T03: Shop Page ✅
+
+### **Implementation Highlights**
+
+| Feature                         | Status         |
+| ------------------------------- | -------------- |
+| Shop Route (`/shop`)            | ✅ Active      |
+| Mobile-First Design             | ✅ Complete    |
+| Desktop View                    | ✅ Implemented |
+| Global Header + Footer Reuse    | ✅ Implemented |
+| Tailwind-only Flex Layout       | ✅ Enforced    |
+
+### **Technical Notes**
+
+- 🛒 **Shop Experience** — Product listing page integrated into the routing flow
+- 🔗 **Navigation** — Header links route correctly to Shop page
+
+---
+
+---
+
+## 📦 T04: Product Detail Page ✅
+
+### **Implementation Highlights**
+
+| Feature                                  | Status         |
+| ---------------------------------------- | -------------- |
+| Product Detail Route                     | ✅ Active      |
+| Product Card → Detail Navigation         | ✅ Implemented |
+| Mobile-First Design                      | ✅ Complete    |
+| Desktop View                             | ✅ Implemented |
+| Global Header + Footer Reuse             | ✅ Implemented |
+
+### **Technical Notes**
+
+- 📄 **Detail View** — Dedicated page structure for individual product presentation
+- 🔁 **Route Flow** — Navigation from listing/cards to detail page is active
+
+---
+
+---
+
+## 📧 T05: Contact Page ✅
+
+### **Implementation Highlights**
+
+| Feature                         | Status         |
+| ------------------------------- | -------------- |
+| Contact Route                   | ✅ Active      |
+| Mobile-First Design             | ✅ Complete    |
+| Desktop View                    | ✅ Implemented |
+| Global Header + Footer Reuse    | ✅ Implemented |
+| Tailwind-only Flex Layout       | ✅ Enforced    |
+
+### **Technical Notes**
+
+- ✉️ **Contact Page** — Dedicated contact experience added to routed pages
+- 🔗 **Navigation** — Header links route correctly to Contact page
+
+---
+
+---
+
+## 👥 T06: Team Page ✅
+
+### **Implementation Highlights**
+
+| Feature                                  | Status         |
+| ---------------------------------------- | -------------- |
+| Team Route                               | ✅ Active      |
+| Mobile-First Design                      | ✅ Complete    |
+| Desktop View                             | ✅ Implemented |
+| Required Team Members Added              | ✅ Implemented |
+| Global Header + Footer Reuse             | ✅ Implemented |
+
+### **Technical Notes**
+
+- 👤 **Team Roster** — Includes "Gökhan Özdemir" as Project Manager
+- 💼 **Developer Profile** — Includes student profile as Full Stack Developer
+
+---
+
+---
+
+## ℹ️ T07: About Us Page ✅
+
+### **Implementation Highlights**
+
+| Feature                         | Status         |
+| ------------------------------- | -------------- |
+| About Route                     | ✅ Active      |
+| Mobile-First Design             | ✅ Complete    |
+| Desktop View                    | ✅ Implemented |
+| Global Header + Footer Reuse    | ✅ Implemented |
+| Tailwind-only Flex Layout       | ✅ Enforced    |
+
+### **Technical Notes**
+
+- ℹ️ **About Experience** — Dedicated About page added to routed pages
+- 🔗 **Navigation** — Header links route correctly to About page
+
+---
+
+---
+
 ## 🚀 Additional Improvements & Optimizations
 
 ### **⚡ Performance Enhancements**
@@ -145,4 +276,4 @@ src/
 
 ---
 
-**Last Updated:** January 2026
+**Last Updated:** March 2026

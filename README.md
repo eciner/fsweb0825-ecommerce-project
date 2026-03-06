@@ -22,6 +22,11 @@
 | ------ | --------------- | --------------------------------------------------------------- |
 | T01    | Setup           | ✅                                                              |
 | T02    | Home            | ✅                                                              |
+| T03    | Shop            | ✅                                                              |
+| T04    | Product Detail  | ✅                                                              |
+| T05    | Contact         | ✅                                                              |
+| T06    | Team            | ✅                                                              |
+| T07    | About Us        | ✅                                                              |
 | Build  | `npm run dev`   | ✅                                                              |
 | Build  | `npm run build` | ✅                                                              |
 | Deploy | Live            | [🌐 View Site](https://fsweb0825-ecommerce-project.vercel.app/) |
@@ -82,6 +87,11 @@ npm run lint
 
 - **T01:** Vite + React; Redux + Redux Thunk; React Router v5; Tailwind installed/used; Axios; React Toastify; Lucide icons; Swiper; dev/build commands clean; deployable to Vercel.
 - **T02:** Flex-only layouts (no CSS Grid); Tailwind-only styling (no custom classes); mobile-first; arbitrary Tailwind values when needed; single global Header/PageContent/Footer; Home route active with links; Swiper slider implemented on Home; reusable components (e.g., ProductCard).
+- **T03:** Shop page completed (mobile + desktop); route active at `/shop`; single global Header/PageContent/Footer preserved.
+- **T04:** Product detail page completed (mobile + desktop); product card click navigation to detail route implemented.
+- **T05:** Contact page completed (mobile + desktop); route active with shared global layout.
+- **T06:** Team page completed (mobile + desktop); route active; required team members added.
+- **T07:** About Us page completed (mobile + desktop); route active with shared global layout.
 
 ---
 
@@ -92,7 +102,7 @@ src/
   assets/          # 🖼️  Images, banners, product photos
   components/      # 🧩 Reusable UI components (cards, sliders, banners)
   layout/          # 🏗️  Global layout components (Header, PageContent, Footer)
-  pages/           # 📄 Page components (HomePage, NotFound)
+  pages/           # 📄 Page components (HomePage, ShopPage, ProductDetailPage, ContactPage, TeamPage, AboutPage, NotFound)
   store/           # 🗄️  Redux store, reducer, actions
   App.jsx          # 🎯 Root app component
   main.jsx         # 🚀 Entry point
@@ -107,7 +117,7 @@ src/
 
 - **App.jsx**: Global shell with Header, PageContent (routing), Footer
 - **PageContent.jsx**: Router container with route definitions
-- **Pages**: Route-level components (HomePage, NotFound)
+- **Pages**: Route-level components (HomePage, ShopPage, ProductDetailPage, ContactPage, TeamPage, AboutPage, NotFound)
 - **Components**: Reusable UI blocks
 
 ### 🎨 Styling
@@ -130,6 +140,11 @@ src/
 - 📝 Editor's pick categories
 - 🛍️ Product grid with lazy-loaded images
 - 📰 Featured posts section
+- 🛒 Dedicated Shop page route (`/shop`)
+- 📄 Product Detail page with card-to-detail navigation
+- ✉️ Contact page route
+- 👥 Team page route with required member content
+- ℹ️ About Us page route
 - 📱 Responsive navigation header (Lucide icons)
 - 🎪 Product carousel with custom controls
 - 🚫 404 page for unmapped routes
