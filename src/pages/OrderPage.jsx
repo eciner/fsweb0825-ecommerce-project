@@ -20,8 +20,9 @@ import {
   updateCreditCard,
 } from "../store/actions";
 import { buildOrderPayload, calculateCartTotals } from "../utils/cart";
+import { isCardExpired } from "../utils/card";
 
-function Input({ label, name, register, rules, type = "text" }) {
+function Input({ label, name, register, rules, error, type = "text" }) {
   return (
     <label className="flex flex-col gap-1 text-sm font-semibold text-[#252B42]">
       <span>{label}</span>
@@ -30,11 +31,16 @@ function Input({ label, name, register, rules, type = "text" }) {
         className="h-10 rounded border border-[#DDDDDD] px-3 font-normal outline-none focus:border-[#23A6F0]"
         {...register(name, rules)}
       />
+      {error && (
+        <span className="text-xs font-normal text-[#E74040]">
+          {error.message}
+        </span>
+      )}
     </label>
   );
 }
 
-function AddressDetailsField({ register, rules }) {
+function AddressDetailsField({ register, rules, error }) {
   return (
     <label className="flex flex-col gap-1 text-sm font-semibold text-[#252B42] sm:col-span-2">
       <span>Neighborhood / Address Details</span>
@@ -43,6 +49,11 @@ function AddressDetailsField({ register, rules }) {
         className="rounded border border-[#DDDDDD] px-3 py-2 font-normal outline-none focus:border-[#23A6F0]"
         {...register("neighborhood", rules)}
       />
+      {error && (
+        <span className="text-xs font-normal text-[#E74040]">
+          {error.message}
+        </span>
+      )}
     </label>
   );
 }
@@ -52,7 +63,7 @@ function AddressForm({ address, onDone }) {
   const {
     register,
     handleSubmit,
-    formState: { isSubmitting },
+    formState: { isSubmitting, errors },
   } = useForm({ defaultValues: address || {} });
   const submit = async (values) => {
     try {
@@ -73,31 +84,35 @@ function AddressForm({ address, onDone }) {
         label="Address Title"
         name="title"
         register={register}
-        rules={{ required: true }}
+        rules={{ required: "Address title is required." }}
+        error={errors.title}
       />
       <Input
         label="Name"
         name="name"
         register={register}
-        rules={{ required: true }}
+        rules={{ required: "Name is required." }}
+        error={errors.name}
       />
       <Input
         label="Surname"
         name="surname"
         register={register}
-        rules={{ required: true }}
+        rules={{ required: "Surname is required." }}
+        error={errors.surname}
       />
       <Input
         label="Phone"
         name="phone"
         register={register}
-        rules={{ required: true }}
+        rules={{ required: "Phone is required." }}
+        error={errors.phone}
       />
       <label className="flex flex-col gap-1 text-sm font-semibold text-[#252B42]">
         <span>City</span>
         <select
           className="h-10 rounded border border-[#DDDDDD] px-3 font-normal outline-none focus:border-[#23A6F0]"
-          {...register("city", { required: true })}
+          {...register("city", { required: "City is required." })}
         >
           <option value="">Select a city</option>
           <option value="istanbul">Istanbul</option>
@@ -107,13 +122,23 @@ function AddressForm({ address, onDone }) {
           <option value="antalya">Antalya</option>
         </select>
       </label>
+      {errors.city && (
+        <span className="text-xs font-normal text-[#E74040]">
+          {errors.city.message}
+        </span>
+      )}
       <Input
         label="District"
         name="district"
         register={register}
-        rules={{ required: true }}
+        rules={{ required: "District is required." }}
+        error={errors.district}
       />
-      <AddressDetailsField register={register} rules={{ required: true }} />
+      <AddressDetailsField
+        register={register}
+        rules={{ required: "Address details are required." }}
+        error={errors.neighborhood}
+      />
       <button
         type="submit"
         disabled={isSubmitting}
@@ -130,7 +155,8 @@ function CardForm({ card, onDone }) {
   const {
     register,
     handleSubmit,
-    formState: { isSubmitting },
+    getValues,
+    formState: { isSubmitting, errors },
   } = useForm({ defaultValues: card || {} });
   const submit = async (values) => {
     try {
@@ -159,27 +185,49 @@ function CardForm({ card, onDone }) {
         name="card_no"
         register={register}
         type="text"
-        rules={{ required: true, pattern: /^\d{12,19}$/ }}
+        rules={{
+          required: "Card number is required.",
+          pattern: {
+            value: /^\d{12,19}$/,
+            message: "Enter a valid card number.",
+          },
+        }}
+        error={errors.card_no}
       />
       <Input
         label="Name on Card"
         name="name_on_card"
         register={register}
-        rules={{ required: true }}
+        rules={{ required: "Cardholder name is required." }}
+        error={errors.name_on_card}
       />
       <Input
         label="Expiration Month"
         name="expire_month"
         register={register}
         type="number"
-        rules={{ required: true, min: 1, max: 12 }}
+        rules={{
+          required: "Expiration month is required.",
+          min: { value: 1, message: "Enter a month from 1 to 12." },
+          max: { value: 12, message: "Enter a month from 1 to 12." },
+          validate: (value) => {
+            return !isCardExpired(value, getValues("expire_year")) || "This card is expired.";
+          },
+        }}
+        error={errors.expire_month}
       />
       <Input
         label="Expiration Year"
         name="expire_year"
         register={register}
         type="number"
-        rules={{ required: true, min: new Date().getFullYear() }}
+        rules={{
+          required: "Expiration year is required.",
+          validate: (value) => {
+            return !isCardExpired(getValues("expire_month"), value) || "This card is expired.";
+          },
+        }}
+        error={errors.expire_year}
       />
       <button
         type="submit"
@@ -205,29 +253,35 @@ export default function OrderPage() {
   const [selectedCard, setSelectedCard] = useState(null);
   const [ccv, setCcv] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [addressLoadError, setAddressLoadError] = useState("");
+  const [cardLoadError, setCardLoadError] = useState("");
 
   useEffect(() => {
-    dispatch(fetchAddresses()).catch((error) => toast.error(error.message));
-    dispatch(fetchCreditCards()).catch(() => {});
+    dispatch(fetchAddresses()).catch((error) => {
+      setAddressLoadError(error.message);
+      toast.error(error.message);
+    });
+    dispatch(fetchCreditCards()).catch((error) => {
+      setCardLoadError(error.message);
+      toast.error(error.message);
+    });
   }, [dispatch]);
   useEffect(() => {
     if (selectedShippingAddress) {
-      setSelectedShippingAddress(
-        addresses.find(
-          (address) => address.id === selectedShippingAddress.id,
-        ) || null,
+      const nextShipping = addresses.find(
+        (address) => address.id === selectedShippingAddress.id,
       );
+      setSelectedShippingAddress(nextShipping || null);
     }
     if (selectedReceiptAddress) {
-      setSelectedReceiptAddress(
-        addresses.find((address) => address.id === selectedReceiptAddress.id) ||
-          null,
+      const nextReceipt = addresses.find(
+        (address) => address.id === selectedReceiptAddress.id,
       );
+      setSelectedReceiptAddress(nextReceipt || null);
     }
     if (selectedCard) {
-      setSelectedCard(
-        cards.find((card) => card.id === selectedCard.id) || null,
-      );
+      const nextCard = cards.find((card) => card.id === selectedCard.id);
+      setSelectedCard(nextCard || null);
     }
   }, [
     addresses,
@@ -236,6 +290,18 @@ export default function OrderPage() {
     selectedReceiptAddress,
     selectedShippingAddress,
   ]);
+  useEffect(() => {
+    dispatch(
+      setCheckoutAddress(
+        selectedShippingAddress || selectedReceiptAddress
+          ? { shipping: selectedShippingAddress, receipt: selectedReceiptAddress }
+          : {},
+      ),
+    );
+  }, [dispatch, selectedReceiptAddress, selectedShippingAddress]);
+  useEffect(() => {
+    dispatch(setCheckoutPayment(selectedCard || {}));
+  }, [dispatch, selectedCard]);
   const totals = calculateCartTotals(cart);
 
   if (!cart.length) {
@@ -334,7 +400,23 @@ export default function OrderPage() {
                 />
               ) : (
                 <div className="mt-4 flex flex-col gap-3">
-                  {addresses.length ? (
+                  {addressLoadError ? (
+                    <div className="flex items-center justify-between text-sm text-[#E74040]" role="alert">
+                      <span>{addressLoadError}</span>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setAddressLoadError("");
+                          dispatch(fetchAddresses()).catch((error) => {
+                            setAddressLoadError(error.message);
+                          });
+                        }}
+                        className="font-semibold"
+                      >
+                        Retry
+                      </button>
+                    </div>
+                  ) : addresses.length ? (
                     <>
                       {["shipping", "receipt"].map((kind) => (
                         <fieldset
@@ -422,11 +504,9 @@ export default function OrderPage() {
                       <button
                         type="button"
                         onClick={() => {
-                          if (selectedShippingAddress?.id === address.id)
-                            setSelectedShippingAddress(null);
-                          if (selectedReceiptAddress?.id === address.id)
-                            setSelectedReceiptAddress(null);
-                          dispatch(deleteAddress(address.id));
+                          dispatch(deleteAddress(address.id)).catch((error) =>
+                            toast.error(error.message),
+                          );
                         }}
                         className="text-xs font-semibold text-[#E74040]"
                       >
@@ -457,7 +537,23 @@ export default function OrderPage() {
                 />
               ) : (
                 <div className="mt-4 flex flex-col gap-3">
-                  {cards.length ? (
+                  {cardLoadError ? (
+                    <div className="flex items-center justify-between text-sm text-[#E74040]" role="alert">
+                      <span>{cardLoadError}</span>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setCardLoadError("");
+                          dispatch(fetchCreditCards()).catch((error) => {
+                            setCardLoadError(error.message);
+                          });
+                        }}
+                        className="font-semibold"
+                      >
+                        Retry
+                      </button>
+                    </div>
+                  ) : cards.length ? (
                     cards.map((card) => (
                       <div
                         key={card.id || card.card_no}
@@ -488,7 +584,11 @@ export default function OrderPage() {
                           </button>
                           <button
                             type="button"
-                            onClick={() => dispatch(deleteCreditCard(card.id))}
+                            onClick={() =>
+                              dispatch(deleteCreditCard(card.id)).catch((error) =>
+                                toast.error(error.message),
+                              )
+                            }
                             className="text-xs font-semibold text-[#E74040]"
                           >
                             Delete
