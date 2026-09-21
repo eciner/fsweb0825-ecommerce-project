@@ -80,4 +80,7 @@
 - T23: `/orders` is protected, loads authenticated order history, supports loading/failure/empty states and expandable product lines.
 - Cart identity is `product.id`; variants and product details are not fabricated.
 - CCV is never persisted in Redux, browser storage, logs, or saved cards.
+- Card expiration is validated as a month/year pair against the current month.
+- Address/card load and delete failures remain visible and do not silently mutate checkout state.
+- Node.js 20.19+ is supported; Node 22 is pinned for CI in `.nvmrc` and `.github/workflows/frontend-ci.yml`.
 - Live API invalid product-id behavior observed on 2026-07-21: `GET /products/99999999` returned HTTP 500. The UI handles this as a retryable detail failure and does not show fallback product data.

@@ -29,6 +29,8 @@ npm test
 npm run build
 ```
 
+Supported runtime: Node.js 20.19+ (Node 22 is used by CI). Frontend CI runs install, lint, tests, and production build on push and pull request.
+
 ## Environment
 
 Create `.env` from `.env.example`:
@@ -159,6 +161,8 @@ No fabricated discounts/reviews/variants are injected for API products.
 - `GET /order`
 
 Catalog and authentication requests were previously verified against the public API. The authenticated address, card, and order requests are implemented and documented in Postman, but were not live-executed in this audit because no safe session token was available.
+
+The current milestone is the frontend capstone. A separately developed Spring Boot backend can be connected later through `VITE_API_URL`; no backend implementation is included here.
 
 Observed backend behavior: `GET /products/99999999` returned HTTP 500 on 2026-07-21, so invalid product detail requests are treated as retryable failures rather than assumed 404s.
 
