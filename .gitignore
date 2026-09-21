@@ -8,10 +8,15 @@ pnpm-debug.log*
 lerna-debug.log*
 
 node_modules
-figmas
 dist
 dist-ssr
 *.local
+.env
+.env.*
+!.env.example
+coverage
+.vite
+src/figmas/
 
 # Editor directories and files
 .vscode/*
@@ -24,4 +29,3 @@ dist-ssr
 *.sln
 *.sw?
 *.zip
-FIXES-IMPLEMENTED.md

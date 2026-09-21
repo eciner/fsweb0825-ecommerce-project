@@ -1,0 +1,282 @@
+{
+  "info": {
+    "name": "fsweb0825 e-commerce API",
+    "_postman_id": "f9be7db8-c6bc-4d89-b62d-a12944f6a4d4",
+    "description": "T08-T16 API requests for auth, catalog query parameters, pagination, and product detail.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "https://workintech-fe-ecommerce.onrender.com" },
+    { "key": "token", "value": "" },
+    { "key": "categoryId", "value": "2" },
+    { "key": "productId", "value": "266" },
+    { "key": "filter", "value": "siyah" },
+    { "key": "sort", "value": "price:desc" },
+    { "key": "limit", "value": "25" },
+    { "key": "offset", "value": "0" },
+    { "key": "addressId", "value": "" },
+    { "key": "cardId", "value": "" },
+    { "key": "cardNo", "value": "" },
+    { "key": "expireMonth", "value": "" },
+    { "key": "expireYear", "value": "" },
+    { "key": "cardName", "value": "" },
+    { "key": "orderDate", "value": "" },
+    { "key": "cardCcv", "value": "" },
+    { "key": "orderPrice", "value": "" }
+  ],
+  "item": [
+    {
+      "name": "Roles",
+      "item": [
+        {
+          "name": "GET /roles",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/roles", "host": ["{{baseUrl}}"], "path": ["roles"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "POST /signup (customer)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Sample Customer\",\n  \"email\": \"sample.customer@example.com\",\n  \"password\": \"Aa1!aaaa\",\n  \"role_id\": 3\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/signup", "host": ["{{baseUrl}}"], "path": ["signup"] }
+          }
+        },
+        {
+          "name": "POST /signup (store)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Sample Store Owner\",\n  \"email\": \"sample.store@example.com\",\n  \"password\": \"Aa1!aaaa\",\n  \"role_id\": 2,\n  \"store\": {\n    \"name\": \"Sample Store\",\n    \"phone\": \"05551112233\",\n    \"tax_no\": \"T1234V123456\",\n    \"bank_account\": \"TR330006100519786457841326\"\n  }\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/signup", "host": ["{{baseUrl}}"], "path": ["signup"] }
+          }
+        },
+        {
+          "name": "POST /login",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"customer@commerce.com\",\n  \"password\": \"123456\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/login", "host": ["{{baseUrl}}"], "path": ["login"] }
+          }
+        },
+        {
+          "name": "GET /verify",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "{{token}}" }],
+            "url": { "raw": "{{baseUrl}}/verify", "host": ["{{baseUrl}}"], "path": ["verify"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Catalog",
+      "item": [
+        {
+          "name": "GET /categories",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/categories", "host": ["{{baseUrl}}"], "path": ["categories"] }
+          }
+        },
+        {
+          "name": "GET /products",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/products", "host": ["{{baseUrl}}"], "path": ["products"] }
+          }
+        },
+        {
+          "name": "GET /products by category",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/products?category={{categoryId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["products"],
+              "query": [{ "key": "category", "value": "{{categoryId}}" }]
+            }
+          }
+        },
+        {
+          "name": "GET /products by filter",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/products?filter={{filter}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["products"],
+              "query": [{ "key": "filter", "value": "{{filter}}" }]
+            }
+          }
+        },
+        {
+          "name": "GET /products sort price asc",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/products?sort=price:asc",
+              "host": ["{{baseUrl}}"],
+              "path": ["products"],
+              "query": [{ "key": "sort", "value": "price:asc" }]
+            }
+          }
+        },
+        {
+          "name": "GET /products sort price desc",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/products?sort=price:desc",
+              "host": ["{{baseUrl}}"],
+              "path": ["products"],
+              "query": [{ "key": "sort", "value": "price:desc" }]
+            }
+          }
+        },
+        {
+          "name": "GET /products sort rating asc",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/products?sort=rating:asc",
+              "host": ["{{baseUrl}}"],
+              "path": ["products"],
+              "query": [{ "key": "sort", "value": "rating:asc" }]
+            }
+          }
+        },
+        {
+          "name": "GET /products sort rating desc",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/products?sort=rating:desc",
+              "host": ["{{baseUrl}}"],
+              "path": ["products"],
+              "query": [{ "key": "sort", "value": "rating:desc" }]
+            }
+          }
+        },
+        {
+          "name": "GET /products category+filter+sort",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/products?category={{categoryId}}&filter={{filter}}&sort={{sort}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["products"],
+              "query": [
+                { "key": "category", "value": "{{categoryId}}" },
+                { "key": "filter", "value": "{{filter}}" },
+                { "key": "sort", "value": "{{sort}}" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "GET /products page 1",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/products?limit=25&offset=0",
+              "host": ["{{baseUrl}}"],
+              "path": ["products"],
+              "query": [
+                { "key": "limit", "value": "25" },
+                { "key": "offset", "value": "0" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "GET /products page 2",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/products?limit=25&offset=25",
+              "host": ["{{baseUrl}}"],
+              "path": ["products"],
+              "query": [
+                { "key": "limit", "value": "25" },
+                { "key": "offset", "value": "25" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "GET /products full query with pagination",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/products?category={{categoryId}}&filter={{filter}}&sort={{sort}}&limit={{limit}}&offset={{offset}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["products"],
+              "query": [
+                { "key": "category", "value": "{{categoryId}}" },
+                { "key": "filter", "value": "{{filter}}" },
+                { "key": "sort", "value": "{{sort}}" },
+                { "key": "limit", "value": "{{limit}}" },
+                { "key": "offset", "value": "{{offset}}" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "GET /products/:productId",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/products/{{productId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["products", "{{productId}}"]
+            }
+          }
+        },
+        {
+          "name": "GET /products invalid id (backend currently returns 500)",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/products/99999999",
+              "host": ["{{baseUrl}}"],
+              "path": ["products", "99999999"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Checkout and Orders (authenticated)",
+      "item": [
+        { "name": "GET /user/address", "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "{{token}}" }], "url": { "raw": "{{baseUrl}}/user/address", "host": ["{{baseUrl}}"], "path": ["user", "address"] } } },
+        { "name": "POST /user/address", "request": { "method": "POST", "header": [{ "key": "Authorization", "value": "{{token}}" }, { "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"title\": \"Test address\",\n  \"name\": \"Test\",\n  \"surname\": \"Customer\",\n  \"phone\": \"05551112233\",\n  \"city\": \"istanbul\",\n  \"district\": \"esenler\",\n  \"neighborhood\": \"Test details\"\n}" }, "url": { "raw": "{{baseUrl}}/user/address", "host": ["{{baseUrl}}"], "path": ["user", "address"] } } },
+        { "name": "PUT /user/address", "request": { "method": "PUT", "header": [{ "key": "Authorization", "value": "{{token}}" }, { "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"id\": {{addressId}},\n  \"title\": \"Test address updated\",\n  \"name\": \"Test\",\n  \"surname\": \"Customer\",\n  \"phone\": \"05551112233\",\n  \"city\": \"istanbul\",\n  \"district\": \"esenler\",\n  \"neighborhood\": \"Updated details\"\n}" }, "url": { "raw": "{{baseUrl}}/user/address", "host": ["{{baseUrl}}"], "path": ["user", "address"] } } },
+        { "name": "DELETE /user/address/:addressId", "request": { "method": "DELETE", "header": [{ "key": "Authorization", "value": "{{token}}" }], "url": { "raw": "{{baseUrl}}/user/address/{{addressId}}", "host": ["{{baseUrl}}"], "path": ["user", "address", "{{addressId}}"] } } },
+        { "name": "GET /user/card", "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "{{token}}" }], "url": { "raw": "{{baseUrl}}/user/card", "host": ["{{baseUrl}}"], "path": ["user", "card"] } } },
+        { "name": "POST /user/card", "request": { "method": "POST", "header": [{ "key": "Authorization", "value": "{{token}}" }, { "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"card_no\": \"{{cardNo}}\",\n  \"expire_month\": {{expireMonth}},\n  \"expire_year\": {{expireYear}},\n  \"name_on_card\": \"{{cardName}}\"\n}" }, "url": { "raw": "{{baseUrl}}/user/card", "host": ["{{baseUrl}}"], "path": ["user", "card"] } } },
+        { "name": "PUT /user/card", "request": { "method": "PUT", "header": [{ "key": "Authorization", "value": "{{token}}" }, { "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"id\": {{cardId}},\n  \"card_no\": \"{{cardNo}}\",\n  \"expire_month\": {{expireMonth}},\n  \"expire_year\": {{expireYear}},\n  \"name_on_card\": \"{{cardName}}\"\n}" }, "url": { "raw": "{{baseUrl}}/user/card", "host": ["{{baseUrl}}"], "path": ["user", "card"] } } },
+        { "name": "DELETE /user/card/:cardId", "request": { "method": "DELETE", "header": [{ "key": "Authorization", "value": "{{token}}" }], "url": { "raw": "{{baseUrl}}/user/card/{{cardId}}", "host": ["{{baseUrl}}"], "path": ["user", "card", "{{cardId}}"] } } },
+        { "name": "POST /order", "request": { "method": "POST", "header": [{ "key": "Authorization", "value": "{{token}}" }, { "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"address_id\": {{addressId}},\n  \"order_date\": \"{{orderDate}}\",\n  \"card_no\": \"{{cardNo}}\",\n  \"card_name\": \"{{cardName}}\",\n  \"card_expire_month\": {{expireMonth}},\n  \"card_expire_year\": {{expireYear}},\n  \"card_ccv\": \"{{cardCcv}}\",\n  \"price\": {{orderPrice}},\n  \"products\": []\n}" }, "url": { "raw": "{{baseUrl}}/order", "host": ["{{baseUrl}}"], "path": ["order"] } } },
+        { "name": "GET /order", "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "{{token}}" }], "url": { "raw": "{{baseUrl}}/order", "host": ["{{baseUrl}}"], "path": ["order"] } } }
+      ]
+    }
+  ]
+}
