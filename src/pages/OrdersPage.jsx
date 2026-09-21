@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { ChevronDown, ChevronUp, RefreshCw } from "lucide-react";
 import { fetchOrders } from "../store/actions";
@@ -82,8 +82,8 @@ export default function OrdersPage() {
                 const id = order.id || index;
                 const lines = order.products || [];
                 return (
-                  <>
-                    <tr key={id}>
+                  <Fragment key={id}>
+                    <tr>
                       <td className="p-4 font-semibold text-[#252B42]">
                         #{id}
                       </td>
@@ -131,7 +131,7 @@ export default function OrdersPage() {
                         </td>
                       </tr>
                     )}
-                  </>
+                  </Fragment>
                 );
               })}
             </tbody>

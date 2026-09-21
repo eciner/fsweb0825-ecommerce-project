@@ -42,9 +42,11 @@ function Header() {
   const [isMobileCategoriesOpen, setIsMobileCategoriesOpen] = useState(false);
   const [avatarFailedEmail, setAvatarFailedEmail] = useState("");
   const [isCartOpen, setIsCartOpen] = useState(false);
+  const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
 
   const desktopDropdownRef = useRef(null);
   const cartDropdownRef = useRef(null);
+  const userMenuRef = useRef(null);
 
   const cart = useSelector((state) => state.shoppingCart.cart);
   const user = useSelector((state) => state.client.user);
@@ -75,6 +77,14 @@ function Header() {
       ) {
         setIsCartOpen(false);
       }
+
+      if (
+        isUserMenuOpen &&
+        userMenuRef.current &&
+        !userMenuRef.current.contains(event.target)
+      ) {
+        setIsUserMenuOpen(false);
+      }
     };
 
     const handleEscape = (event) => {
@@ -82,6 +92,7 @@ function Header() {
         setIsDesktopCategoriesOpen(false);
         setIsMobileCategoriesOpen(false);
         setIsCartOpen(false);
+        setIsUserMenuOpen(false);
       }
     };
 
@@ -92,7 +103,7 @@ function Header() {
       document.removeEventListener("mousedown", handleDocumentClick);
       document.removeEventListener("keydown", handleEscape);
     };
-  }, [isCartOpen, isDesktopCategoriesOpen]);
+  }, [isCartOpen, isDesktopCategoriesOpen, isUserMenuOpen]);
 
   const cartCount = cart.reduce((total, item) => total + (item.count || 0), 0);
   const returnPath = `${location.pathname}${location.search}`;
@@ -128,6 +139,7 @@ function Header() {
     setIsDesktopCategoriesOpen(false);
     setIsMobileCategoriesOpen(false);
     setIsCartOpen(false);
+    setIsUserMenuOpen(false);
   };
 
   const handleLogout = () => {
@@ -202,36 +214,43 @@ function Header() {
     );
   } else if (isLoggedIn) {
     authLinksContent = (
-      <div className="hidden items-center gap-2 md:flex">
-        {!avatarFailed ? (
-          <img
-            src={gravatarUrl}
-            alt={`${userLabel} avatar`}
-            className="h-8 w-8 rounded-full border border-[#E8E8E8] object-cover"
-            onError={() => setAvatarFailedEmail(normalizedEmail)}
-          />
-        ) : (
-          <div
-            className="flex h-8 w-8 items-center justify-center rounded-full border border-[#E8E8E8] text-xs font-bold text-[#737373]"
-            aria-hidden="true"
-          >
-            {getInitials(userLabel)}
-          </div>
-        )}
-        <span className="max-w-32 truncate text-xs font-semibold text-[#252B42]">
-          {userLabel}
-        </span>
+      <div className="relative hidden md:block" ref={userMenuRef}>
         <button
           type="button"
-          onClick={handleLogout}
-          className="inline-flex items-center gap-1 text-xs font-semibold text-[#737373] transition-colors hover:text-[#252B42]"
+          onClick={() => setIsUserMenuOpen((previous) => !previous)}
+          className="inline-flex items-center gap-2 text-xs font-semibold text-[#252B42]"
+          aria-haspopup="menu"
+          aria-expanded={isUserMenuOpen}
         >
-          <LogOut size={15} aria-hidden="true" />
-          Logout
+          {!avatarFailed ? (
+            <img
+              src={gravatarUrl}
+              alt={`${userLabel} avatar`}
+              className="h-8 w-8 rounded-full border border-[#E8E8E8] object-cover"
+              onError={() => setAvatarFailedEmail(normalizedEmail)}
+            />
+          ) : (
+            <span
+              className="flex h-8 w-8 items-center justify-center rounded-full border border-[#E8E8E8] text-xs font-bold text-[#737373]"
+              aria-hidden="true"
+            >
+              {getInitials(userLabel)}
+            </span>
+          )}
+          <span className="max-w-32 truncate">{userLabel}</span>
+          <ChevronDown size={15} aria-hidden="true" />
         </button>
-        <Link to="/orders" className="text-xs font-semibold text-[#23A6F0]">
-          Previous Orders
-        </Link>
+        {isUserMenuOpen && (
+          <div className="absolute right-0 top-full z-30 mt-3 flex min-w-44 flex-col rounded-md border border-[#E8E8E8] bg-white py-2 shadow-lg" role="menu">
+            <Link to="/orders" onClick={closeMenus} className="px-3 py-2 text-sm text-[#252B42] hover:bg-[#F5F5F5]" role="menuitem">
+              Previous Orders
+            </Link>
+            <button type="button" onClick={handleLogout} className="flex items-center gap-2 px-3 py-2 text-left text-sm text-[#737373] hover:bg-[#F5F5F5]" role="menuitem">
+              <LogOut size={15} aria-hidden="true" />
+              Logout
+            </button>
+          </div>
+        )}
       </div>
     );
   } else {
