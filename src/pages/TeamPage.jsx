@@ -5,21 +5,21 @@ export default function TeamPage() {
   return (
     <section className="w-full bg-[#F4F4F4] px-4 py-14 md:px-8 md:py-20">
       <div className="mx-auto w-full max-w-6xl">
-        <header className="mx-auto max-w-[520px] text-center">
+        <header className="mx-auto max-w-130 text-center">
           <h1 className="text-5xl font-bold leading-[1.2] text-[#252B42] md:text-[58px] md:leading-[1.2]">
             Meet Our Team
           </h1>
           <p className="mt-5 text-[20px] leading-[1.4] text-[#737373] md:text-[32px] md:leading-[1.35]">
-            Problems trying to resolve the conflict between the two major
-            realms of Classical physics: Newtonian mechanics
+            Problems trying to resolve the conflict between the two major realms
+            of Classical physics: Newtonian mechanics
           </p>
         </header>
 
-        <div className="mx-auto mt-12 grid max-w-[370px] grid-cols-1 gap-8 md:mt-20 md:max-w-none md:grid-cols-3 md:gap-6">
+        <div className="mx-auto mt-12 flex max-w-92.5 flex-col gap-8 md:mt-20 md:max-w-none md:flex-row md:flex-wrap md:gap-6">
           {teamMembers.map((member) => (
             <article
               key={member.id}
-              className="overflow-hidden bg-[#F8F8F8] text-center"
+              className="w-full overflow-hidden bg-[#F8F8F8] text-center md:w-[calc(33.333%-16px)]"
             >
               <img
                 src={member.image}
@@ -35,13 +35,28 @@ export default function TeamPage() {
                 </p>
 
                 <div className="mt-5 flex items-center justify-center gap-5 text-[#23A6F0]">
-                  <a href="#" aria-label={`${member.name} Facebook`}>
+                  <a
+                    href={member.social.facebook}
+                    target="_blank"
+                    rel="noreferrer"
+                    aria-label={`${member.name} Facebook`}
+                  >
                     <Facebook size={30} />
                   </a>
-                  <a href="#" aria-label={`${member.name} Instagram`}>
+                  <a
+                    href={member.social.instagram}
+                    target="_blank"
+                    rel="noreferrer"
+                    aria-label={`${member.name} Instagram`}
+                  >
                     <Instagram size={30} />
                   </a>
-                  <a href="#" aria-label={`${member.name} Twitter`}>
+                  <a
+                    href={member.social.twitter}
+                    target="_blank"
+                    rel="noreferrer"
+                    aria-label={`${member.name} Twitter`}
+                  >
                     <Twitter size={30} />
                   </a>
                 </div>

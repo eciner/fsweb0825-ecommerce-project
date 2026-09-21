@@ -1,4 +1,5 @@
 import { Facebook, Instagram, Play, Twitter } from "lucide-react";
+import { Link } from "react-router-dom";
 import { teamMembers } from "../data/teamMembers";
 
 import heroWoman from "../assets/hero-woman-2.png";
@@ -17,29 +18,26 @@ export default function AboutPage() {
   return (
     <section className="w-full bg-[#F6F6F6]">
       <div className="mx-auto w-full max-w-6xl px-5 py-10 md:px-8 md:py-14">
-        <div className="grid items-center gap-10 md:grid-cols-2 md:gap-6">
-          <div className="max-w-[420px] text-center md:text-left">
+        <div className="flex flex-col items-center gap-10 md:flex-row md:gap-6">
+          <div className="max-w-105 text-center md:w-1/2 md:text-left">
             <p className="text-sm font-bold tracking-[0.2px] text-[#252B42]">
               ABOUT COMPANY
             </p>
-            <h1 className="mt-4 text-5xl font-bold tracking-[0.2px] text-[#252B42] md:text-[58px] md:leading-[80px]">
+            <h1 className="mt-4 text-5xl font-bold tracking-[0.2px] text-[#252B42] md:text-[58px] md:leading-20">
               ABOUT US
             </h1>
-            <p className="mt-6 text-xl leading-[30px] text-[#737373] md:text-2xl md:leading-[36px]">
+            <p className="mt-6 text-xl leading-7.5 text-[#737373] md:text-2xl md:leading-9">
               We know how large objects will act, but things on a small scale
             </p>
-            <button
-              type="button"
+            <Link
+              to="/contact"
               className="mt-8 inline-flex h-13 items-center justify-center rounded-[5px] bg-[#23A6F0] px-10 text-sm font-bold text-white"
             >
               Get Quote Now
-            </button>
+            </Link>
           </div>
 
-          <div className="relative mx-auto w-full max-w-[420px] md:max-w-none">
-            <div className="absolute -left-3 top-5 h-6 w-6 rounded-full bg-[#E77C8D] opacity-30" />
-            <div className="absolute right-4 top-16 h-4 w-4 rounded-full bg-[#977DF4] opacity-50" />
-            <div className="absolute right-0 top-40 h-5 w-5 rounded-full bg-[#E77C8D] opacity-20" />
+          <div className="relative mx-auto w-full max-w-105 md:w-1/2 md:max-w-none">
             <img
               src={heroWoman}
               alt="Woman holding shopping bags"
@@ -48,25 +46,25 @@ export default function AboutPage() {
           </div>
         </div>
 
-        <div className="mt-14 grid gap-7 md:grid-cols-2 md:items-start">
-          <div className="max-w-[380px]">
+        <div className="mt-14 flex flex-col gap-7 md:flex-row md:items-start md:justify-between">
+          <div className="max-w-95 md:w-1/2">
             <p className="text-sm font-semibold text-[#E74040]">
               Problems trying
             </p>
-            <h2 className="mt-3 text-[24px] font-bold leading-[32px] text-[#252B42] md:text-[28px] md:leading-[40px]">
+            <h2 className="mt-3 text-[24px] font-bold leading-8 text-[#252B42] md:text-[28px] md:leading-10">
               Met minim Mollie non desert Alamo est sit cliquey dolor do met
               sent.
             </h2>
           </div>
-          <p className="text-sm leading-5 text-[#737373] md:max-w-[460px] md:text-base md:leading-6">
+          <p className="text-sm leading-5 text-[#737373] md:w-1/2 md:max-w-115 md:text-base md:leading-6">
             Problems trying to resolve the conflict between the two major realms
             of Classical physics: Newtonian mechanics
           </p>
         </div>
 
-        <div className="mt-14 grid grid-cols-2 gap-y-9 text-center md:grid-cols-4">
+        <div className="mt-14 flex flex-wrap text-center">
           {stats.map((stat) => (
-            <article key={stat.label}>
+            <article key={stat.label} className="mb-9 w-1/2 md:w-1/4">
               <h3 className="text-[40px] font-bold leading-[1.4] text-[#252B42]">
                 {stat.value}
               </h3>
@@ -84,15 +82,17 @@ export default function AboutPage() {
             />
             <button
               type="button"
+              disabled
+              aria-disabled="true"
               aria-label="Play intro video"
-              className="absolute left-1/2 top-1/2 flex h-18 w-18 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-[#23A6F0] text-white"
+              className="absolute left-1/2 top-1/2 flex h-18 w-18 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-[#8EC2F2] text-white"
             >
               <Play size={26} fill="currentColor" strokeWidth={0} />
             </button>
           </div>
         </div>
 
-        <div className="mx-auto mt-16 max-w-[700px] text-center md:mt-24">
+        <div className="mx-auto mt-16 max-w-175 text-center md:mt-24">
           <h2 className="text-[40px] font-bold text-[#252B42] md:text-5xl">
             Meet Our Team
           </h2>
@@ -102,9 +102,12 @@ export default function AboutPage() {
           </p>
         </div>
 
-        <div className="mt-12 grid gap-7 md:grid-cols-3">
+        <div className="mt-12 flex flex-col gap-7 md:flex-row md:flex-wrap">
           {teamMembers.map((member) => (
-            <article key={member.id} className="overflow-hidden text-center">
+            <article
+              key={member.id}
+              className="w-full overflow-hidden text-center md:w-[calc(33.333%-18.667px)]"
+            >
               <img
                 src={member.image}
                 alt={member.name}
@@ -118,13 +121,28 @@ export default function AboutPage() {
                   {member.role}
                 </p>
                 <div className="mt-3 flex items-center justify-center gap-5 text-[#23A6F0]">
-                  <a href="#" aria-label={`${member.name} Facebook`}>
+                  <a
+                    href={member.social.facebook}
+                    target="_blank"
+                    rel="noreferrer"
+                    aria-label={`${member.name} Facebook`}
+                  >
                     <Facebook size={20} />
                   </a>
-                  <a href="#" aria-label={`${member.name} Instagram`}>
+                  <a
+                    href={member.social.instagram}
+                    target="_blank"
+                    rel="noreferrer"
+                    aria-label={`${member.name} Instagram`}
+                  >
                     <Instagram size={20} />
                   </a>
-                  <a href="#" aria-label={`${member.name} Twitter`}>
+                  <a
+                    href={member.social.twitter}
+                    target="_blank"
+                    rel="noreferrer"
+                    aria-label={`${member.name} Twitter`}
+                  >
                     <Twitter size={20} />
                   </a>
                 </div>
@@ -139,13 +157,16 @@ export default function AboutPage() {
           <h2 className="text-[40px] font-bold text-[#252B42] md:text-5xl">
             Big Companies Are Here
           </h2>
-          <p className="mx-auto mt-3 max-w-[520px] text-sm leading-5 text-[#737373]">
+          <p className="mx-auto mt-3 max-w-130 text-sm leading-5 text-[#737373]">
             Problems trying to resolve the conflict between the two major realms
             of Classical physics: Newtonian mechanics
           </p>
-          <div className="mt-10 grid grid-cols-2 gap-8 text-4xl font-bold text-[#8C8C8C] md:grid-cols-6 md:text-[46px]">
+          <div className="mt-10 flex flex-wrap justify-center gap-8 text-4xl font-bold text-[#8C8C8C] md:text-[46px]">
             {logos.map((logo) => (
-              <span key={logo} className="opacity-80">
+              <span
+                key={logo}
+                className="w-[calc(50%-16px)] opacity-80 md:w-[calc(16.666%-26.667px)]"
+              >
                 {logo}
               </span>
             ))}
@@ -153,25 +174,25 @@ export default function AboutPage() {
         </div>
       </div>
 
-      <div className="grid w-full md:grid-cols-2">
-        <div className="bg-[#2A7CC7] px-8 py-16 text-white md:px-20 md:py-24">
+      <div className="flex w-full flex-col md:flex-row">
+        <div className="bg-[#2A7CC7] px-8 py-16 text-white md:w-1/2 md:px-20 md:py-24">
           <p className="text-sm font-bold">WORK WITH US</p>
           <h2 className="mt-4 text-4xl font-bold leading-[1.3] md:text-5xl">
             Now Let&apos;s grow Yours
           </h2>
-          <p className="mt-4 max-w-[430px] text-sm leading-5 text-[#DCEEFF] md:text-base md:leading-6">
+          <p className="mt-4 max-w-107.5 text-sm leading-5 text-[#DCEEFF] md:text-base md:leading-6">
             The gradual accumulation of information about atomic and small-scale
             behavior during the first quarter of the 20th
           </p>
-          <button
-            type="button"
+          <Link
+            to="/contact"
             className="mt-8 inline-flex h-13 items-center justify-center rounded-[5px] border border-white px-10 text-sm font-bold"
           >
-            Button
-          </button>
+            Contact Us
+          </Link>
         </div>
 
-        <div className="min-h-90 bg-[#EDEDED]">
+        <div className="min-h-90 bg-[#EDEDED] md:w-1/2">
           <img
             src={ctaImage}
             alt="Model portrait"

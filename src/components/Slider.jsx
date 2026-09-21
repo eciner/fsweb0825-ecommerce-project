@@ -1,4 +1,5 @@
 import { memo, useRef } from "react";
+import { Link } from "react-router-dom";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Autoplay } from "swiper/modules";
@@ -46,13 +47,13 @@ function Slider() {
         }}
         className="w-full"
       >
-        {slides.map((slide, index) => (
-          <SwiperSlide key={index}>
+        {slides.map((slide) => (
+          <SwiperSlide key={slide.image}>
             <section className="relative flex h-screen w-full overflow-hidden">
               <img
                 src={slide.image}
                 alt={slide.alt}
-                loading={index === 0 ? "eager" : "lazy"}
+                loading={slide.image === slides[0].image ? "eager" : "lazy"}
                 className="h-full w-full object-cover object-[62%_50%] md:object-[78%_50%] lg:object-[85%_50%]"
               />
 
@@ -64,27 +65,27 @@ function Slider() {
                     {slide.subtitle}
                   </span>
 
-                  <h1 className="flex max-w-[520px] text-4xl font-bold text-white md:text-6xl">
+                  <h1 className="flex max-w-130 text-4xl font-bold text-white md:text-6xl">
                     {slide.title}
                   </h1>
 
-                  <p className="flex max-w-[420px] text-sm font-medium text-white/90 md:text-base">
+                  <p className="flex max-w-105 text-sm font-medium text-white/90 md:text-base">
                     {slide.description}
                   </p>
 
-                  <button
-                    type="button"
-                    className={`${interactiveButton} flex w-fit items-center justify-center rounded-md bg-[#2DC071] px-6 py-3 text-sm font-bold text-white hover:bg-[#2DC071]-dark focus:ring-[#2DC071] md:text-base`}
+                  <Link
+                    to="/shop"
+                    className={`${interactiveButton} flex w-fit items-center justify-center rounded-md bg-[#2DC071] px-6 py-3 text-sm font-bold text-white hover:bg-[#25A55F] focus:ring-[#2DC071] md:text-base`}
                   >
                     SHOP NOW
-                  </button>
+                  </Link>
                 </div>
               </div>
 
               <button
                 type="button"
                 onClick={() => swiperRef.current?.slidePrev()}
-                className="absolute left-4 top-1/2 flex h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full bg-white/85 text-[#252B42] shadow-lg backdrop-blur transition-all duration-200 hover:bg-white hover:shadow-2xl focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-accent cursor-pointer md:left-8"
+                className="absolute left-4 top-1/2 flex h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full bg-white/85 text-[#252B42] shadow-lg backdrop-blur transition-all duration-200 hover:bg-white hover:shadow-2xl focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#23A6F0] cursor-pointer md:left-8"
                 aria-label="Previous slide"
               >
                 <ChevronLeft size={22} />
@@ -92,7 +93,7 @@ function Slider() {
               <button
                 type="button"
                 onClick={() => swiperRef.current?.slideNext()}
-                className="absolute right-4 top-1/2 flex h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full bg-white/85 text-[#252B42] shadow-lg backdrop-blur transition-all duration-200 hover:bg-white hover:shadow-2xl focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-accent cursor-pointer md:right-8"
+                className="absolute right-4 top-1/2 flex h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full bg-white/85 text-[#252B42] shadow-lg backdrop-blur transition-all duration-200 hover:bg-white hover:shadow-2xl focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#23A6F0] cursor-pointer md:right-8"
                 aria-label="Next slide"
               >
                 <ChevronRight size={22} />

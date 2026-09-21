@@ -1,4 +1,3 @@
-import { Link } from "react-router-dom";
 import { Twitter, Facebook, Instagram, Linkedin } from "lucide-react";
 
 export default function ContactPage() {
@@ -14,42 +13,50 @@ export default function ContactPage() {
           of Classical physics:
         </p>
 
-        <Link
-          to="/"
+        <a
+          href="mailto:michelle.rivera@example.com"
           className="mt-8 inline-flex h-14.5 items-center justify-center rounded-[5px] bg-[#23A6F0] px-10 text-sm font-bold tracking-[0.2px] text-white transition-colors hover:bg-[#1B8FD8]"
         >
           CONTACT OUR COMPANY
-        </Link>
+        </a>
 
         <div className="mt-12 flex items-center gap-6 text-[#BDBDBD]">
-          <Link
-            to="/"
+          <a
+            href="https://x.com"
+            target="_blank"
+            rel="noreferrer"
             aria-label="Twitter"
             className="transition-colors hover:text-[#23A6F0]"
           >
             <Twitter size={32} strokeWidth={1.8} />
-          </Link>
-          <Link
-            to="/"
+          </a>
+          <a
+            href="https://facebook.com"
+            target="_blank"
+            rel="noreferrer"
             aria-label="Facebook"
             className="transition-colors hover:text-[#23A6F0]"
           >
             <Facebook size={32} strokeWidth={1.8} />
-          </Link>
-          <Link
-            to="/"
+          </a>
+          <a
+            href="https://instagram.com"
+            target="_blank"
+            rel="noreferrer"
             aria-label="Instagram"
             className="transition-colors hover:text-[#23A6F0]"
           >
             <Instagram size={32} strokeWidth={1.8} />
-          </Link>
-          <Link
-            to="/"
+          </a>
+          <a
+            href="https://linkedin.com"
+            target="_blank"
+            rel="noreferrer"
             aria-label="LinkedIn"
             className="transition-colors hover:text-[#23A6F0]"
           >
             <Linkedin size={32} strokeWidth={1.8} />
-          </Link>
+          </a>
         </div>
       </div>
     </section>

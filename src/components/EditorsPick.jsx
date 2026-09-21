@@ -1,4 +1,5 @@
 import { memo } from "react";
+import { Link } from "react-router-dom";
 import { interactiveButton } from "../utils/buttonClasses";
 import menImg from "../assets/editors-men.png";
 import womenImg from "../assets/editors-women.png";
@@ -15,12 +16,12 @@ const Card = memo(function Card({ img, label, position = "object-center" }) {
         className={`h-full w-full object-cover ${position}`}
       />
 
-      <button
-        type="button"
-        className={`${interactiveButton} absolute left-6 bottom-6 rounded-md bg-white/95 px-8 py-3 text-sm font-bold tracking-wide text-[#252B42] hover:bg-white focus:ring-brand-accent`}
+      <Link
+        to="/shop"
+        className={`${interactiveButton} absolute left-6 bottom-6 rounded-md bg-white/95 px-8 py-3 text-sm font-bold tracking-wide text-[#252B42] hover:bg-white focus:ring-[#23A6F0]`}
       >
         {label}
-      </button>
+      </Link>
     </div>
   );
 });

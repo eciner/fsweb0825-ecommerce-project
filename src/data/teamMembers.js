@@ -6,9 +6,9 @@ export const teamMembers = [
     role: "Project Manager",
     image: "https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=900&q=80",
     social: {
-      facebook: "#",
-      instagram: "#",
-      twitter: "#",
+      facebook: "https://www.facebook.com/",
+      instagram: "https://www.instagram.com/",
+      twitter: "https://x.com/",
     },
   },
   {
@@ -17,9 +17,9 @@ export const teamMembers = [
     role: "Full Stack Developer",
     image: "https://images.unsplash.com/photo-1568602471122-7832951cc4c5?auto=format&fit=crop&w=900&q=80",
     social: {
-      facebook: "#",
-      instagram: "#",
-      twitter: "#",
+      facebook: "https://www.facebook.com/",
+      instagram: "https://www.instagram.com/",
+      twitter: "https://x.com/",
     },
   },
   {
@@ -28,9 +28,9 @@ export const teamMembers = [
     role: "Frontend Developer",
     image: "https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=900&q=80",
     social: {
-      facebook: "#",
-      instagram: "#",
-      twitter: "#",
+      facebook: "https://www.facebook.com/",
+      instagram: "https://www.instagram.com/",
+      twitter: "https://x.com/",
     },
   },
 ];

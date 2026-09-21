@@ -1,4 +1,5 @@
 import { memo, useEffect, useRef, useState } from "react";
+import { Link } from "react-router-dom";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { interactiveButton } from "../utils/buttonClasses";
 
@@ -67,7 +68,7 @@ function HeroProductSlider() {
     <section className="relative w-full overflow-hidden bg-[#23856D]">
       <button
         onClick={prevSlide}
-        className={`${interactiveButton} hidden md:flex absolute left-5 top-1/2 z-10 -translate-y-1/2 items-center justify-center rounded-full bg-white/20 p-3 text-white hover:scale-105 hover:bg-white/40 focus:ring-white focus:ring-offset-green-accent`}
+        className={`${interactiveButton} hidden md:flex absolute left-5 top-1/2 z-10 -translate-y-1/2 items-center justify-center rounded-full bg-white/20 p-3 text-white hover:scale-105 hover:bg-white/40 focus:ring-white focus:ring-offset-[#23856D]`}
         aria-label="Previous"
       >
         <ChevronLeft size={28} />
@@ -75,7 +76,7 @@ function HeroProductSlider() {
 
       <button
         onClick={nextSlide}
-        className={`${interactiveButton} hidden md:flex absolute right-5 top-1/2 z-10 -translate-y-1/2 items-center justify-center rounded-full bg-white/20 p-3 text-white hover:scale-105 hover:bg-white/40 focus:ring-white focus:ring-offset-green-accent`}
+        className={`${interactiveButton} hidden md:flex absolute right-5 top-1/2 z-10 -translate-y-1/2 items-center justify-center rounded-full bg-white/20 p-3 text-white hover:scale-105 hover:bg-white/40 focus:ring-white focus:ring-offset-[#23856D]`}
         aria-label="Next"
       >
         <ChevronRight size={28} />
@@ -99,8 +100,8 @@ function HeroProductSlider() {
         }}
         className="w-full"
       >
-        {slides.map((s, i) => (
-          <SwiperSlide key={i}>
+        {slides.map((s) => (
+          <SwiperSlide key={s.image}>
             <div className="mx-auto flex min-h-130 w-full max-w-6xl flex-col items-center gap-10 px-6 py-16 md:flex-row md:justify-between md:py-20">
               <div className="flex max-w-130 flex-col gap-6 text-white">
                 <p className="text-sm font-bold tracking-[0.2em]">{s.season}</p>
@@ -114,12 +115,12 @@ function HeroProductSlider() {
                 <div className="flex items-center gap-6">
                   <span className="text-2xl font-bold">{s.price}</span>
 
-                  <button
-                    type="button"
-                    className={`${interactiveButton} rounded-md bg-[#2DC071] px-8 py-3 text-sm font-bold text-white hover:bg-[#2DC071]-dark focus:ring-white`}
+                  <Link
+                    to="/shop"
+                    className={`${interactiveButton} rounded-md bg-[#2DC071] px-8 py-3 text-sm font-bold text-white hover:bg-[#25A55F] focus:ring-white`}
                   >
-                    ADD TO CART
-                  </button>
+                    SHOP NOW
+                  </Link>
                 </div>
               </div>
 

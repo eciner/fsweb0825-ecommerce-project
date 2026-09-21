@@ -1,11 +1,12 @@
 import { memo } from "react";
+import { Link } from "react-router-dom";
 import bannerImg from "../assets/banners/banner-neural.jpg";
 import { interactiveButton } from "../utils/buttonClasses";
 
 function NeuralBanner() {
   return (
     <section className="w-full bg-white">
-      <div className="mx-auto flex w-full max-w-[1200px] flex-col items-center gap-10 px-6 py-16 md:flex-row md:gap-14">
+      <div className="mx-auto flex w-full max-w-300 flex-col items-center gap-10 px-6 py-16 md:flex-row md:gap-14">
         <div className="w-full md:w-1/2">
           <img
             src={bannerImg}
@@ -24,24 +25,24 @@ function NeuralBanner() {
             Part of the Neural <br /> Universe
           </h2>
 
-          <p className="max-w-[420px] text-sm text-[#737373] md:text-base">
+          <p className="max-w-105 text-sm text-[#737373] md:text-base">
             We know how large objects will act, but things on a small scale.
           </p>
 
           <div className="mt-2 flex gap-4">
-            <button
-              type="button"
-              className={`${interactiveButton} rounded-md bg-[#2DC071] px-8 py-3 text-sm font-bold text-white hover:bg-[#2DC071]-dark focus:ring-[#2DC071]`}
+            <Link
+              to="/shop"
+              className={`${interactiveButton} rounded-md bg-[#2DC071] px-8 py-3 text-sm font-bold text-white hover:bg-[#25A55F] focus:ring-[#2DC071]`}
             >
               BUY NOW
-            </button>
+            </Link>
 
-            <button
-              type="button"
-              className={`${interactiveButton} rounded-md border border-green-light px-8 py-3 text-sm font-bold text-[#2DC071] hover:bg-[#2DC071]/10 focus:ring-[#2DC071]`}
+            <Link
+              to="/about"
+              className={`${interactiveButton} rounded-md border border-[#2DC071] px-8 py-3 text-sm font-bold text-[#2DC071] hover:bg-[#2DC071]/10 focus:ring-[#2DC071]`}
             >
               Learn More
-            </button>
+            </Link>
           </div>
         </div>
       </div>

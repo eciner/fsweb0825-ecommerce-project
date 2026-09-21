@@ -1,6 +1,6 @@
 import { memo } from "react";
 import { Link } from "react-router-dom";
-import { Facebook, Instagram, Twitter, Mail } from "lucide-react";
+import { Facebook, Instagram, Twitter } from "lucide-react";
 
 function Footer() {
   const currentYear = new Date().getFullYear();
@@ -9,37 +9,37 @@ function Footer() {
     {
       title: "Company Info",
       links: [
-        { label: "About Us", href: "/about" },
-        { label: "Carrier", href: "/" },
-        { label: "We are hiring", href: "/" },
-        { label: "Blog", href: "/" },
+        { label: "About Us", href: "/about", active: true },
+        { label: "Career", href: "", active: false },
+        { label: "We are hiring", href: "", active: false },
+        { label: "Blog", href: "", active: false },
       ],
     },
     {
       title: "Legal",
       links: [
-        { label: "Privacy Policy", href: "/" },
-        { label: "Terms of Service", href: "/" },
-        { label: "Cookie Policy", href: "/" },
-        { label: "License", href: "/" },
+        { label: "Privacy Policy", href: "", active: false },
+        { label: "Terms of Service", href: "", active: false },
+        { label: "Cookie Policy", href: "", active: false },
+        { label: "License", href: "", active: false },
       ],
     },
     {
       title: "Features",
       links: [
-        { label: "Business Marketing", href: "/" },
-        { label: "User Analytic", href: "/" },
-        { label: "Live Chat", href: "/" },
-        { label: "Unlimited Support", href: "/" },
+        { label: "Business Marketing", href: "", active: false },
+        { label: "User Analytic", href: "", active: false },
+        { label: "Live Chat", href: "", active: false },
+        { label: "Unlimited Support", href: "", active: false },
       ],
     },
     {
       title: "Resources",
       links: [
-        { label: "IOS & Android", href: "/" },
-        { label: "Watch a Demo", href: "/" },
-        { label: "Customers", href: "/" },
-        { label: "API", href: "/" },
+        { label: "IOS & Android", href: "", active: false },
+        { label: "Watch a Demo", href: "", active: false },
+        { label: "Customers", href: "", active: false },
+        { label: "API", href: "", active: false },
       ],
     },
   ];
@@ -51,27 +51,33 @@ function Footer() {
         <div className="mx-auto flex w-full max-w-6xl flex-col items-start justify-between gap-5 px-5 py-10 sm:flex-row sm:items-center md:px-0">
           <h3 className="text-2xl font-bold text-[#252B42]">WiT</h3>
           <div className="flex items-center gap-5">
-            <Link
-              to="/"
+            <a
+              href="https://facebook.com"
+              target="_blank"
+              rel="noreferrer"
               className="text-[#23A6F0] transition-colors hover:text-[#1a8cd4]"
               aria-label="Facebook"
             >
               <Facebook size={24} />
-            </Link>
-            <Link
-              to="/"
+            </a>
+            <a
+              href="https://instagram.com"
+              target="_blank"
+              rel="noreferrer"
               className="text-[#23A6F0] transition-colors hover:text-[#1a8cd4]"
               aria-label="Instagram"
             >
               <Instagram size={24} />
-            </Link>
-            <Link
-              to="/"
+            </a>
+            <a
+              href="https://x.com"
+              target="_blank"
+              rel="noreferrer"
               className="text-[#23A6F0] transition-colors hover:text-[#1a8cd4]"
               aria-label="Twitter"
             >
               <Twitter size={24} />
-            </Link>
+            </a>
           </div>
         </div>
       </div>
@@ -86,15 +92,24 @@ function Footer() {
                 {section.title}
               </h5>
               <nav className="flex flex-col gap-2.5">
-                {section.links.map((link) => (
-                  <Link
-                    key={link.label}
-                    to={link.href}
-                    className="text-sm font-bold text-[#737373] transition-colors hover:text-[#252B42]"
-                  >
-                    {link.label}
-                  </Link>
-                ))}
+                {section.links.map((link) =>
+                  link.active ? (
+                    <Link
+                      key={link.label}
+                      to={link.href}
+                      className="text-sm font-bold text-[#737373] transition-colors hover:text-[#252B42]"
+                    >
+                      {link.label}
+                    </Link>
+                  ) : (
+                    <span
+                      key={link.label}
+                      className="text-sm font-bold text-[#B0B0B0]"
+                    >
+                      {link.label}
+                    </span>
+                  ),
+                )}
               </nav>
             </div>
           ))}
@@ -115,12 +130,16 @@ function Footer() {
                 />
                 <button
                   type="submit"
-                  className="border-l border-[#E6E6E6] bg-[#23A6F0] px-[22.5px] text-sm text-white transition-colors hover:bg-[#1a8cd4]"
+                  disabled
+                  aria-disabled="true"
+                  className="border-l border-[#E6E6E6] bg-[#BDBDBD] px-[22.5px] text-sm text-white"
                 >
-                  Subscribe
+                  Coming Soon
                 </button>
               </div>
-              <p className="text-xs text-[#737373]">Lore imp sum dolor Amit</p>
+              <p className="text-xs text-[#737373]">
+                Newsletter sign-up will be available in a later phase.
+              </p>
             </form>
           </div>
         </div>

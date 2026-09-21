@@ -7,7 +7,7 @@ import product6 from "../assets/products/product-6.jpg";
 import product7 from "../assets/products/product-7.jpg";
 import product8 from "../assets/products/product-8.jpg";
 
-// Unified product data structure - single source of truth
+// Home-page showcase seed data. Shop and Product Detail use API data.
 export const products = [
   {
     id: 1,
@@ -167,7 +167,6 @@ export const products = [
   },
 ];
 
-// Legacy export for backward compatibility (will be removed after refactor)
 export const shopProducts = products;
 
 // Partner logos for footer/shop sections

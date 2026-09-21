@@ -1,4 +1,5 @@
 import { memo } from "react";
+import { Link } from "react-router-dom";
 import post1 from "../assets/posts/post-1.jpg";
 import post2 from "../assets/posts/post-2.jpg";
 import post3 from "../assets/posts/post-3.jpg";
@@ -25,7 +26,7 @@ const posts = [
 
 function FeaturedPosts() {
   return (
-    <section className="mx-auto w-full max-w-[1200px] px-4 py-20">
+    <section className="mx-auto w-full max-w-300 px-4 py-20">
       <div className="mb-14 text-center">
         <p className="text-sm font-semibold text-[#23A6F0]">Practice Advice</p>
         <h2 className="text-3xl font-bold text-[#252B42]">Featured Posts</h2>
@@ -45,7 +46,7 @@ function FeaturedPosts() {
                 src={post.img}
                 alt={post.alt}
                 loading="lazy"
-                className="h-[300px] w-full object-cover"
+                className="h-75 w-full object-cover"
               />
               <span className="absolute left-4 top-4 rounded bg-red-500 px-3 py-1 text-xs font-bold text-white">
                 NEW
@@ -80,12 +81,12 @@ function FeaturedPosts() {
                 </div>
               </div>
 
-              <a
-                href="#"
+              <Link
+                to="/shop"
                 className="mt-4 flex items-center gap-1 text-sm font-semibold text-[#23A6F0]"
               >
                 Learn More <span>→</span>
-              </a>
+              </Link>
             </div>
           </div>
         ))}

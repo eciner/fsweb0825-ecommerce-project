@@ -1,295 +1,405 @@
-import { useMemo, useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { useEffect, useMemo, useState } from "react";
+import { Link, useHistory, useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { ChevronLeft, ChevronRight, Eye, Heart, ShoppingCart } from "lucide-react";
+import { ChevronLeft, ChevronRight, Loader2 } from "lucide-react";
 import { toast } from "react-toastify";
 
-import product6 from "../assets/products/product-6.jpg";
-import { partnerLogos, products } from "../data/products";
-import { addToCart, toggleFavorite } from "../store/actions";
-
-const colorOptions = ["#23A6F0", "#2DC071", "#E77C40", "#252B42"];
+import {
+  addCartItem,
+  fetchCategoriesIfNeeded,
+  fetchProductDetail,
+} from "../store/actions";
+import {
+  FALLBACK_PRODUCT_IMAGE,
+  toProductDetailModel,
+} from "../utils/productModel";
+import { buildCategoryPath, buildProductDetailPath } from "../utils/slug";
 
 function formatCurrency(value) {
-  return `$${value.toFixed(2)}`;
+  const amount = Number(value);
+  if (!Number.isFinite(amount)) {
+    return "$0.00";
+  }
+
+  return `$${amount.toFixed(2)}`;
+}
+
+function isRetryableStatus(status) {
+  return status === null || status >= 500;
 }
 
 export default function ProductDetailPage() {
-  const { productId } = useParams();
-  const parsedId = Number.parseInt(productId, 10);
   const dispatch = useDispatch();
-  const favorites = useSelector((state) => state.favorites);
+  const history = useHistory();
+  const {
+    gender,
+    categoryName,
+    categoryId: routeCategoryId,
+    productNameSlug,
+    productId,
+  } = useParams();
 
-  const product = useMemo(
-    () => products.find((item) => item.id === parsedId) || products[0],
-    [parsedId]
+  const categories = useSelector((state) => state.product.categories);
+  const selectedProduct = useSelector((state) => state.product.selectedProduct);
+  const selectedProductId = useSelector(
+    (state) => state.product.selectedProductId,
+  );
+  const selectedProductFetchState = useSelector(
+    (state) => state.product.selectedProductFetchState,
+  );
+  const selectedProductError = useSelector(
+    (state) => state.product.selectedProductError,
   );
 
-  const galleryImages = useMemo(() => [product.image, product6, product.image], [product]);
-  const [selectedImageIndex, setSelectedImageIndex] = useState(0);
-  const [selectedColor, setSelectedColor] = useState(colorOptions[0]);
+  const parsedProductId = Number.parseInt(String(productId), 10);
 
-  const selectedImage = galleryImages[selectedImageIndex] || product.image;
-  const bestsellerProducts = products.slice(0, 8);
-  const isFavorite = favorites.includes(product.id);
+  useEffect(() => {
+    dispatch(fetchCategoriesIfNeeded());
+  }, [dispatch]);
 
-  const handlePreviousImage = () => {
-    setSelectedImageIndex((prev) =>
-      prev === 0 ? galleryImages.length - 1 : prev - 1
-    );
+  useEffect(() => {
+    dispatch(fetchProductDetail(parsedProductId)).catch(() => {});
+  }, [dispatch, parsedProductId]);
+
+  const categoriesById = useMemo(
+    () =>
+      categories.reduce((accumulator, category) => {
+        accumulator[category.id] = category;
+        return accumulator;
+      }, {}),
+    [categories],
+  );
+
+  const product = useMemo(
+    () => toProductDetailModel(selectedProduct, categoriesById),
+    [selectedProduct, categoriesById],
+  );
+
+  const resolvedCategory =
+    categoriesById[product?.categoryId] ||
+    categoriesById[Number.parseInt(String(routeCategoryId), 10)] ||
+    null;
+
+  const canonicalPath = useMemo(() => {
+    if (
+      !product ||
+      !resolvedCategory ||
+      !Number.isFinite(parsedProductId) ||
+      parsedProductId <= 0
+    ) {
+      return null;
+    }
+
+    return buildProductDetailPath(selectedProduct, resolvedCategory);
+  }, [product, parsedProductId, selectedProduct, resolvedCategory]);
+
+  useEffect(() => {
+    if (
+      selectedProductFetchState !== "FETCHED" ||
+      !canonicalPath ||
+      !Number.isFinite(parsedProductId)
+    ) {
+      return;
+    }
+
+    const expected = canonicalPath;
+    const current = `/shop/${gender}/${categoryName}/${routeCategoryId}/${productNameSlug}/${parsedProductId}`;
+
+    if (expected !== current) {
+      history.replace(expected);
+    }
+  }, [
+    canonicalPath,
+    categoryName,
+    gender,
+    history,
+    parsedProductId,
+    productNameSlug,
+    routeCategoryId,
+    selectedProductFetchState,
+  ]);
+
+  const [selectedImageState, setSelectedImageState] = useState({
+    productId: null,
+    index: 0,
+  });
+
+  const images = product?.images || [FALLBACK_PRODUCT_IMAGE];
+  const selectedImageIndex =
+    selectedImageState.productId === selectedProductId
+      ? selectedImageState.index
+      : 0;
+
+  const safeImageIndex = Math.min(
+    Math.max(selectedImageIndex, 0),
+    Math.max(images.length - 1, 0),
+  );
+  const selectedImage = images[safeImageIndex] || FALLBACK_PRODUCT_IMAGE;
+
+  const handleBack = () => {
+    if (window.history.length > 1) {
+      history.goBack();
+      return;
+    }
+
+    if (resolvedCategory) {
+      history.push(buildCategoryPath(resolvedCategory));
+      return;
+    }
+
+    history.push("/shop");
   };
 
-  const handleNextImage = () => {
-    setSelectedImageIndex((prev) => (prev + 1) % galleryImages.length);
+  const handleRetry = () => {
+    dispatch(fetchProductDetail(parsedProductId, { force: true }));
   };
 
-  const handleAddToCart = () => {
-    dispatch(addToCart(product, 1));
-    toast.success(`${product.title} added to cart!`);
-  };
-
-  const handleToggleFavorite = () => {
-    dispatch(toggleFavorite(product.id));
-    toast.info(isFavorite ? "Removed from favorites" : "Added to favorites");
-  };
+  const isLoading = selectedProductFetchState === "FETCHING";
+  const isFailed = selectedProductFetchState === "FAILED";
 
   return (
     <div className="w-full bg-[#FAFAFA]">
       <div className="mx-auto w-full max-w-6xl px-4 py-6 md:py-10">
-        <div className="flex items-center gap-3 text-sm font-semibold">
-          <Link to="/" className="text-[#252B42] transition hover:text-[#23A6F0]">
+        <div className="flex flex-wrap items-center gap-3 text-sm font-semibold">
+          <Link
+            to="/"
+            className="text-[#252B42] transition hover:text-[#23A6F0]"
+          >
             Home
           </Link>
           <span className="text-[#BDBDBD]">&gt;</span>
-          <Link to="/shop" className="text-[#737373] transition hover:text-[#23A6F0]">
+          <Link
+            to="/shop"
+            className="text-[#737373] transition hover:text-[#23A6F0]"
+          >
             Shop
           </Link>
+          {resolvedCategory && (
+            <>
+              <span className="text-[#BDBDBD]">&gt;</span>
+              <Link
+                to={buildCategoryPath(resolvedCategory)}
+                className="text-[#737373] transition hover:text-[#23A6F0]"
+              >
+                {resolvedCategory.title}
+              </Link>
+            </>
+          )}
+          {product?.title && (
+            <>
+              <span className="text-[#BDBDBD]">&gt;</span>
+              <span className="text-[#252B42]">{product.title}</span>
+            </>
+          )}
         </div>
 
-        <section className="mt-8 grid grid-cols-1 gap-8 lg:grid-cols-[1.1fr_1fr] lg:gap-12">
-          <div>
-            <div className="relative overflow-hidden bg-white">
-              <img
-                src={selectedImage}
-                alt={product.title}
-                className="h-75 w-full object-cover sm:h-105"
-              />
+        <div className="mt-4">
+          <button
+            type="button"
+            onClick={handleBack}
+            className="rounded border border-[#DDDDDD] bg-white px-3 py-2 text-sm font-semibold text-[#252B42] hover:border-[#23A6F0]"
+            aria-label="Go back"
+          >
+            Back
+          </button>
+        </div>
 
-              <button
-                type="button"
-                onClick={handlePreviousImage}
-                className="absolute left-4 top-1/2 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-white/70 text-[#737373]"
-                aria-label="Show previous image"
-              >
-                <ChevronLeft size={24} />
-              </button>
-
-              <button
-                type="button"
-                onClick={handleNextImage}
-                className="absolute right-4 top-1/2 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-white/70 text-[#737373]"
-                aria-label="Show next image"
-              >
-                <ChevronRight size={24} />
-              </button>
+        {isLoading && (
+          <section
+            className="mt-8 flex min-h-72 items-center justify-center rounded bg-white"
+            aria-live="polite"
+          >
+            <div className="inline-flex items-center gap-2 text-sm text-[#737373]">
+              <Loader2 size={18} className="animate-spin" />
+              Loading product...
             </div>
+          </section>
+        )}
 
-            <div className="mt-4 flex items-center gap-4">
-              {galleryImages.map((image, index) => (
+        {isFailed && (
+          <section
+            className="mt-8 rounded border border-[#FFE9EA] bg-[#FFF6F6] p-4"
+            role="alert"
+          >
+            <p className="text-sm text-[#E74040]">
+              {selectedProductError?.status === 404
+                ? "Product not found."
+                : selectedProductError?.message ||
+                  "Product could not be loaded."}
+            </p>
+            <div className="mt-3 flex gap-3">
+              {isRetryableStatus(selectedProductError?.status) && (
                 <button
                   type="button"
-                  key={`${product.id}-${index}`}
-                  onClick={() => setSelectedImageIndex(index)}
-                  className={`overflow-hidden border transition ${
-                    selectedImageIndex === index ? "border-[#23A6F0]" : "border-transparent"
-                  }`}
-                  aria-label={`Select image ${index + 1}`}
+                  onClick={handleRetry}
+                  className="rounded bg-[#23A6F0] px-4 py-2 text-sm font-semibold text-white"
                 >
-                  <img src={image} alt={`${product.title} ${index + 1}`} className="h-20 w-24 object-cover" />
+                  Retry
                 </button>
-              ))}
+              )}
+              <Link
+                to={
+                  resolvedCategory
+                    ? buildCategoryPath(resolvedCategory)
+                    : "/shop"
+                }
+                className="rounded border border-[#DDDDDD] bg-white px-4 py-2 text-sm font-semibold text-[#252B42]"
+              >
+                Back to Shop
+              </Link>
             </div>
-          </div>
+          </section>
+        )}
 
-          <div className="flex flex-col">
-            <h1 className="text-2xl font-semibold text-[#252B42]">{product.title}</h1>
+        {!isLoading && !isFailed && product && (
+          <section className="mt-8 flex flex-col gap-8 lg:flex-row lg:gap-12">
+            <div className="w-full lg:w-[52%]">
+              <div className="relative overflow-hidden bg-white">
+                <img
+                  src={selectedImage}
+                  alt={product.title}
+                  onError={(event) => {
+                    event.currentTarget.onerror = null;
+                    event.currentTarget.src = FALLBACK_PRODUCT_IMAGE;
+                  }}
+                  className="h-75 w-full object-cover sm:h-105"
+                />
 
-            <div className="mt-4 flex items-center gap-1">
-              {Array.from({ length: Math.floor(product.rating) }).map((_, index) => (
-                <span key={index} className="text-base text-[#F3CD03]">★</span>
-              ))}
-              {Array.from({ length: 5 - Math.floor(product.rating) }).map((_, index) => (
-                <span key={index} className="text-base text-[#BDBDBD]">☆</span>
-              ))}
-              <span className="ml-2 text-sm font-semibold text-[#737373]">{product.reviews} Reviews</span>
-            </div>
+                {images.length > 1 && (
+                  <>
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setSelectedImageState((current) => {
+                          const currentIndex =
+                            current.productId === selectedProductId
+                              ? current.index
+                              : 0;
+                          return {
+                            productId: selectedProductId,
+                            index:
+                              currentIndex === 0
+                                ? images.length - 1
+                                : currentIndex - 1,
+                          };
+                        })
+                      }
+                      className="absolute left-4 top-1/2 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-white/70 text-[#737373]"
+                      aria-label="Show previous image"
+                    >
+                      <ChevronLeft size={24} />
+                    </button>
 
-            <p className="mt-5 text-3xl font-bold text-[#252B42]">{formatCurrency(product.salePrice)}</p>
-            {product.price !== product.salePrice && (
-              <p className="mt-1 text-lg text-[#BDBDBD] line-through">{formatCurrency(product.price)}</p>
-            )}
-
-            <p className="mt-4 text-sm font-semibold text-[#737373]">
-              Availability : <span className={product.inStock ? "text-[#23A6F0]" : "text-[#E74040]"}>
-                {product.inStock ? "In Stock" : "Out of Stock"}
-              </span>
-            </p>
-
-            <p className="mt-6 max-w-lg text-sm leading-6 text-[#858585]">
-              {product.description}
-            </p>
-
-            <div className="mt-7 border-t border-[#E8E8E8] pt-7">
-              <div className="flex items-center gap-3">
-                {colorOptions.map((color) => (
-                  <button
-                    type="button"
-                    key={color}
-                    onClick={() => setSelectedColor(color)}
-                    style={{ backgroundColor: color }}
-                    className={`h-8 w-8 rounded-full ${
-                      selectedColor === color ? "ring-2 ring-offset-2 ring-[#23A6F0]" : ""
-                    }`}
-                    aria-label="Select product color"
-                  />
-                ))}
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setSelectedImageState((current) => {
+                          const currentIndex =
+                            current.productId === selectedProductId
+                              ? current.index
+                              : 0;
+                          return {
+                            productId: selectedProductId,
+                            index: (currentIndex + 1) % images.length,
+                          };
+                        })
+                      }
+                      className="absolute right-4 top-1/2 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-white/70 text-[#737373]"
+                      aria-label="Show next image"
+                    >
+                      <ChevronRight size={24} />
+                    </button>
+                  </>
+                )}
               </div>
 
-              <div className="mt-10 flex flex-wrap items-center gap-3">
-                <button
-                  type="button"
-                  onClick={handleAddToCart}
-                  disabled={!product.inStock}
-                  className="h-11 rounded bg-[#23A6F0] px-6 text-sm font-semibold text-white disabled:bg-gray-400 disabled:cursor-not-allowed hover:bg-[#1B8FD8] transition"
-                >
-                  Add to Cart
-                </button>
+              {images.length > 1 && (
+                <div className="mt-4 flex items-center gap-4">
+                  {images.map((image, index) => {
+                    const isCurrent = index === safeImageIndex;
+                    return (
+                      <button
+                        type="button"
+                        key={`${product.id}-${index}`}
+                        onClick={() =>
+                          setSelectedImageState({
+                            productId: selectedProductId,
+                            index,
+                          })
+                        }
+                        aria-label={`Select image ${index + 1}`}
+                        aria-current={isCurrent ? "true" : undefined}
+                        className={`overflow-hidden border transition ${
+                          isCurrent ? "border-[#23A6F0]" : "border-transparent"
+                        }`}
+                      >
+                        <img
+                          src={image}
+                          alt={`${product.title} ${index + 1}`}
+                          onError={(event) => {
+                            event.currentTarget.onerror = null;
+                            event.currentTarget.src = FALLBACK_PRODUCT_IMAGE;
+                          }}
+                          className="h-20 w-24 object-cover"
+                        />
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
 
-                <button
-                  type="button"
-                  onClick={handleToggleFavorite}
-                  className={`flex h-10 w-10 items-center justify-center rounded-full border transition ${
-                    isFavorite ? "border-[#E74040] text-[#E74040]" : "border-[#E8E8E8] text-[#252B42]"
-                  }`}
-                  aria-label="Add to favorites"
-                >
-                  <Heart size={16} fill={isFavorite ? "currentColor" : "none"} />
-                </button>
+            <div className="flex w-full flex-col lg:w-[48%]">
+              <h1 className="text-2xl font-semibold text-[#252B42]">
+                {product.title}
+              </h1>
 
-                <button
-                  type="button"
-                  onClick={handleAddToCart}
-                  disabled={!product.inStock}
-                  className="flex h-10 w-10 items-center justify-center rounded-full border border-[#E8E8E8] text-[#252B42] disabled:text-gray-400 disabled:cursor-not-allowed hover:border-[#23A6F0] hover:text-[#23A6F0] transition"
-                  aria-label="Quick add to cart"
-                >
-                  <ShoppingCart size={16} />
-                </button>
+              <p className="mt-4 text-sm font-semibold text-[#737373]">
+                Rating {product.rating.toFixed(2)} / 5
+              </p>
+              <p className="mt-1 text-sm text-[#737373]">
+                {product.sellCount} sold
+              </p>
 
+              <p className="mt-5 text-3xl font-bold text-[#252B42]">
+                {formatCurrency(product.price)}
+              </p>
+
+              <p className="mt-4 text-sm font-semibold text-[#737373]">
+                {product.stock > 0
+                  ? `In Stock - ${product.stock} available`
+                  : "Out of Stock"}
+              </p>
+
+              <p className="mt-6 max-w-lg text-sm leading-6 text-[#858585]">
+                {product.description}
+              </p>
+
+              <div className="mt-8 border-t border-[#E8E8E8] pt-6">
                 <button
                   type="button"
-                  className="flex h-10 w-10 items-center justify-center rounded-full border border-[#E8E8E8] text-[#252B42] hover:border-[#23A6F0] hover:text-[#23A6F0] transition"
-                  aria-label="Preview product"
+                  disabled={product.stock <= 0}
+                  className="h-11 rounded bg-[#23A6F0] px-6 text-sm font-semibold text-white hover:bg-[#1B8FD8] disabled:cursor-not-allowed disabled:bg-[#BDBDBD]"
+                  onClick={() => {
+                    dispatch(addCartItem(selectedProduct));
+                    toast.success("Product added to cart.");
+                  }}
                 >
-                  <Eye size={16} />
+                  {product.stock > 0 ? "Add to Cart" : "Out of Stock"}
                 </button>
               </div>
             </div>
-          </div>
-        </section>
+          </section>
+        )}
       </div>
 
-      <section className="w-full border-y border-[#ECECEC] bg-white">
-        <div className="mx-auto w-full max-w-6xl px-4 py-6">
-          <div className="flex flex-wrap items-center justify-center gap-8 text-sm font-semibold text-[#737373] md:justify-start">
-            <button type="button" className="text-[#252B42]">Description</button>
-            <button type="button">Additional Information</button>
-            <button type="button">
-              Reviews <span className="text-[#23856D]">(0)</span>
-            </button>
-          </div>
-        </div>
-      </section>
-
-      <section className="mx-auto grid w-full max-w-6xl grid-cols-1 gap-8 px-4 py-10 md:grid-cols-2 lg:grid-cols-[1fr_1fr_1fr]">
-        <img src={product6} alt="Product detail" className="h-full min-h-80 w-full object-cover" />
-
-        <div>
-          <h2 className="text-2xl font-bold text-[#252B42]">the quick fox jumps over</h2>
-          <div className="mt-5 space-y-6 text-sm leading-6 text-[#737373]">
-            <p>
-              Met minim Mollie non desert Alamo est sit cliquey dolor do met sent. RELIT
-              official consequent door ENIM RELIT Mollie. Excitation venial consequent sent
-              nostrum met.
-            </p>
-            <p>
-              Met minim Mollie non desert Alamo est sit cliquey dolor do met sent. RELIT
-              official consequent door ENIM RELIT Mollie. Excitation venial consequent sent
-              nostrum met.
-            </p>
-            <p>
-              Met minim Mollie non desert Alamo est sit cliquey dolor do met sent. RELIT
-              official consequent door ENIM RELIT Mollie. Excitation venial consequent sent
-              nostrum met.
-            </p>
-          </div>
-        </div>
-
-        <div className="space-y-8">
-          <div>
-            <h2 className="text-2xl font-bold text-[#252B42]">the quick fox jumps over</h2>
-            <ul className="mt-5 space-y-3 text-sm font-semibold text-[#737373]">
-              {Array.from({ length: 4 }).map((_, index) => (
-                <li key={index} className="flex items-center gap-2">
-                  <ChevronRight size={16} className="text-[#737373]" />
-                  the quick fox jumps over the lazy dog
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          <div>
-            <h2 className="text-2xl font-bold text-[#252B42]">the quick fox jumps over</h2>
-            <ul className="mt-5 space-y-3 text-sm font-semibold text-[#737373]">
-              {Array.from({ length: 3 }).map((_, index) => (
-                <li key={index} className="flex items-center gap-2">
-                  <ChevronRight size={16} className="text-[#737373]" />
-                  the quick fox jumps over the lazy dog
-                </li>
-              ))}
-            </ul>
-          </div>
-        </div>
-      </section>
-
-      <section className="mx-auto w-full max-w-6xl px-4 py-14">
-        <h2 className="text-3xl font-bold uppercase tracking-wide text-[#252B42]">Bestseller Products</h2>
-
-        <div className="mt-8 grid grid-cols-1 gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-4">
-          {bestsellerProducts.map((item) => (
-            <Link
-              key={item.id}
-              to={`/shop/${item.id}`}
-              className="bg-white transition hover:shadow-sm"
-            >
-              <img src={item.image} alt={item.title} className="h-72 w-full object-cover" />
-              <div className="p-4">
-                <h3 className="text-base font-bold text-[#252B42]">{item.title}</h3>
-                <p className="mt-1 text-sm font-semibold text-[#737373]">{item.category}</p>
-                <div className="mt-3 flex items-center gap-2 text-sm font-bold">
-                  <span className="text-[#BDBDBD]">{formatCurrency(item.price)}</span>
-                  <span className="text-[#23856D]">{formatCurrency(item.salePrice)}</span>
-                </div>
-              </div>
-            </Link>
-          ))}
-        </div>
-      </section>
-
       <section className="w-full border-t border-[#E8E8E8] bg-[#FAFAFA]">
-        <div className="mx-auto grid w-full max-w-6xl grid-cols-2 gap-6 px-4 py-10 text-[#737373] sm:grid-cols-3 md:grid-cols-5">
-          {partnerLogos.map((logo) => (
-            <p key={logo} className="text-center text-4xl font-bold text-[#8A8A8A]">
+        <div className="mx-auto flex w-full max-w-6xl flex-wrap justify-center gap-6 px-4 py-10 text-[#737373]">
+          {["Hooli", "Lyft", "Stripe", "AWS", "Reddit"].map((logo) => (
+            <p
+              key={logo}
+              className="w-[calc(50%-12px)] text-center text-4xl font-bold text-[#8A8A8A] sm:w-[calc(33.333%-16px)] md:w-[calc(20%-19.2px)]"
+            >
               {logo}
             </p>
           ))}
