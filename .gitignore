@@ -29,3 +29,6 @@ src/figmas/
 *.sln
 *.sw?
 *.zip
+
+# Backend build output (Maven)
+server/target/
