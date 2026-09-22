@@ -1,0 +1,16 @@
+spring:
+  # H2 (PostgreSQL compatibility mode) is used strictly for fast, deterministic tests.
+  # It is NOT a production database and does not guarantee full PostgreSQL compatibility;
+  # real PostgreSQL/Testcontainers integration coverage is added in the integration-test phase.
+  datasource:
+    url: jdbc:h2:mem:ecommerce-test;MODE=PostgreSQL;DB_CLOSE_DELAY=-1
+    username: sa
+    password:
+    driver-class-name: org.h2.Driver
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: true
+  flyway:
+    enabled: true
+    locations: classpath:db/migration,classpath:db/test-migration

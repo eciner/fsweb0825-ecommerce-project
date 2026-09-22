@@ -1,6 +1,12 @@
 spring:
   application:
     name: ecommerce-api
+  profiles:
+    default: local
+  jpa:
+    open-in-view: false
+  flyway:
+    locations: classpath:db/migration
 
 server:
   port: ${PORT:8080}
