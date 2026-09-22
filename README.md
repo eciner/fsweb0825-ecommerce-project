@@ -137,6 +137,8 @@ No fabricated discounts/reviews/variants are injected for API products.
   - Tax number to uppercase `TXXXXVXXXXXX`.
   - Turkish IBAN to uppercase compact format with checksum validation.
 - Login and verify use raw-token `Authorization`; no `Bearer` prefix is added.
+- Phase 4 backend auth accepts both the historical raw token and standard `Bearer <token>` Authorization forms during frontend migration.
+- Production JWT signing requires the `JWT_SECRET` environment variable; there is no production secret fallback.
 - Tokens are kept out of Redux. Redux stores the user response fields with token fields removed.
 - Logout clears local token storage, Axios authorization state, and Redux user state.
 

@@ -10,5 +10,10 @@ spring:
   flyway:
     locations: classpath:db/migration
 
+app:
+  jwt:
+    secret: ${JWT_SECRET}
+    expiration: ${JWT_EXPIRATION:86400000}
+
 server:
   port: ${PORT:8080}
