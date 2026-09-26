@@ -101,4 +101,9 @@ public class Product {
         return images;
     }
 
+    public void recordSale(int count) {
+        stock -= count;
+        sellCount += count;
+    }
+
 }
