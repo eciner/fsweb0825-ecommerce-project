@@ -1,10 +1,33 @@
 # Project Progress
 
-## Status Through T23 (Re-audited)
+## Frontend Status Through WorkinTech T23 (Re-audited)
 
 - Completed and verified locally: T01-T23
 - Live authenticated address/card/order endpoint verification requires a valid test session token.
 - Postman request coverage exists for all checkout/order endpoints; no test account data was created solely for this audit.
+
+The frontend stabilization sequence ended with authenticated order-history navigation (`04c69a2`), checkout validation and state synchronization (`15ce012`), Node runtime pinning and frontend CI (`eb6f7e6`), and final frontend status reconciliation (`1d19502`). The React/Vite frontend remains independently deployable and retains its existing external API contract until internal backend Phase 9.
+
+## Internal Backend Progress
+
+WorkinTech T01-T23 labels above are assignment tasks; the backend Phase 1-10 labels below are the separate implementation roadmap. The backend source is `server/` on `feat/backend-api`.
+
+| Phase | State | Verified commit | Result |
+| --- | --- | --- | --- |
+| 1 — Foundation | Complete | `e335d72` | Spring Boot, Maven Wrapper, Java 21, health endpoint |
+| 2 — Persistence | Complete | `533b163` | PostgreSQL, JPA/Hibernate, Flyway migrations |
+| 3 — Catalog | Complete | `4729cf9` | Roles, categories, products, frontend-compatible queries |
+| 4 — Authentication | Complete | `9bd1e51` | JWT signup/login/verify, BCrypt, raw-token compatibility |
+| 5 — User resources | Complete | `91f60a1` | Authenticated address/card APIs and ownership checks |
+| 6 — Orders | Complete | `d4e9f63` | Transactional `POST /order`, owner-scoped `GET /order`, canonical pricing and stock updates |
+| 7 — Integration coverage + CI | Next; not started | — | PostgreSQL/Testcontainers tests and separate backend CI planned |
+| 8 — Deployment | Future | — | Docker, Render, PostgreSQL deployment planned |
+| 9 — Frontend cutover | Future | — | Connect frontend to Spring API planned |
+| 10 — Final hardening | Future | — | Final hardening and documentation planned |
+
+Current approved backend baseline is `d4e9f63f61da4386fa222bc79625ba5ee2330e4b` (local and `origin/feat/backend-api` matched after fetch). Phase 5 closed with 46 passing tests and a passing package; Phase 6 closed with Java 21.0.12, 54 passing tests, zero failures/errors/skips, and a passing package. Phase 6 includes Flyway V7, database-authoritative `BigDecimal` totals, `PESSIMISTIC_WRITE` inventory locking in ascending product order, rollback on failed orders, and no CVV or full card number in order history. Saved cards still persist full `card_no` solely for temporary capstone compatibility.
+
+Local Phase 7 environment preparation was separately verified with WSL 2, virtualization, Docker Desktop/client/daemon, `docker info`, and `hello-world`. This is preparation, not Phase 7 implementation. The audited Phase 7 plan retains the fast H2 suite, adds real PostgreSQL migration, time-zone and locking checks through Testcontainers, and adds Java 21 Maven Wrapper backend CI without production secrets. Witshop remains a read-only reference for assignment interpretation and architecture; this project's contracts and decisions remain authoritative.
 
 ## Verified Highlights
 

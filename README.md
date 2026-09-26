@@ -4,9 +4,12 @@ React + Vite e-commerce project for WorkinTech Bootcamp.
 
 ## Current Phase Status
 
-- Completed locally: T01-T23
+- Frontend WorkinTech tasks T01-T23 are complete; the React/Vite frontend remains independently deployable and still uses the existing external API contract.
+- Internal backend Phases 1-6 are complete. Phase 6 (`d4e9f63`) added transactional `POST /order` and owner-scoped `GET /order`.
+- Current backend baseline: `d4e9f63f61da4386fa222bc79625ba5ee2330e4b` on `feat/backend-api` (local and remote matched at reconciliation).
+- Next: Phase 7, backend integration coverage and CI, has not started. Phases 8-10 remain future work.
 
-## Stack
+## Frontend Stack
 
 - React
 - Vite
@@ -18,6 +21,8 @@ React + Vite e-commerce project for WorkinTech Bootcamp.
 - Lucide React
 - Swiper
 - Tailwind CSS
+
+The backend in `server/` uses Java 21, Spring Boot, Spring Security/JWT, JPA/Hibernate, PostgreSQL, and Flyway. Its production deployment is planned for internal Phase 8.
 
 ## Run
 
@@ -164,7 +169,7 @@ No fabricated discounts/reviews/variants are injected for API products.
 
 Catalog and authentication requests were previously verified against the public API. The authenticated address, card, and order requests are implemented and documented in Postman, but were not live-executed in this audit because no safe session token was available.
 
-The current milestone is the frontend capstone. A separately developed Spring Boot backend can be connected later through `VITE_API_URL`; no backend implementation is included here.
+The Spring Boot backend is implemented through internal Phase 6 under `server/`. Frontend cutover to this backend through `VITE_API_URL` belongs to internal Phase 9; the frontend currently retains its existing external API configuration. Backend deployment belongs to Phase 8.
 
 Observed backend behavior: `GET /products/99999999` returned HTTP 500 on 2026-07-21, so invalid product detail requests are treated as retryable failures rather than assumed 404s.
 
