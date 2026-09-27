@@ -1,8 +1,7 @@
-# Select the web and database plans before creating this Blueprint.
-# Omitted plan fields use Render defaults, which may be paid.
 services:
   - type: web
     name: fsweb0825-ecommerce-api
+    plan: free
     runtime: docker
     branch: feat/backend-api
     region: frankfurt
@@ -44,6 +43,7 @@ services:
 
 databases:
   - name: fsweb0825-ecommerce-db
+    plan: free
     region: frankfurt
     postgresMajorVersion: "16"
     ipAllowList: []
