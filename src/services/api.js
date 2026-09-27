@@ -1,6 +1,7 @@
 import axios from "axios";
 
 const TOKEN_KEY = "token";
+export const API_TIMEOUT_MS = 150_000;
 
 let sessionToken = null;
 
@@ -8,7 +9,7 @@ const api = axios.create({
   baseURL:
     import.meta.env.VITE_API_URL ||
     "https://workintech-fe-ecommerce.onrender.com",
-  timeout: 10000,
+  timeout: API_TIMEOUT_MS,
   headers: {
     "Content-Type": "application/json",
   },

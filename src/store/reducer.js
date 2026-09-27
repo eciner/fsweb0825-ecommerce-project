@@ -4,6 +4,8 @@ import {
   SET_THEME,
   SET_LANGUAGE,
   SET_AUTH_INITIALIZED,
+  SET_AUTH_VERIFICATION_ERROR,
+  RESET_ACCOUNT_SESSION,
   SET_CATEGORIES,
   SET_CATEGORIES_FETCH_STATE,
   SET_CATEGORIES_ERROR,
@@ -34,6 +36,8 @@ const initialState = {
     theme: "",
     language: "",
     authInitialized: false,
+    authVerificationError: false,
+    sessionRevision: 0,
   },
   product: {
     categories: [],
@@ -74,6 +78,24 @@ const initialState = {
 
 export default function reducer(state = initialState, action) {
   switch (action.type) {
+    case RESET_ACCOUNT_SESSION:
+      return {
+        ...state,
+        client: {
+          ...state.client,
+          user: {},
+          addressList: [],
+          creditCards: [],
+          authVerificationError: false,
+          sessionRevision: state.client.sessionRevision + 1,
+        },
+        shoppingCart: {
+          ...state.shoppingCart,
+          address: {},
+          payment: {},
+        },
+      };
+
     case SET_USER:
       return {
         ...state,
@@ -128,6 +150,15 @@ export default function reducer(state = initialState, action) {
         client: {
           ...state.client,
           authInitialized: action.payload,
+        },
+      };
+
+    case SET_AUTH_VERIFICATION_ERROR:
+      return {
+        ...state,
+        client: {
+          ...state.client,
+          authVerificationError: Boolean(action.payload),
         },
       };
 

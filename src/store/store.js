@@ -2,6 +2,7 @@ import { legacy_createStore as createStore, applyMiddleware } from "redux";
 import { thunk } from "redux-thunk";
 import { createLogger } from "redux-logger";
 import reducer from "./reducer";
+import { redactForLogger } from "./redactForLogger";
 
 const middlewares = [thunk];
 
@@ -10,6 +11,9 @@ if (import.meta.env.DEV) {
 		createLogger({
 			collapsed: true,
 			duration: true,
+			actionTransformer: redactForLogger,
+			stateTransformer: redactForLogger,
+			errorTransformer: redactForLogger,
 		}),
 	);
 }

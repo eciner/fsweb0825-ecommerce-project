@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { useDispatch, useSelector } from "react-redux";
@@ -21,18 +21,22 @@ import {
 } from "../store/actions";
 import { buildOrderPayload, calculateCartTotals } from "../utils/cart";
 import { isCardExpired } from "../utils/card";
+import { getCheckoutView } from "../utils/checkoutView";
 
 function Input({ label, name, register, rules, error, type = "text" }) {
+  const errorId = `${name}-error`;
   return (
     <label className="flex flex-col gap-1 text-sm font-semibold text-[#252B42]">
       <span>{label}</span>
       <input
         type={type}
         className="h-10 rounded border border-[#DDDDDD] px-3 font-normal outline-none focus:border-[#23A6F0]"
+        aria-invalid={Boolean(error)}
+        aria-describedby={error ? errorId : undefined}
         {...register(name, rules)}
       />
       {error && (
-        <span className="text-xs font-normal text-[#E74040]">
+        <span id={errorId} className="text-xs font-normal text-[#E74040]">
           {error.message}
         </span>
       )}
@@ -41,16 +45,19 @@ function Input({ label, name, register, rules, error, type = "text" }) {
 }
 
 function AddressDetailsField({ register, rules, error }) {
+  const errorId = "neighborhood-error";
   return (
     <label className="flex flex-col gap-1 text-sm font-semibold text-[#252B42] sm:col-span-2">
       <span>Neighborhood / Address Details</span>
       <textarea
         rows="3"
         className="rounded border border-[#DDDDDD] px-3 py-2 font-normal outline-none focus:border-[#23A6F0]"
+        aria-invalid={Boolean(error)}
+        aria-describedby={error ? errorId : undefined}
         {...register("neighborhood", rules)}
       />
       {error && (
-        <span className="text-xs font-normal text-[#E74040]">
+        <span id={errorId} className="text-xs font-normal text-[#E74040]">
           {error.message}
         </span>
       )}
@@ -112,6 +119,8 @@ function AddressForm({ address, onDone }) {
         <span>City</span>
         <select
           className="h-10 rounded border border-[#DDDDDD] px-3 font-normal outline-none focus:border-[#23A6F0]"
+          aria-invalid={Boolean(errors.city)}
+          aria-describedby={errors.city ? "city-error" : undefined}
           {...register("city", { required: "City is required." })}
         >
           <option value="">Select a city</option>
@@ -123,7 +132,7 @@ function AddressForm({ address, onDone }) {
         </select>
       </label>
       {errors.city && (
-        <span className="text-xs font-normal text-[#E74040]">
+        <span id="city-error" className="text-xs font-normal text-[#E74040]">
           {errors.city.message}
         </span>
       )}
@@ -253,6 +262,7 @@ export default function OrderPage() {
   const [selectedCard, setSelectedCard] = useState(null);
   const [ccv, setCcv] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const submittingRef = useRef(false);
   const [addressLoadError, setAddressLoadError] = useState("");
   const [cardLoadError, setCardLoadError] = useState("");
 
@@ -303,8 +313,9 @@ export default function OrderPage() {
     dispatch(setCheckoutPayment(selectedCard || {}));
   }, [dispatch, selectedCard]);
   const totals = calculateCartTotals(cart);
+  const checkoutView = getCheckoutView(step, cart.length);
 
-  if (!cart.length) {
+  if (checkoutView === "empty") {
     return (
       <section className="mx-auto flex w-full max-w-6xl flex-col items-center px-4 py-20 text-center">
         <h1 className="text-3xl font-bold text-[#252B42]">
@@ -325,6 +336,7 @@ export default function OrderPage() {
 
   const completeOrder = async (event) => {
     event.preventDefault();
+    if (submittingRef.current) return;
     if (
       !selectedShippingAddress?.id ||
       !selectedReceiptAddress?.id ||
@@ -337,6 +349,7 @@ export default function OrderPage() {
       );
       return;
     }
+    submittingRef.current = true;
     setSubmitting(true);
     try {
       const payload = buildOrderPayload({
@@ -354,6 +367,7 @@ export default function OrderPage() {
     } catch (error) {
       toast.error(error.message);
     } finally {
+      submittingRef.current = false;
       setSubmitting(false);
     }
   };
@@ -370,7 +384,7 @@ export default function OrderPage() {
           2. Payment
         </span>
       </div>
-      {step === 3 ? (
+      {checkoutView === "success" ? (
         <div className="mt-10 rounded-md bg-white p-10 text-center shadow-sm">
           <h2 className="text-2xl font-bold text-[#23856D]">Order completed</h2>
           <p className="mt-3 text-sm text-[#737373]">

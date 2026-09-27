@@ -19,7 +19,7 @@ import {
   X,
 } from "lucide-react";
 
-import { fetchCategoriesIfNeeded, logoutUser } from "../store/actions";
+import { fetchCategoriesIfNeeded, logoutUser, verifyStoredSession } from "../store/actions";
 import { buildCategoryPath } from "../utils/slug";
 import CartDropdown from "../components/CartDropdown";
 
@@ -51,6 +51,7 @@ function Header() {
   const cart = useSelector((state) => state.shoppingCart.cart);
   const user = useSelector((state) => state.client.user);
   const authInitialized = useSelector((state) => state.client.authInitialized);
+  const authVerificationError = useSelector((state) => state.client.authVerificationError);
   const categories = useSelector((state) => state.product.categories);
   const categoriesFetchState = useSelector(
     (state) => state.product.categoriesFetchState,
@@ -126,9 +127,9 @@ function Header() {
     );
 
     return [
-      { label: "Kadın", items: women },
-      { label: "Erkek", items: men },
-      { label: "Diğer", items: other },
+      { key: "women", label: "Kadın", items: women },
+      { key: "men", label: "Erkek", items: men },
+      { key: "other", label: "Diğer", items: other },
     ].filter((group) => group.items.length > 0);
   }, [categories]);
 
@@ -147,7 +148,7 @@ function Header() {
     closeMenus();
   };
 
-  const renderCategoryLinks = (compact = false) => {
+  const renderCategoryLinks = (compact = false, desktop = false) => {
     if (categoriesFetchState === "FETCHING") {
       return (
         <div className="px-3 py-2 text-xs text-[#737373]">
@@ -181,27 +182,43 @@ function Header() {
       );
     }
 
-    return (
-      <>
-        {groupedCategories.map((group) => (
-          <div key={group.label} className="flex flex-col">
-            <p className="px-3 py-2 text-xs font-bold uppercase tracking-wide text-[#737373]">
-              {group.label}
-            </p>
-            {group.items.map((category) => (
-              <Link
-                key={category.id}
-                to={buildCategoryPath(category)}
-                className={`px-3 py-2 text-sm text-[#252B42] hover:bg-[#F5F5F5] ${compact ? "border-b border-[#F1F1F1]" : ""}`}
-                onClick={closeMenus}
-              >
-                {category.title}
-              </Link>
-            ))}
-          </div>
+    const renderGroup = (group) => (
+      <div key={group.key} className="flex min-w-0 flex-1 flex-col">
+        <p className="px-3 py-2 text-xs font-bold uppercase tracking-wide text-[#737373]">
+          {group.label}
+        </p>
+        {group.items.map((category) => (
+          <Link
+            key={category.id}
+            to={buildCategoryPath(category)}
+            className={`px-3 py-2 text-sm text-[#252B42] hover:bg-[#F5F5F5] ${compact ? "border-b border-[#F1F1F1]" : ""}`}
+            onClick={closeMenus}
+          >
+            {category.title}
+          </Link>
         ))}
-      </>
+      </div>
     );
+
+    if (desktop) {
+      const primaryGroups = groupedCategories.filter((group) => group.key !== "other");
+      const otherGroup = groupedCategories.find((group) => group.key === "other");
+
+      return (
+        <>
+          <div className="flex items-start gap-3 px-2 py-2">
+            {primaryGroups.map(renderGroup)}
+          </div>
+          {otherGroup && (
+            <div className="border-t border-[#F1F1F1] px-2 py-2">
+              {renderGroup(otherGroup)}
+            </div>
+          )}
+        </>
+      );
+    }
+
+    return groupedCategories.map(renderGroup);
   };
 
   let authLinksContent = null;
@@ -332,29 +349,23 @@ function Header() {
               <button
                 type="button"
                 className="flex items-center gap-1 text-sm font-semibold text-[#737373] transition-colors hover:text-[#252B42]"
-                aria-haspopup="menu"
                 aria-expanded={isDesktopCategoriesOpen}
+                aria-controls="desktop-categories"
                 onClick={() => setIsDesktopCategoriesOpen((prev) => !prev)}
-                onKeyDown={(event) => {
-                  if (event.key === "Enter" || event.key === " ") {
-                    event.preventDefault();
-                    setIsDesktopCategoriesOpen((prev) => !prev);
-                  }
-                }}
               >
                 Shop <ChevronDown size={16} />
               </button>
 
               {isDesktopCategoriesOpen && (
-                <div className="absolute left-0 z-20 mt-3 flex min-w-72 flex-col rounded-md border border-[#E8E8E8] bg-white py-2 shadow-lg">
+                <div id="desktop-categories" className="absolute left-0 z-20 mt-3 flex min-w-80 flex-col rounded-md border border-[#E8E8E8] bg-white py-2 shadow-lg">
+                  {renderCategoryLinks(false, true)}
                   <Link
                     to="/shop"
-                    className="border-b border-[#F1F1F1] px-3 py-2 text-sm font-semibold text-[#23A6F0] hover:bg-[#F5F5F5]"
+                    className="border-t border-[#F1F1F1] px-5 py-2 text-sm font-semibold text-[#23A6F0] hover:bg-[#F5F5F5]"
                     onClick={closeMenus}
                   >
                     All Products
                   </Link>
-                  {renderCategoryLinks()}
                 </div>
               )}
             </div>
@@ -430,6 +441,8 @@ function Header() {
               className="flex items-center justify-center text-[#252B42] md:hidden cursor-pointer"
               onClick={toggleMenu}
               aria-label="Toggle menu"
+              aria-expanded={isMenuOpen}
+              aria-controls="mobile-main-menu"
             >
               {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
             </button>
@@ -437,9 +450,18 @@ function Header() {
         </div>
       </nav>
 
+      {authVerificationError && (
+        <div role="alert" className="flex items-center justify-center gap-3 bg-[#FFF8E7] px-4 py-2 text-sm text-[#252B42]">
+          <span>Session verification is temporarily unavailable.</span>
+          <button type="button" className="font-semibold text-[#23A6F0]" onClick={() => dispatch(verifyStoredSession())}>
+            Retry
+          </button>
+        </div>
+      )}
+
       {/* Mobile Navigation Menu */}
       {isMenuOpen && (
-        <div className="flex w-full flex-col border-b border-[#E8E8E8] bg-white md:hidden">
+        <div id="mobile-main-menu" className="flex w-full flex-col border-b border-[#E8E8E8] bg-white md:hidden">
           <div className="mx-auto flex w-full max-w-6xl flex-col gap-0 px-4 py-3">
             <Link
               to="/"

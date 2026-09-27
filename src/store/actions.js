@@ -16,6 +16,8 @@ export const SET_ROLES = "SET_ROLES";
 export const SET_THEME = "SET_THEME";
 export const SET_LANGUAGE = "SET_LANGUAGE";
 export const SET_AUTH_INITIALIZED = "SET_AUTH_INITIALIZED";
+export const SET_AUTH_VERIFICATION_ERROR = "SET_AUTH_VERIFICATION_ERROR";
+export const RESET_ACCOUNT_SESSION = "RESET_ACCOUNT_SESSION";
 
 export const SET_CATEGORIES = "SET_CATEGORIES";
 export const SET_CATEGORIES_FETCH_STATE = "SET_CATEGORIES_FETCH_STATE";
@@ -64,6 +66,13 @@ export const setAuthInitialized = (isInitialized) => ({
   type: SET_AUTH_INITIALIZED,
   payload: isInitialized,
 });
+
+export const setAuthVerificationError = (hasError) => ({
+  type: SET_AUTH_VERIFICATION_ERROR,
+  payload: hasError,
+});
+
+export const resetAccountSession = () => ({ type: RESET_ACCOUNT_SESSION });
 
 export const setCategories = (categories) => ({
   type: SET_CATEGORIES,
@@ -320,8 +329,19 @@ export const fetchProductsByQuery = (queryInput, { force = false } = {}) => {
       };
     }
 
-    if (listRequestsByKey.has(queryKey)) {
-      return listRequestsByKey.get(queryKey);
+    const pending = listRequestsByKey.get(queryKey);
+    if (pending) {
+      if (
+        state.activeQueryKey !== queryKey ||
+        state.activeListRequestId !== pending.requestId
+      ) {
+        dispatch(productListFetchStarted({
+          query,
+          queryKey,
+          requestId: pending.requestId,
+        }));
+      }
+      return pending.request;
     }
 
     const requestId = ++listRequestSequence;
@@ -379,7 +399,7 @@ export const fetchProductsByQuery = (queryInput, { force = false } = {}) => {
         listRequestsByKey.delete(queryKey);
       });
 
-    listRequestsByKey.set(queryKey, request);
+    listRequestsByKey.set(queryKey, { requestId, request });
     return request;
   };
 };
@@ -417,8 +437,18 @@ export const fetchProductDetail = (productIdInput, { force = false } = {}) => {
       return currentState.selectedProduct;
     }
 
-    if (detailRequestsByProductId.has(productId)) {
-      return detailRequestsByProductId.get(productId);
+    const pending = detailRequestsByProductId.get(productId);
+    if (pending) {
+      if (
+        currentState.selectedProductId !== productId ||
+        currentState.activeDetailRequestId !== pending.requestId
+      ) {
+        dispatch(productDetailFetchStarted({
+          productId,
+          requestId: pending.requestId,
+        }));
+      }
+      return pending.request;
     }
 
     const requestId = ++detailRequestSequence;
@@ -464,7 +494,7 @@ export const fetchProductDetail = (productIdInput, { force = false } = {}) => {
         detailRequestsByProductId.delete(productId);
       });
 
-    detailRequestsByProductId.set(productId, request);
+    detailRequestsByProductId.set(productId, { requestId, request });
     return request;
   };
 };
@@ -484,6 +514,8 @@ export const loginUser = ({ email, password, rememberMe }) => {
       throw normalizeError(null, "Authentication token was not returned.");
     }
 
+    verifyRequest = null;
+    dispatch(resetAccountSession());
     setAuthToken(token);
 
     if (rememberMe) {
@@ -505,7 +537,7 @@ export const loginUser = ({ email, password, rememberMe }) => {
 };
 
 export const verifyStoredSession = () => {
-  return async (dispatch) => {
+  return async (dispatch, getState) => {
     if (verifyRequest) {
       return verifyRequest;
     }
@@ -514,16 +546,22 @@ export const verifyStoredSession = () => {
 
     if (!storedToken) {
       clearAuthToken();
-      dispatch(setUser({}));
+      dispatch(resetAccountSession());
       dispatch(setAuthInitialized(true));
       return { authenticated: false };
     }
 
+    dispatch(resetAccountSession());
+    dispatch(setAuthInitialized(false));
+    const sessionRevision = getState().client.sessionRevision;
     setAuthToken(storedToken);
 
-    verifyRequest = api
+    const request = api
       .get("/verify")
       .then((response) => {
+        if (getState().client.sessionRevision !== sessionRevision) {
+          return { authenticated: false, stale: true };
+        }
         const renewedToken = getAuthToken(response) || storedToken;
         setAuthToken(renewedToken);
         storeToken(renewedToken);
@@ -538,28 +576,44 @@ export const verifyStoredSession = () => {
           token: renewedToken,
         };
       })
-      .catch(() => {
-        removeStoredToken();
-        clearAuthToken();
-        dispatch(setUser({}));
+      .catch((error) => {
+        if (getState().client.sessionRevision !== sessionRevision) {
+          return { authenticated: false, stale: true };
+        }
+
+        if (error?.status === 401) {
+          removeStoredToken();
+          clearAuthToken();
+          dispatch(resetAccountSession());
+          dispatch(setAuthInitialized(true));
+          return { authenticated: false };
+        }
+
+        dispatch(setAuthVerificationError(true));
         dispatch(setAuthInitialized(true));
         return {
           authenticated: false,
+          transient: true,
+          error: normalizeError(error, "Session verification is temporarily unavailable."),
         };
       })
       .finally(() => {
-        verifyRequest = null;
+        if (verifyRequest === request) {
+          verifyRequest = null;
+        }
       });
 
+    verifyRequest = request;
     return verifyRequest;
   };
 };
 
 export const logoutUser = () => {
   return (dispatch) => {
+    verifyRequest = null;
     removeStoredToken();
     clearAuthToken();
-    dispatch(setUser({}));
+    dispatch(resetAccountSession());
     dispatch(setAuthInitialized(true));
   };
 };
@@ -576,10 +630,12 @@ function toMutationError(error, fallbackMessage) {
   return normalizeError(error, fallbackMessage);
 }
 
-export const fetchAddresses = () => async (dispatch) => {
+export const fetchAddresses = () => async (dispatch, getState) => {
+  const sessionRevision = getState().client.sessionRevision;
   try {
     const response = await api.get("/user/address");
     const addresses = toCollectionPayload(response, ["addresses", "address"]);
+    if (getState().client.sessionRevision !== sessionRevision) return [];
     dispatch(setAddressList(addresses));
     return addresses;
   } catch (error) {
@@ -614,10 +670,12 @@ export const deleteAddress = (addressId) => async (dispatch) => {
   }
 };
 
-export const fetchCreditCards = () => async (dispatch) => {
+export const fetchCreditCards = () => async (dispatch, getState) => {
+  const sessionRevision = getState().client.sessionRevision;
   try {
     const response = await api.get("/user/card");
     const cards = toCollectionPayload(response, ["cards", "creditCards"]);
+    if (getState().client.sessionRevision !== sessionRevision) return [];
     dispatch(setCreditCards(cards));
     return cards;
   } catch (error) {

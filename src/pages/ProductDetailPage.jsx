@@ -13,6 +13,7 @@ import {
   FALLBACK_PRODUCT_IMAGE,
   toProductDetailModel,
 } from "../utils/productModel";
+import { getProductDetailRouteState } from "../utils/productDetailRoute";
 import { buildCategoryPath, buildProductDetailPath } from "../utils/slug";
 
 function formatCurrency(value) {
@@ -52,6 +53,14 @@ export default function ProductDetailPage() {
   );
 
   const parsedProductId = Number.parseInt(String(productId), 10);
+  const { currentProduct, isLoading, isFailed, canCanonicalize } =
+    getProductDetailRouteState({
+      routeProductId: parsedProductId,
+      selectedProductId,
+      selectedProduct,
+      fetchState: selectedProductFetchState,
+      error: selectedProductError,
+    });
 
   useEffect(() => {
     dispatch(fetchCategoriesIfNeeded());
@@ -71,8 +80,8 @@ export default function ProductDetailPage() {
   );
 
   const product = useMemo(
-    () => toProductDetailModel(selectedProduct, categoriesById),
-    [selectedProduct, categoriesById],
+    () => toProductDetailModel(currentProduct, categoriesById),
+    [currentProduct, categoriesById],
   );
 
   const resolvedCategory =
@@ -82,6 +91,7 @@ export default function ProductDetailPage() {
 
   const canonicalPath = useMemo(() => {
     if (
+      !canCanonicalize ||
       !product ||
       !resolvedCategory ||
       !Number.isFinite(parsedProductId) ||
@@ -90,12 +100,12 @@ export default function ProductDetailPage() {
       return null;
     }
 
-    return buildProductDetailPath(selectedProduct, resolvedCategory);
-  }, [product, parsedProductId, selectedProduct, resolvedCategory]);
+    return buildProductDetailPath(currentProduct, resolvedCategory);
+  }, [canCanonicalize, product, parsedProductId, currentProduct, resolvedCategory]);
 
   useEffect(() => {
     if (
-      selectedProductFetchState !== "FETCHED" ||
+      !canCanonicalize ||
       !canonicalPath ||
       !Number.isFinite(parsedProductId)
     ) {
@@ -110,13 +120,13 @@ export default function ProductDetailPage() {
     }
   }, [
     canonicalPath,
+    canCanonicalize,
     categoryName,
     gender,
     history,
     parsedProductId,
     productNameSlug,
     routeCategoryId,
-    selectedProductFetchState,
   ]);
 
   const [selectedImageState, setSelectedImageState] = useState({
@@ -153,9 +163,6 @@ export default function ProductDetailPage() {
   const handleRetry = () => {
     dispatch(fetchProductDetail(parsedProductId, { force: true }));
   };
-
-  const isLoading = selectedProductFetchState === "FETCHING";
-  const isFailed = selectedProductFetchState === "FAILED";
 
   return (
     <div className="w-full bg-[#FAFAFA]">
@@ -381,7 +388,7 @@ export default function ProductDetailPage() {
                   disabled={product.stock <= 0}
                   className="h-11 rounded bg-[#23A6F0] px-6 text-sm font-semibold text-white hover:bg-[#1B8FD8] disabled:cursor-not-allowed disabled:bg-[#BDBDBD]"
                   onClick={() => {
-                    dispatch(addCartItem(selectedProduct));
+                    dispatch(addCartItem(currentProduct));
                     toast.success("Product added to cart.");
                   }}
                 >
