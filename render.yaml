@@ -1,0 +1,49 @@
+# Select the web and database plans before creating this Blueprint.
+# Omitted plan fields use Render defaults, which may be paid.
+services:
+  - type: web
+    name: fsweb0825-ecommerce-api
+    runtime: docker
+    branch: feat/backend-api
+    region: frankfurt
+    dockerfilePath: ./server/Dockerfile
+    dockerContext: ./server
+    healthCheckPath: /health
+    autoDeployTrigger: checksPass
+    buildFilter:
+      paths:
+        - server/**
+        - render.yaml
+    envVars:
+      - key: SPRING_PROFILES_ACTIVE
+        value: prod
+      - key: DB_HOST
+        fromDatabase:
+          name: fsweb0825-ecommerce-db
+          property: host
+      - key: DB_PORT
+        fromDatabase:
+          name: fsweb0825-ecommerce-db
+          property: port
+      - key: DB_NAME
+        fromDatabase:
+          name: fsweb0825-ecommerce-db
+          property: database
+      - key: DB_USER
+        fromDatabase:
+          name: fsweb0825-ecommerce-db
+          property: user
+      - key: DB_PASSWORD
+        fromDatabase:
+          name: fsweb0825-ecommerce-db
+          property: password
+      - key: JWT_SECRET
+        generateValue: true
+      - key: CORS_ALLOWED_ORIGINS
+        value: https://fsweb0825-ecommerce-project.vercel.app
+
+databases:
+  - name: fsweb0825-ecommerce-db
+    region: frankfurt
+    postgresMajorVersion: "16"
+    ipAllowList: []
