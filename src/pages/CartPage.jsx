@@ -56,7 +56,7 @@ export default function CartPage() {
                 <th className="p-4">Unit Price</th>
                 <th className="p-4">Quantity</th>
                 <th className="p-4">Total</th>
-                <th className="p-4">
+                <th className="relative p-4">
                   <span className="sr-only">Actions</span>
                 </th>
               </tr>

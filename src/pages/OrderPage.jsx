@@ -21,6 +21,7 @@ import {
 } from "../store/actions";
 import { buildOrderPayload, calculateCartTotals } from "../utils/cart";
 import { isCardExpired } from "../utils/card";
+import { isCheckoutReady } from "../utils/checkout";
 import { getCheckoutView } from "../utils/checkoutView";
 
 function Input({ label, name, register, rules, error, type = "text" }) {
@@ -314,6 +315,14 @@ export default function OrderPage() {
   }, [dispatch, selectedCard]);
   const totals = calculateCartTotals(cart);
   const checkoutView = getCheckoutView(step, cart.length);
+  const checkoutReady = isCheckoutReady({
+    shippingAddress: selectedShippingAddress,
+    receiptAddress: selectedReceiptAddress,
+    card: selectedCard,
+    ccv,
+    cart,
+    submitting,
+  });
 
   if (checkoutView === "empty") {
     return (
@@ -337,13 +346,7 @@ export default function OrderPage() {
   const completeOrder = async (event) => {
     event.preventDefault();
     if (submittingRef.current) return;
-    if (
-      !selectedShippingAddress?.id ||
-      !selectedReceiptAddress?.id ||
-      !selectedCard ||
-      !/^\d{3,4}$/.test(ccv) ||
-      !cart.some((item) => item.checked)
-    ) {
+    if (!checkoutReady) {
       toast.error(
         "Select shipping and receipt addresses, a card, products, and a valid CCV.",
       );
@@ -640,8 +643,8 @@ export default function OrderPage() {
                     <button
                       type="button"
                       onClick={completeOrder}
-                      disabled={submitting}
-                      className="inline-flex h-11 items-center gap-2 rounded bg-[#23A6F0] px-5 text-sm font-semibold text-white disabled:bg-[#BDBDBD]"
+                      disabled={!checkoutReady}
+                      className="inline-flex h-11 items-center gap-2 rounded bg-[#23A6F0] px-5 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:bg-[#BDBDBD]"
                     >
                       {submitting && (
                         <Loader2 size={16} className="animate-spin" />
