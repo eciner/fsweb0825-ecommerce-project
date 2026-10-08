@@ -16,7 +16,7 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "axios": "^1.13.3",
+    "axios": "^1.20.0",
     "history": "^4.10.1",
     "js-md5": "^0.9.2",
     "lucide-react": "^0.563.0",
@@ -45,6 +45,6 @@
     "postcss": "^8.5.6",
     "tailwindcss": "^4.1.18",
     "vite": "^7.2.4",
-    "vitest": "^3.2.4"
+    "vitest": "^4.1.11"
   }
 }
