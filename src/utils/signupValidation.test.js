@@ -1,6 +1,8 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  getDefaultSignupRoleId,
+  getPublicSignupRoles,
   isValidStoreTaxNumber,
   isValidTurkishIban,
   isValidTurkishMobilePhone,
@@ -11,6 +13,59 @@ import {
 } from "./signupValidation";
 
 describe("signup validation utilities", () => {
+  it("keeps only customer and store roles for public signup", () => {
+    expect(
+      getPublicSignupRoles([
+        { id: 847, code: "admin" },
+        { id: 54, code: "store" },
+        { id: 326, code: "customer" },
+        { id: 901, code: "future-privileged-role" },
+      ]),
+    ).toEqual([
+      { id: 54, code: "store" },
+      { id: 326, code: "customer" },
+    ]);
+  });
+
+  it("defaults to the customer role regardless of API role order", () => {
+    const adminRole = { id: 847, code: "admin" };
+    const storeRole = { id: 54, code: "store" };
+    const customerRole = { id: 326, code: "customer" };
+
+    for (const roles of [
+      [adminRole, storeRole, customerRole],
+      [customerRole, adminRole, storeRole],
+      [storeRole, customerRole, adminRole],
+    ]) {
+      expect(getDefaultSignupRoleId(roles)).toBe(String(customerRole.id));
+    }
+  });
+
+  it("does not fall back to store or admin when customer is missing", () => {
+    expect(
+      getDefaultSignupRoleId([
+        { id: 847, code: "admin" },
+        { id: 54, code: "store" },
+      ]),
+    ).toBe("");
+  });
+
+  it("handles empty and malformed role responses safely", () => {
+    for (const roles of [undefined, null, {}, "customer", []]) {
+      expect(getPublicSignupRoles(roles)).toEqual([]);
+      expect(getDefaultSignupRoleId(roles)).toBe("");
+    }
+
+    expect(
+      getDefaultSignupRoleId([
+        null,
+        {},
+        { code: "customer" },
+        { id: null, code: "customer" },
+      ]),
+    ).toBe("");
+  });
+
   it("trims text before length-sensitive validation", () => {
     expect(trimText("   ")).toBe("");
     expect(trimText("  Ada  ")).toBe("Ada");

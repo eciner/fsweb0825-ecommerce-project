@@ -8,6 +8,8 @@ import { toast } from "react-toastify";
 import { fetchRolesIfNeeded, signupUser } from "../store/actions";
 import { getSafeReturnPath } from "../utils/navigation";
 import {
+  getDefaultSignupRoleId,
+  getPublicSignupRoles,
   isValidStoreTaxNumber,
   isValidTurkishIban,
   isValidTurkishMobilePhone,
@@ -51,38 +53,42 @@ export default function SignupPage() {
     },
   });
 
-  const loadRoles = useCallback(({ force = false } = {}) => {
-    Promise.resolve().then(() => {
-      setRolesLoading(true);
-      setRolesError(null);
+  const loadRoles = useCallback(
+    ({ force = false } = {}) => {
+      Promise.resolve().then(() => {
+        setRolesLoading(true);
+        setRolesError(null);
 
-      dispatch(fetchRolesIfNeeded({ force }))
-        .catch((error) => {
-          setRolesError(error?.message || "Roles could not be loaded.");
-        })
-        .finally(() => {
-          setRolesLoading(false);
-        });
-    });
-  }, [dispatch]);
+        dispatch(fetchRolesIfNeeded({ force }))
+          .catch((error) => {
+            setRolesError(error?.message || "Roles could not be loaded.");
+          })
+          .finally(() => {
+            setRolesLoading(false);
+          });
+      });
+    },
+    [dispatch],
+  );
 
   useEffect(() => {
     loadRoles();
   }, [loadRoles]);
 
-  const customerRole = useMemo(
-    () => resolveRoleByCode(roles, "customer"),
-    [roles],
+  const publicRoles = useMemo(() => getPublicSignupRoles(roles), [roles]);
+  const defaultRoleId = useMemo(() => getDefaultSignupRoleId(roles), [roles]);
+  const storeRole = useMemo(
+    () => resolveRoleByCode(publicRoles, "store"),
+    [publicRoles],
   );
-  const storeRole = useMemo(() => resolveRoleByCode(roles, "store"), [roles]);
   const roleId = useWatch({ control, name: "role_id" });
   const password = useWatch({ control, name: "password" });
 
   useEffect(() => {
-    if (customerRole && !roleId) {
-      setValue("role_id", String(customerRole.id));
+    if (defaultRoleId && !roleId) {
+      setValue("role_id", defaultRoleId);
     }
-  }, [customerRole, roleId, setValue]);
+  }, [defaultRoleId, roleId, setValue]);
 
   const isStoreSelected = storeRole && String(storeRole.id) === String(roleId);
 
@@ -105,9 +111,7 @@ export default function SignupPage() {
 
     try {
       await Promise.resolve(dispatch(signupUser(payload)));
-      toast.warning(
-        "You need to click link in email to activate your account!",
-      );
+      toast.success("Account created successfully. You can log in now.");
 
       const fallbackPath = "/";
       const nextPath = getSafeReturnPath(location.state?.from, fallbackPath);
@@ -253,7 +257,7 @@ export default function SignupPage() {
             </label>
             <select
               id="role_id"
-              disabled={rolesLoading || roles.length === 0}
+              disabled={rolesLoading || publicRoles.length === 0}
               className="h-11 rounded border border-[#DDDDDD] px-3 text-sm text-[#252B42] outline-none focus:border-[#23A6F0]"
               aria-invalid={Boolean(errors.role_id)}
               aria-describedby={errors.role_id ? "role-error" : undefined}
@@ -261,12 +265,12 @@ export default function SignupPage() {
                 required: "Please select a role.",
               })}
             >
-              {!roles.length && (
+              {!publicRoles.length && (
                 <option value="">
                   {rolesLoading ? "Loading roles..." : "No roles available"}
                 </option>
               )}
-              {roles.map((role) => (
+              {publicRoles.map((role) => (
                 <option key={role.id} value={String(role.id)}>
                   {role.name}
                 </option>
@@ -419,7 +423,7 @@ export default function SignupPage() {
           <button
             type="submit"
             className="mt-2 inline-flex h-11 items-center justify-center gap-2 rounded bg-[#23A6F0] px-4 text-sm font-semibold text-white transition hover:bg-[#1B8FD8] disabled:cursor-not-allowed disabled:bg-[#8EC2F2]"
-            disabled={isSubmitting || rolesLoading || roles.length === 0}
+            disabled={isSubmitting || rolesLoading || publicRoles.length === 0}
           >
             {isSubmitting && (
               <Loader2 size={16} className="animate-spin" aria-hidden="true" />

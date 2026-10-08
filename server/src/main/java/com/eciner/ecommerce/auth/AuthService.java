@@ -45,18 +45,26 @@ public class AuthService {
 
         Role role = roleRepository.findById(request.roleId())
                 .orElseThrow(() -> new InvalidRequestException("INVALID_ROLE", "The selected role does not exist."));
-        boolean storeRole = "store".equalsIgnoreCase(role.getCode());
+        String roleCode = role.getCode();
+        boolean storeRole = "store".equalsIgnoreCase(roleCode);
+        if (!storeRole && !"customer".equalsIgnoreCase(roleCode)) {
+            throw new InvalidRequestException(
+                    "ROLE_NOT_ALLOWED_FOR_SIGNUP",
+                    "This role cannot be selected during public signup.");
+        }
         if (storeRole != (request.store() != null)) {
             throw new InvalidRequestException(
                     "INVALID_STORE_PAYLOAD",
-                    storeRole ? "Store details are required for the store role." : "Store details are only valid for the store role.");
+                    storeRole ? "Store details are required for the store role."
+                            : "Store details are only valid for the store role.");
         }
 
-        Store store = request.store() == null ? null : storeRepository.save(new Store(
-                request.store().name().trim(),
-                request.store().phone(),
-                request.store().taxNo().toUpperCase(Locale.ROOT),
-                request.store().bankAccount().toUpperCase(Locale.ROOT)));
+        Store store = request.store() == null ? null
+                : storeRepository.save(new Store(
+                        request.store().name().trim(),
+                        request.store().phone(),
+                        request.store().taxNo().toUpperCase(Locale.ROOT),
+                        request.store().bankAccount().toUpperCase(Locale.ROOT)));
         User user = userRepository.save(new User(
                 request.name().trim(),
                 email,
@@ -78,7 +86,8 @@ public class AuthService {
     @Transactional(readOnly = true)
     public User findByEmail(String email) {
         return userRepository.findByEmailIgnoreCase(email)
-                .orElseThrow(() -> new ResourceNotFoundException("USER_NOT_FOUND", "Authenticated user was not found."));
+                .orElseThrow(
+                        () -> new ResourceNotFoundException("USER_NOT_FOUND", "Authenticated user was not found."));
     }
 
     public AuthResponse verify(String email) {

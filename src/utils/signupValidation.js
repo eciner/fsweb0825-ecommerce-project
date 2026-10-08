@@ -2,6 +2,25 @@ export function trimText(value) {
   return String(value || "").trim();
 }
 
+export function getPublicSignupRoles(roles = []) {
+  if (!Array.isArray(roles)) {
+    return [];
+  }
+
+  const publicRoleCodes = new Set(["customer", "store"]);
+  return roles.filter((role) =>
+    publicRoleCodes.has(String(role?.code || "").toLowerCase()),
+  );
+}
+
+export function getDefaultSignupRoleId(roles = []) {
+  const customerRole = getPublicSignupRoles(roles).find(
+    (role) => String(role?.code || "").toLowerCase() === "customer",
+  );
+
+  return customerRole?.id == null ? "" : String(customerRole.id);
+}
+
 export function normalizeTurkishPhone(value) {
   const digits = String(value || "").replace(/\D/g, "");
 
@@ -39,8 +58,7 @@ function ibanMod97(value) {
 
   for (const char of value) {
     const code = char.charCodeAt(0);
-    const replacement =
-      code >= 65 && code <= 90 ? String(code - 55) : char;
+    const replacement = code >= 65 && code <= 90 ? String(code - 55) : char;
 
     for (const digit of replacement) {
       remainder = (remainder * 10 + Number(digit)) % 97;
