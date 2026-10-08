@@ -2,27 +2,98 @@
   "info": {
     "name": "fsweb0825 e-commerce API",
     "_postman_id": "f9be7db8-c6bc-4d89-b62d-a12944f6a4d4",
-    "description": "T08-T16 API requests for auth, catalog query parameters, pagination, and product detail.",
+    "description": "T08-T23 API collection for auth, catalog, checkout, and orders. Write requests are guarded for localhost only; set a local environment and disposable database before running.",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "variable": [
-    { "key": "baseUrl", "value": "https://workintech-fe-ecommerce.onrender.com" },
-    { "key": "token", "value": "" },
-    { "key": "categoryId", "value": "2" },
-    { "key": "productId", "value": "266" },
-    { "key": "filter", "value": "siyah" },
-    { "key": "sort", "value": "price:desc" },
-    { "key": "limit", "value": "25" },
-    { "key": "offset", "value": "0" },
-    { "key": "addressId", "value": "" },
-    { "key": "cardId", "value": "" },
-    { "key": "cardNo", "value": "" },
-    { "key": "expireMonth", "value": "" },
-    { "key": "expireYear", "value": "" },
-    { "key": "cardName", "value": "" },
-    { "key": "orderDate", "value": "" },
-    { "key": "cardCcv", "value": "" },
-    { "key": "orderPrice", "value": "" }
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8080"
+    },
+    {
+      "key": "token",
+      "value": ""
+    },
+    {
+      "key": "categoryId",
+      "value": "2"
+    },
+    {
+      "key": "productId",
+      "value": "1"
+    },
+    {
+      "key": "filter",
+      "value": "siyah"
+    },
+    {
+      "key": "sort",
+      "value": "price:desc"
+    },
+    {
+      "key": "limit",
+      "value": "25"
+    },
+    {
+      "key": "offset",
+      "value": "0"
+    },
+    {
+      "key": "addressId",
+      "value": ""
+    },
+    {
+      "key": "cardId",
+      "value": ""
+    },
+    {
+      "key": "cardNo",
+      "value": ""
+    },
+    {
+      "key": "expireMonth",
+      "value": "12"
+    },
+    {
+      "key": "expireYear",
+      "value": "2030"
+    },
+    {
+      "key": "cardName",
+      "value": "PHASE 10A LOCAL TEST"
+    },
+    {
+      "key": "orderDate",
+      "value": ""
+    },
+    {
+      "key": "cardCcv",
+      "value": ""
+    },
+    {
+      "key": "orderPrice",
+      "value": "0.01"
+    },
+    {
+      "key": "testEmail",
+      "value": "",
+      "type": "default"
+    },
+    {
+      "key": "testPassword",
+      "value": "",
+      "type": "default"
+    },
+    {
+      "key": "runId",
+      "value": "",
+      "type": "default"
+    },
+    {
+      "key": "runStoreSignup",
+      "value": "false",
+      "type": "default"
+    }
   ],
   "item": [
     {
@@ -32,8 +103,35 @@
           "name": "GET /roles",
           "request": {
             "method": "GET",
-            "url": { "raw": "{{baseUrl}}/roles", "host": ["{{baseUrl}}"], "path": ["roles"] }
-          }
+            "url": {
+              "raw": "{{baseUrl}}/roles",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "roles"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"roles returns 200\", () => pm.response.to.have.status(200));",
+                  "const roles = pm.response.json();",
+                  "const customer = roles.find((role) => role.code === \"customer\");",
+                  "const store = roles.find((role) => role.code === \"store\");",
+                  "const admin = roles.find((role) => role.code === \"admin\");",
+                  "pm.test(\"required roles are present\", () => { pm.expect(customer).to.exist; pm.expect(store).to.exist; pm.expect(admin).to.exist; });",
+                  "pm.collectionVariables.set(\"customerRoleId\", String(customer.id));",
+                  "pm.collectionVariables.set(\"storeRoleId\", String(store.id));",
+                  "pm.collectionVariables.set(\"adminRoleId\", String(admin.id));"
+                ]
+              }
+            }
+          ]
         }
       ]
     },
@@ -44,45 +142,157 @@
           "name": "POST /signup (customer)",
           "request": {
             "method": "POST",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"name\": \"Sample Customer\",\n  \"email\": \"sample.customer@example.com\",\n  \"password\": \"Aa1!aaaa\",\n  \"role_id\": 3\n}"
+              "raw": "{\n  \"name\": \"Phase 10A Local Customer\",\n  \"email\": \"{{testEmail}}\",\n  \"password\": \"{{testPassword}}\",\n  \"role_id\": {{customerRoleId}}\n}"
             },
-            "url": { "raw": "{{baseUrl}}/signup", "host": ["{{baseUrl}}"], "path": ["signup"] }
-          }
+            "url": {
+              "raw": "{{baseUrl}}/signup",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "signup"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"customer signup succeeds\", () => pm.response.to.have.status(201));",
+                  "pm.test(\"signup response does not issue a login token\", () => pm.expect(pm.response.json().token).to.be.oneOf([undefined, null]));"
+                ]
+              }
+            }
+          ]
         },
         {
           "name": "POST /signup (store)",
           "request": {
             "method": "POST",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"name\": \"Sample Store Owner\",\n  \"email\": \"sample.store@example.com\",\n  \"password\": \"Aa1!aaaa\",\n  \"role_id\": 2,\n  \"store\": {\n    \"name\": \"Sample Store\",\n    \"phone\": \"05551112233\",\n    \"tax_no\": \"T1234V123456\",\n    \"bank_account\": \"TR330006100519786457841326\"\n  }\n}"
+              "raw": "{\n  \"name\": \"Phase 10A Local Store Owner\",\n  \"email\": \"phase10a-store-{{runId}}@example.test\",\n  \"password\": \"{{testPassword}}\",\n  \"role_id\": {{storeRoleId}},\n  \"store\": {\n    \"name\": \"Phase 10A Local Store\",\n    \"phone\": \"05551112233\",\n    \"tax_no\": \"T1234V123456\",\n    \"bank_account\": \"TR330006100519786457841326\"\n  }\n}"
             },
-            "url": { "raw": "{{baseUrl}}/signup", "host": ["{{baseUrl}}"], "path": ["signup"] }
-          }
+            "url": {
+              "raw": "{{baseUrl}}/signup",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "signup"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (pm.environment.get(\"runStoreSignup\") !== \"true\") { pm.execution.skipRequest(); }"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"store signup succeeds when explicitly enabled\", () => pm.response.to.have.status(201));"
+                ]
+              }
+            }
+          ]
         },
         {
           "name": "POST /login",
           "request": {
             "method": "POST",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"email\": \"customer@commerce.com\",\n  \"password\": \"123456\"\n}"
+              "raw": "{\n  \"email\": \"{{testEmail}}\",\n  \"password\": \"{{testPassword}}\"\n}"
             },
-            "url": { "raw": "{{baseUrl}}/login", "host": ["{{baseUrl}}"], "path": ["login"] }
-          }
+            "url": {
+              "raw": "{{baseUrl}}/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "login"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"local login succeeds\", () => pm.response.to.have.status(200));",
+                  "const body = pm.response.json();",
+                  "pm.test(\"login returns token\", () => pm.expect(body.token).to.be.a(\"string\").and.not.empty);",
+                  "pm.collectionVariables.set(\"token\", body.token);"
+                ]
+              }
+            }
+          ]
         },
         {
           "name": "GET /verify",
           "request": {
             "method": "GET",
-            "header": [{ "key": "Authorization", "value": "{{token}}" }],
-            "url": { "raw": "{{baseUrl}}/verify", "host": ["{{baseUrl}}"], "path": ["verify"] }
-          }
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "{{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/verify",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "verify"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"verify succeeds\", () => pm.response.to.have.status(200));",
+                  "const body = pm.response.json();",
+                  "pm.test(\"verify returns the signed-in customer\", () => pm.expect(body.email).to.eql(pm.environment.get(\"testEmail\")));",
+                  "if (body.token) pm.collectionVariables.set(\"token\", body.token);"
+                ]
+              }
+            }
+          ]
         }
       ]
     },
@@ -93,14 +303,30 @@
           "name": "GET /categories",
           "request": {
             "method": "GET",
-            "url": { "raw": "{{baseUrl}}/categories", "host": ["{{baseUrl}}"], "path": ["categories"] }
+            "url": {
+              "raw": "{{baseUrl}}/categories",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "categories"
+              ]
+            }
           }
         },
         {
           "name": "GET /products",
           "request": {
             "method": "GET",
-            "url": { "raw": "{{baseUrl}}/products", "host": ["{{baseUrl}}"], "path": ["products"] }
+            "url": {
+              "raw": "{{baseUrl}}/products",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "products"
+              ]
+            }
           }
         },
         {
@@ -109,9 +335,18 @@
             "method": "GET",
             "url": {
               "raw": "{{baseUrl}}/products?category={{categoryId}}",
-              "host": ["{{baseUrl}}"],
-              "path": ["products"],
-              "query": [{ "key": "category", "value": "{{categoryId}}" }]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "products"
+              ],
+              "query": [
+                {
+                  "key": "category",
+                  "value": "{{categoryId}}"
+                }
+              ]
             }
           }
         },
@@ -121,9 +356,18 @@
             "method": "GET",
             "url": {
               "raw": "{{baseUrl}}/products?filter={{filter}}",
-              "host": ["{{baseUrl}}"],
-              "path": ["products"],
-              "query": [{ "key": "filter", "value": "{{filter}}" }]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "products"
+              ],
+              "query": [
+                {
+                  "key": "filter",
+                  "value": "{{filter}}"
+                }
+              ]
             }
           }
         },
@@ -133,9 +377,18 @@
             "method": "GET",
             "url": {
               "raw": "{{baseUrl}}/products?sort=price:asc",
-              "host": ["{{baseUrl}}"],
-              "path": ["products"],
-              "query": [{ "key": "sort", "value": "price:asc" }]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "products"
+              ],
+              "query": [
+                {
+                  "key": "sort",
+                  "value": "price:asc"
+                }
+              ]
             }
           }
         },
@@ -145,9 +398,18 @@
             "method": "GET",
             "url": {
               "raw": "{{baseUrl}}/products?sort=price:desc",
-              "host": ["{{baseUrl}}"],
-              "path": ["products"],
-              "query": [{ "key": "sort", "value": "price:desc" }]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "products"
+              ],
+              "query": [
+                {
+                  "key": "sort",
+                  "value": "price:desc"
+                }
+              ]
             }
           }
         },
@@ -157,9 +419,18 @@
             "method": "GET",
             "url": {
               "raw": "{{baseUrl}}/products?sort=rating:asc",
-              "host": ["{{baseUrl}}"],
-              "path": ["products"],
-              "query": [{ "key": "sort", "value": "rating:asc" }]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "products"
+              ],
+              "query": [
+                {
+                  "key": "sort",
+                  "value": "rating:asc"
+                }
+              ]
             }
           }
         },
@@ -169,9 +440,18 @@
             "method": "GET",
             "url": {
               "raw": "{{baseUrl}}/products?sort=rating:desc",
-              "host": ["{{baseUrl}}"],
-              "path": ["products"],
-              "query": [{ "key": "sort", "value": "rating:desc" }]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "products"
+              ],
+              "query": [
+                {
+                  "key": "sort",
+                  "value": "rating:desc"
+                }
+              ]
             }
           }
         },
@@ -181,12 +461,25 @@
             "method": "GET",
             "url": {
               "raw": "{{baseUrl}}/products?category={{categoryId}}&filter={{filter}}&sort={{sort}}",
-              "host": ["{{baseUrl}}"],
-              "path": ["products"],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "products"
+              ],
               "query": [
-                { "key": "category", "value": "{{categoryId}}" },
-                { "key": "filter", "value": "{{filter}}" },
-                { "key": "sort", "value": "{{sort}}" }
+                {
+                  "key": "category",
+                  "value": "{{categoryId}}"
+                },
+                {
+                  "key": "filter",
+                  "value": "{{filter}}"
+                },
+                {
+                  "key": "sort",
+                  "value": "{{sort}}"
+                }
               ]
             }
           }
@@ -197,11 +490,21 @@
             "method": "GET",
             "url": {
               "raw": "{{baseUrl}}/products?limit=25&offset=0",
-              "host": ["{{baseUrl}}"],
-              "path": ["products"],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "products"
+              ],
               "query": [
-                { "key": "limit", "value": "25" },
-                { "key": "offset", "value": "0" }
+                {
+                  "key": "limit",
+                  "value": "25"
+                },
+                {
+                  "key": "offset",
+                  "value": "0"
+                }
               ]
             }
           }
@@ -212,11 +515,21 @@
             "method": "GET",
             "url": {
               "raw": "{{baseUrl}}/products?limit=25&offset=25",
-              "host": ["{{baseUrl}}"],
-              "path": ["products"],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "products"
+              ],
               "query": [
-                { "key": "limit", "value": "25" },
-                { "key": "offset", "value": "25" }
+                {
+                  "key": "limit",
+                  "value": "25"
+                },
+                {
+                  "key": "offset",
+                  "value": "25"
+                }
               ]
             }
           }
@@ -227,14 +540,33 @@
             "method": "GET",
             "url": {
               "raw": "{{baseUrl}}/products?category={{categoryId}}&filter={{filter}}&sort={{sort}}&limit={{limit}}&offset={{offset}}",
-              "host": ["{{baseUrl}}"],
-              "path": ["products"],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "products"
+              ],
               "query": [
-                { "key": "category", "value": "{{categoryId}}" },
-                { "key": "filter", "value": "{{filter}}" },
-                { "key": "sort", "value": "{{sort}}" },
-                { "key": "limit", "value": "{{limit}}" },
-                { "key": "offset", "value": "{{offset}}" }
+                {
+                  "key": "category",
+                  "value": "{{categoryId}}"
+                },
+                {
+                  "key": "filter",
+                  "value": "{{filter}}"
+                },
+                {
+                  "key": "sort",
+                  "value": "{{sort}}"
+                },
+                {
+                  "key": "limit",
+                  "value": "{{limit}}"
+                },
+                {
+                  "key": "offset",
+                  "value": "{{offset}}"
+                }
               ]
             }
           }
@@ -245,38 +577,601 @@
             "method": "GET",
             "url": {
               "raw": "{{baseUrl}}/products/{{productId}}",
-              "host": ["{{baseUrl}}"],
-              "path": ["products", "{{productId}}"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "products",
+                "{{productId}}"
+              ]
             }
-          }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"product detail succeeds\", () => pm.response.to.have.status(200));",
+                  "const product = pm.response.json();",
+                  "pm.test(\"product id matches requested local seed\", () => pm.expect(String(product.id)).to.eql(String(pm.collectionVariables.get(\"productId\"))));",
+                  "pm.collectionVariables.set(\"canonicalProductPrice\", String(product.price));"
+                ]
+              }
+            }
+          ]
         },
         {
-          "name": "GET /products invalid id (backend currently returns 500)",
+          "name": "GET /products invalid id (Spring returns 404)",
           "request": {
             "method": "GET",
             "url": {
               "raw": "{{baseUrl}}/products/99999999",
-              "host": ["{{baseUrl}}"],
-              "path": ["products", "99999999"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "products",
+                "99999999"
+              ]
             }
-          }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"unknown Spring product returns 404\", () => pm.response.to.have.status(404));"
+                ]
+              }
+            }
+          ]
         }
       ]
     },
     {
       "name": "Checkout and Orders (authenticated)",
       "item": [
-        { "name": "GET /user/address", "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "{{token}}" }], "url": { "raw": "{{baseUrl}}/user/address", "host": ["{{baseUrl}}"], "path": ["user", "address"] } } },
-        { "name": "POST /user/address", "request": { "method": "POST", "header": [{ "key": "Authorization", "value": "{{token}}" }, { "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"title\": \"Test address\",\n  \"name\": \"Test\",\n  \"surname\": \"Customer\",\n  \"phone\": \"05551112233\",\n  \"city\": \"istanbul\",\n  \"district\": \"esenler\",\n  \"neighborhood\": \"Test details\"\n}" }, "url": { "raw": "{{baseUrl}}/user/address", "host": ["{{baseUrl}}"], "path": ["user", "address"] } } },
-        { "name": "PUT /user/address", "request": { "method": "PUT", "header": [{ "key": "Authorization", "value": "{{token}}" }, { "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"id\": {{addressId}},\n  \"title\": \"Test address updated\",\n  \"name\": \"Test\",\n  \"surname\": \"Customer\",\n  \"phone\": \"05551112233\",\n  \"city\": \"istanbul\",\n  \"district\": \"esenler\",\n  \"neighborhood\": \"Updated details\"\n}" }, "url": { "raw": "{{baseUrl}}/user/address", "host": ["{{baseUrl}}"], "path": ["user", "address"] } } },
-        { "name": "DELETE /user/address/:addressId", "request": { "method": "DELETE", "header": [{ "key": "Authorization", "value": "{{token}}" }], "url": { "raw": "{{baseUrl}}/user/address/{{addressId}}", "host": ["{{baseUrl}}"], "path": ["user", "address", "{{addressId}}"] } } },
-        { "name": "GET /user/card", "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "{{token}}" }], "url": { "raw": "{{baseUrl}}/user/card", "host": ["{{baseUrl}}"], "path": ["user", "card"] } } },
-        { "name": "POST /user/card", "request": { "method": "POST", "header": [{ "key": "Authorization", "value": "{{token}}" }, { "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"card_no\": \"{{cardNo}}\",\n  \"expire_month\": {{expireMonth}},\n  \"expire_year\": {{expireYear}},\n  \"name_on_card\": \"{{cardName}}\"\n}" }, "url": { "raw": "{{baseUrl}}/user/card", "host": ["{{baseUrl}}"], "path": ["user", "card"] } } },
-        { "name": "PUT /user/card", "request": { "method": "PUT", "header": [{ "key": "Authorization", "value": "{{token}}" }, { "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"id\": {{cardId}},\n  \"card_no\": \"{{cardNo}}\",\n  \"expire_month\": {{expireMonth}},\n  \"expire_year\": {{expireYear}},\n  \"name_on_card\": \"{{cardName}}\"\n}" }, "url": { "raw": "{{baseUrl}}/user/card", "host": ["{{baseUrl}}"], "path": ["user", "card"] } } },
-        { "name": "DELETE /user/card/:cardId", "request": { "method": "DELETE", "header": [{ "key": "Authorization", "value": "{{token}}" }], "url": { "raw": "{{baseUrl}}/user/card/{{cardId}}", "host": ["{{baseUrl}}"], "path": ["user", "card", "{{cardId}}"] } } },
-        { "name": "POST /order", "request": { "method": "POST", "header": [{ "key": "Authorization", "value": "{{token}}" }, { "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"address_id\": {{addressId}},\n  \"order_date\": \"{{orderDate}}\",\n  \"card_no\": \"{{cardNo}}\",\n  \"card_name\": \"{{cardName}}\",\n  \"card_expire_month\": {{expireMonth}},\n  \"card_expire_year\": {{expireYear}},\n  \"card_ccv\": \"{{cardCcv}}\",\n  \"price\": {{orderPrice}},\n  \"products\": []\n}" }, "url": { "raw": "{{baseUrl}}/order", "host": ["{{baseUrl}}"], "path": ["order"] } } },
-        { "name": "GET /order", "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "{{token}}" }], "url": { "raw": "{{baseUrl}}/order", "host": ["{{baseUrl}}"], "path": ["order"] } } }
+        {
+          "name": "GET /user/address",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "{{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/user/address",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "user",
+                "address"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"addresses listed\", () => pm.response.to.have.status(200));",
+                  "const addresses = pm.response.json();",
+                  "const addressId = pm.environment.get(\"addressId\"); if (addressId) pm.test(\"temporary address is present after create/update\", () => pm.expect(addresses.some((item) => String(item.id) === String(addressId))).to.be.true);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "POST /user/address",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "{{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Phase 10A Local {{runId}}\",\n  \"name\": \"Local\",\n  \"surname\": \"Customer\",\n  \"phone\": \"05550000001\",\n  \"city\": \"istanbul\",\n  \"district\": \"Local QA\",\n  \"neighborhood\": \"Disposable local test address\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/user/address",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "user",
+                "address"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"address created\", () => pm.response.to.have.status(201));",
+                  "const body = pm.response.json();",
+                  "pm.test(\"created address has an id\", () => pm.expect(body.id).to.exist);",
+                  "pm.environment.set(\"addressId\", String(body.id));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "PUT /user/address",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "{{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": {{addressId}},\n  \"title\": \"Phase 10A Local {{runId}} Updated\",\n  \"name\": \"Local\",\n  \"surname\": \"Customer\",\n  \"phone\": \"05550000001\",\n  \"city\": \"istanbul\",\n  \"district\": \"Local QA\",\n  \"neighborhood\": \"Updated disposable local test address\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/user/address",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "user",
+                "address"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"address updated\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"updated title is returned\", () => pm.expect(pm.response.json().title).to.include(\"Updated\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "GET /user/address confirm create/update",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "{{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/user/address",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "user",
+                "address"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"temporary address exists with update applied\", () => { pm.response.to.have.status(200); const addresses = pm.response.json(); const item = addresses.find((value) => String(value.id) === String(pm.environment.get(\"addressId\"))); pm.expect(item).to.exist; pm.expect(item.title).to.include(\"Updated\"); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "GET /user/card",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "{{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/user/card",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "user",
+                "card"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"saved cards listed\", () => pm.response.to.have.status(200));",
+                  "const cards = pm.response.json();",
+                  "const cardId = pm.environment.get(\"cardId\"); if (cardId) pm.test(\"temporary card is present and has no CCV-like field\", () => { const card = cards.find((item) => String(item.id) === String(cardId)); pm.expect(card).to.exist; pm.expect(card).not.to.have.any.keys(\"ccv\", \"card_ccv\", \"cvv\", \"cvc\"); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "POST /user/card",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "{{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"card_no\": \"{{cardNo}}\",\n  \"expire_month\": {{expireMonth}},\n  \"expire_year\": {{expireYear}},\n  \"name_on_card\": \"{{cardName}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/user/card",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "user",
+                "card"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"saved card created\", () => pm.response.to.have.status(201));",
+                  "const body = pm.response.json();",
+                  "pm.test(\"saved card has id and no CCV-like field\", () => { pm.expect(body.id).to.exist; pm.expect(body).not.to.have.any.keys(\"ccv\", \"card_ccv\", \"cvv\", \"cvc\"); });",
+                  "pm.environment.set(\"cardId\", String(body.id));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "PUT /user/card",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "{{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": {{cardId}},\n  \"card_no\": \"{{cardNo}}\",\n  \"expire_month\": {{expireMonth}},\n  \"expire_year\": {{expireYear}},\n  \"name_on_card\": \"{{cardName}} UPDATED\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/user/card",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "user",
+                "card"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"saved card updated\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"updated holder name is returned\", () => pm.expect(pm.response.json().name_on_card).to.include(\"UPDATED\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "GET /user/card confirm create/update",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "{{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/user/card",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "user",
+                "card"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"temporary card exists with update applied\", () => { pm.response.to.have.status(200); const cards = pm.response.json(); const item = cards.find((value) => String(value.id) === String(pm.environment.get(\"cardId\"))); pm.expect(item).to.exist; pm.expect(item.name_on_card).to.include(\"UPDATED\"); pm.expect(item).not.to.have.any.keys(\"ccv\", \"card_ccv\", \"cvv\", \"cvc\"); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "POST /order",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "{{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"address_id\": {{addressId}},\n  \"card_no\": \"{{cardNo}}\",\n  \"card_name\": \"{{cardName}}\",\n  \"card_expire_month\": {{expireMonth}},\n  \"card_expire_year\": {{expireYear}},\n  \"card_ccv\": \"{{cardCcv}}\",\n  \"price\": {{orderPrice}},\n  \"products\": [\n    {\n      \"product_id\": 1,\n      \"count\": 1,\n      \"detail\": \"Phase 10A local Newman order\"\n    }\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/order",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "order"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"local order created\", () => pm.response.to.have.status(201));",
+                  "const order = pm.response.json();",
+                  "pm.test(\"server price overrides client price\", () => pm.expect(Number(order.price)).to.eql(Number(pm.collectionVariables.get(\"canonicalProductPrice\"))));",
+                  "pm.test(\"order contains product 1 quantity 1\", () => pm.expect(order.products.some((line) => Number(line.product_id) === 1 && Number(line.count) === 1)).to.be.true);",
+                  "pm.test(\"order response contains no payment secrets\", () => { pm.expect(order).not.to.have.any.keys(\"card_no\", \"card_ccv\", \"ccv\", \"cvv\", \"cvc\"); });",
+                  "pm.environment.set(\"orderId\", String(order.id));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "GET /order",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "{{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/order",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "order"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"order history is available\", () => pm.response.to.have.status(200));",
+                  "const orders = pm.response.json();",
+                  "const order = orders.find((item) => String(item.id) === String(pm.environment.get(\"orderId\")));",
+                  "pm.test(\"created order is in history\", () => pm.expect(order).to.exist);",
+                  "pm.test(\"history contains one product 1 unit\", () => pm.expect(order.products.some((line) => Number(line.product_id) === 1 && Number(line.count) === 1)).to.be.true);",
+                  "pm.test(\"history contains no payment secrets\", () => { pm.expect(order).not.to.have.any.keys(\"card_no\", \"card_ccv\", \"ccv\", \"cvv\", \"cvc\"); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "DELETE /user/card/:cardId",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "{{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/user/card/{{cardId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "user",
+                "card",
+                "{{cardId}}"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"temporary card cleanup succeeds\", () => pm.expect([200, 204]).to.include(pm.response.code));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "GET /user/card verify cleanup",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "{{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/user/card",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "user",
+                "card"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"temporary card cleanup is confirmed\", () => { pm.response.to.have.status(200); const cards = pm.response.json(); pm.expect(cards.some((item) => String(item.id) === String(pm.environment.get(\"cardId\")))).to.be.false; });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "DELETE /user/address/:addressId",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "{{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/user/address/{{addressId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "user",
+                "address",
+                "{{addressId}}"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"temporary address cleanup succeeds\", () => pm.expect([200, 204]).to.include(pm.response.code));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "GET /user/address verify cleanup",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "{{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/user/address",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "user",
+                "address"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"temporary address cleanup is confirmed\", () => { pm.response.to.have.status(200); const addresses = pm.response.json(); pm.expect(addresses.some((item) => String(item.id) === String(pm.environment.get(\"addressId\")))).to.be.false; });"
+                ]
+              }
+            }
+          ]
+        }
       ]
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "const rawBaseUrl = String(pm.variables.get(\"baseUrl\") || \"\");",
+          "const isLocalBackend = /^http:\\/\\/(localhost|127\\.0\\.0\\.1):8080\\/?$/i.test(rawBaseUrl);",
+          "if (!isLocalBackend) { pm.execution.skipRequest(); }",
+          "if (!pm.collectionVariables.get(\"runId\")) pm.collectionVariables.set(\"runId\", Date.now().toString());"
+        ]
+      }
     }
   ]
 }
