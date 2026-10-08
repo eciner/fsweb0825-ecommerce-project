@@ -2,30 +2,33 @@
 
 ## Frontend Status Through WorkinTech T23 (Re-audited)
 
-- Completed and verified locally: T01-T23
-- Live authenticated address/card/order endpoint verification requires a valid test session token.
-- Postman request coverage exists for all checkout/order endpoints; no test account data was created solely for this audit.
+- T01-T23 are complete. T22/T23 authenticated requests were executed through Newman against an isolated local Spring/PostgreSQL backend.
+- Authenticated Production E2E was separately completed for the existing synthetic customer, including exactly one authorized persistent test order (ID 3); do not repeat that order.
+- Phase-9 release is on `main` at `53b10d82d6b921dea3b919a81f3895a875f860ca`.
+- Frontend CI `37214593709` for the exact main SHA completed successfully; verified same-SHA quality baseline: 69 tests across 13 files, lint/test/build PASS.
+- Vercel Production is READY at deployment `dpl_A8W4i4gonFdW2buxLMXo4AujkoEc` for `main` and the release SHA.
+- Production API target is Render: `https://fsweb0825-ecommerce-api.onrender.com`.
 
-The frontend stabilization sequence ended with authenticated order-history navigation (`04c69a2`), checkout validation and state synchronization (`15ce012`), Node runtime pinning and frontend CI (`eb6f7e6`), and final frontend status reconciliation (`1d19502`). The React/Vite frontend remains independently deployable and retains its existing external API contract until internal backend Phase 9.
+The Phase-9 release follows the frontend stabilization sequence: authenticated order-history navigation (`04c69a2`), checkout validation and state synchronization (`15ce012`), Node runtime pinning and frontend CI (`eb6f7e6`), final frontend status reconciliation (`1d19502`), and the pre-Phase-9 stabilization baseline (`ae4322a`). The frontend remains independently deployable. Vercel frontend release and Render backend deployment baselines are separate: Render deploys `feat/backend-api` at `ae4322a47a807c64d16c3126276ca607003a19fc`; the Phase-8 backend implementation baseline remains `da060ef841a3421cfd2a0ebcb6c0d94446c253d6`.
 
 ## Internal Backend Progress
 
 WorkinTech T01-T23 labels above are assignment tasks; the backend Phase 1-10 labels below are the separate implementation roadmap. The backend source is `server/` on `feat/backend-api`.
 
-| Phase | State | Verified commit | Result |
-| --- | --- | --- | --- |
-| 1 — Foundation | Complete | `e335d72` | Spring Boot, Maven Wrapper, Java 21, health endpoint |
-| 2 — Persistence | Complete | `533b163` | PostgreSQL, JPA/Hibernate, Flyway migrations |
-| 3 — Catalog | Complete | `4729cf9` | Roles, categories, products, frontend-compatible queries |
-| 4 — Authentication | Complete | `9bd1e51` | JWT signup/login/verify, BCrypt, raw-token compatibility |
-| 5 — User resources | Complete | `91f60a1` | Authenticated address/card APIs and ownership checks |
-| 6 — Orders | Complete | `d4e9f63` | Transactional `POST /order`, owner-scoped `GET /order`, canonical pricing and stock updates |
-| 7 — Integration coverage + CI | Next; not started | — | PostgreSQL/Testcontainers tests and separate backend CI planned |
-| 8 — Deployment | Future | — | Docker, Render, PostgreSQL deployment planned |
-| 9 — Frontend cutover | Future | — | Connect frontend to Spring API planned |
-| 10 — Final hardening | Future | — | Final hardening and documentation planned |
+| Phase                         | State       | Verified commit | Result                                                                                      |
+| ----------------------------- | ----------- | --------------- | ------------------------------------------------------------------------------------------- |
+| 1 — Foundation                | Complete    | `e335d72`       | Spring Boot, Maven Wrapper, Java 21, health endpoint                                        |
+| 2 — Persistence               | Complete    | `533b163`       | PostgreSQL, JPA/Hibernate, Flyway migrations                                                |
+| 3 — Catalog                   | Complete    | `4729cf9`       | Roles, categories, products, frontend-compatible queries                                    |
+| 4 — Authentication            | Complete    | `9bd1e51`       | JWT signup/login/verify, BCrypt, raw-token compatibility                                    |
+| 5 — User resources            | Complete    | `91f60a1`       | Authenticated address/card APIs and ownership checks                                        |
+| 6 — Orders                    | Complete    | `d4e9f63`       | Transactional `POST /order`, owner-scoped `GET /order`, canonical pricing and stock updates |
+| 7 — Integration coverage + CI | Complete    | `3b02fff`       | PostgreSQL/Testcontainers and Backend CI                                                    |
+| 8 — Deployment                | Complete    | `da060ef`       | Docker, Render, PostgreSQL, production CORS                                                 |
+| 9 — Frontend cutover          | Complete    | `53b10d8`       | Production Render API integration, cart/checkout repairs, public and authenticated E2E      |
+| 10 — Final hardening          | In progress | —               | Axios security, signup role policy, Postman and documentation reconciliation                |
 
-Current approved backend baseline is `d4e9f63f61da4386fa222bc79625ba5ee2330e4b` (local and `origin/feat/backend-api` matched after fetch). Phase 5 closed with 46 passing tests and a passing package; Phase 6 closed with Java 21.0.12, 54 passing tests, zero failures/errors/skips, and a passing package. Phase 6 includes Flyway V7, database-authoritative `BigDecimal` totals, `PESSIMISTIC_WRITE` inventory locking in ascending product order, rollback on failed orders, and no CVV or full card number in order history. Saved cards still persist full `card_no` solely for temporary capstone compatibility.
+Current repository/frontend release is `53b10d82d6b921dea3b919a81f3895a875f860ca` on `main`. Current backend implementation baseline is `da060ef841a3421cfd2a0ebcb6c0d94446c253d6`; Render's deployment branch is `feat/backend-api` at `ae4322a47a807c64d16c3126276ca607003a19fc`. Phase 5 closed with 46 passing tests and a passing package; Phase 6 closed with Java 21.0.12, 54 passing tests, zero failures/errors/skips, and a passing package. Phase 6 includes Flyway V7, database-authoritative `BigDecimal` totals, `PESSIMISTIC_WRITE` inventory locking in ascending product order, rollback on failed orders, and no CVV or full card number in order history. Saved cards may retain full `card_no` solely for temporary capstone compatibility; no at-rest masking or PCI-compliance claim is made.
 
 Local Phase 7 environment preparation was separately verified with WSL 2, virtualization, Docker Desktop/client/daemon, `docker info`, and `hello-world`. This is preparation, not Phase 7 implementation. The audited Phase 7 plan retains the fast H2 suite, adds real PostgreSQL migration, time-zone and locking checks through Testcontainers, and adds Java 21 Maven Wrapper backend CI without production secrets. Witshop remains a read-only reference for assignment interpretation and architecture; this project's contracts and decisions remain authoritative.
 
@@ -99,11 +102,11 @@ Local Phase 7 environment preparation was separately verified with WSL 2, virtua
   - `stock` is stock
 - Local static product data remains for home-page showcase components only, not canonical Shop/Detail API state.
 - T17-T19: Redux owns cart lines, quantity/selection mutations, bounded Header dropdown, cart table, and neutral shipping/discount totals.
-- T20-T22: `/order` is protected, uses Redux address/card collections, React Hook Form CRUD views, transient CCV state, and one shared order payload/total calculation.
-- T23: `/orders` is protected, loads authenticated order history, supports loading/failure/empty states and expandable product lines.
+- T20-T22: `/order` is protected, uses Redux address/card collections, React Hook Form CRUD views, transient CCV state, and one shared order payload/total calculation. Newman verified these APIs against local Spring/PostgreSQL; Production E2E separately verified the release.
+- T23: `/orders` is protected, loads authenticated order history, supports loading/failure/empty states and expandable product lines. Local Newman and the separate Production order-history E2E passed.
 - Cart identity is `product.id`; variants and product details are not fabricated.
 - CCV is never persisted in Redux, browser storage, logs, or saved cards.
 - Card expiration is validated as a month/year pair against the current month.
 - Address/card load and delete failures remain visible and do not silently mutate checkout state.
 - Node.js 20.19+ is supported; Node 22 is pinned for CI in `.nvmrc` and `.github/workflows/frontend-ci.yml`.
-- Live API invalid product-id behavior observed on 2026-07-21: `GET /products/99999999` returned HTTP 500. The UI handles this as a retryable detail failure and does not show fallback product data.
+- The original WorkinTech API returned HTTP 500 for an invalid product ID in a 2026-07-21 observation. The Spring API returns 404; the deployed frontend renders the expected not-found state.

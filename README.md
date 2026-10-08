@@ -4,10 +4,11 @@ React + Vite e-commerce project for WorkinTech Bootcamp.
 
 ## Current Phase Status
 
-- Frontend WorkinTech tasks T01-T23 are complete; the React/Vite frontend remains independently deployable and still uses the existing external API contract.
-- Internal backend Phases 1-6 are complete. Phase 6 (`d4e9f63`) added transactional `POST /order` and owner-scoped `GET /order`.
-- Current backend baseline: `d4e9f63f61da4386fa222bc79625ba5ee2330e4b` on `feat/backend-api` (local and remote matched at reconciliation).
-- Next: Phase 7, backend integration coverage and CI, has not started. Phases 8-10 remain future work.
+- WorkinTech tasks T01-T23 are complete, including authenticated Postman/Newman execution against an isolated local Spring/PostgreSQL backend.
+- Internal Phases 1-9 are complete. Phase 9 released the frontend checkout/cart repairs to Vercel Production and passed authenticated Production E2E.
+- Frontend Production release: `53b10d82d6b921dea3b919a81f3895a875f860ca` on `main`.
+- Backend deployment remains a separate baseline: Render deploys `feat/backend-api` at `ae4322a47a807c64d16c3126276ca607003a19fc`.
+- Next: Phase 10A final hardening and documentation reconciliation is in progress; it must not create another Production order.
 
 ## Frontend Stack
 
@@ -22,27 +23,78 @@ React + Vite e-commerce project for WorkinTech Bootcamp.
 - Swiper
 - Tailwind CSS
 
-The backend in `server/` uses Java 21, Spring Boot, Spring Security/JWT, JPA/Hibernate, PostgreSQL, and Flyway. Its production deployment is planned for internal Phase 8.
+The backend in `server/` uses Java 21, Spring Boot, Spring Security/JWT, JPA/Hibernate, PostgreSQL, and Flyway. Its Production API is deployed on Render at `https://fsweb0825-ecommerce-api.onrender.com`.
+
+The frontend Production release SHA and Render backend deployment branch/SHA are intentionally separate: Vercel `main` is at `53b10d82d6b921dea3b919a81f3895a875f860ca`; Render currently deploys `feat/backend-api` at `ae4322a47a807c64d16c3126276ca607003a19fc`.
 
 ## Run
 
 ```bash
-npm install
+npm ci
 npm run dev
 npm run lint
 npm test
 npm run build
 ```
 
-Supported runtime: Node.js 20.19+ (Node 22 is used by CI). Frontend CI runs install, lint, tests, and production build on push and pull request.
+Supported runtime: Node.js 20.19+ with npm (Node 22 is used by CI). Frontend CI runs `npm ci`, lint, tests, and production build on push and pull request.
 
 ## Environment
 
-Create `.env` from `.env.example`:
+For local development, create `.env` from `.env.example` and run the backend locally:
 
 ```env
-VITE_API_URL=https://workintech-fe-ecommerce.onrender.com
+VITE_API_URL=http://localhost:8080
 ```
+
+Vercel Production explicitly sets `VITE_API_URL=https://fsweb0825-ecommerce-api.onrender.com`. Do not put secrets in frontend environment variables or `.env.example`.
+
+## Local Backend and Verification
+
+Requirements: Java 21, Maven Wrapper (included), and a local PostgreSQL 16 server. Create a local database named `ecommerce`; Flyway applies the schema on startup. The local profile defaults to PostgreSQL at `localhost:5432` with database `ecommerce` and user `postgres`; set `DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USER`, and `DB_PASSWORD` to match your local installation. `JWT_SECRET` is required and must contain at least 32 bytes. Use a local-only value, never a Production secret.
+
+From the repository root in PowerShell:
+
+```powershell
+$env:SPRING_PROFILES_ACTIVE = "local"
+$env:DB_HOST = "localhost"
+$env:DB_PORT = "5432"
+$env:DB_NAME = "ecommerce"
+$env:DB_USER = "postgres"
+$env:DB_PASSWORD = "your-local-postgres-password"
+$env:JWT_SECRET = "local-only-change-me-32-char-secret"
+.\server\mvnw.cmd -f server/pom.xml spring-boot:run
+```
+
+Check Java with the wrapper's `-version` option. Docker Engine must be running for the PostgreSQL/Testcontainers integration tests.
+
+```powershell
+.\server\mvnw.cmd -f server/pom.xml -version
+.\server\mvnw.cmd -f server/pom.xml clean verify
+```
+
+Install and verify the frontend from the repository root:
+
+```powershell
+npm.cmd ci
+npm.cmd run lint
+npm.cmd test
+npm.cmd run build
+```
+
+For local API contract verification, start the local Spring API and run the tracked collection with synthetic values and a disposable local database. Newman can be run without adding it to project dependencies:
+
+```powershell
+$runId = [guid]::NewGuid().ToString("N")
+npx.cmd --yes newman@6.2.1 run postman/fsweb0825-ecommerce.postman_collection.json `
+  --env-var "baseUrl=http://localhost:8080" `
+  --env-var "testEmail=phase10a-$runId@example.test" `
+  --env-var "testPassword=Local-$runId-Strong1!" `
+  --env-var "cardNo=4111111111111111" `
+  --env-var "cardCcv=123"
+```
+
+The collection creates temporary local account/address/card data and an order that changes seeded stock. Use a disposable local database and recreate it for a clean rerun. Never provide Production credentials or change `baseUrl` to a remote host; the collection's pre-request guard rejects non-local targets.
 
 ## Routing (T23 canonical)
 
@@ -167,15 +219,17 @@ No fabricated discounts/reviews/variants are injected for API products.
 - `POST /order`
 - `GET /order`
 
-Catalog and authentication requests were previously verified against the public API. The authenticated address, card, and order requests are implemented and documented in Postman, but were not live-executed in this audit because no safe session token was available.
+The collection has been executed with Newman against an isolated local Spring/PostgreSQL backend, including authenticated address/card CRUD, one local order, order history, canonical price verification, and temporary-record cleanup. Production authenticated E2E was separately completed for the authorized single test order.
 
-The Spring Boot backend is implemented through internal Phase 6 under `server/`. Frontend cutover to this backend through `VITE_API_URL` belongs to internal Phase 9; the frontend currently retains its existing external API configuration. Backend deployment belongs to Phase 8.
+The Spring Boot backend is under `server/`; backend deployment is on Render. Local frontend development defaults to `http://localhost:8080`, while Vercel Production uses the explicit Render API URL above.
 
-Observed backend behavior: `GET /products/99999999` returned HTTP 500 on 2026-07-21, so invalid product detail requests are treated as retryable failures rather than assumed 404s.
+Historical note: the original WorkinTech API returned HTTP 500 for an unknown product ID in an earlier observation. The Spring API returns 404, and the deployed frontend displays its product-not-found state.
 
 ## Postman
 
 Collection: `postman/fsweb0825-ecommerce.postman_collection.json`
+
+The collection defaults to `http://localhost:8080` and has a pre-request guard that skips requests unless the host is localhost. Supply synthetic values through a local Postman environment. Do not configure this write-capable collection for Production.
 
 Variables included:
 
@@ -199,5 +253,7 @@ Figma export found and available at:
 - Cart is stored only in `shoppingCart.cart`, keyed by `product.id`; totals are derived by `src/utils/cart.js`.
 - Product-detail links require real category metadata; the app does not fabricate canonical category slugs when categories are unavailable.
 - Checkout uses saved addresses/cards from the authenticated API. CCV exists only in the transient payment form.
+- Order totals are calculated by the backend from canonical product prices; order creation and inventory updates are transactional and use product-row locks.
+- Saved-card compatibility currently retains and returns the full `card_no`; CCV is not persisted or returned, and this capstone is not PCI compliant. Do not claim saved PAN masking at rest.
 
 Made by Emre Ciner

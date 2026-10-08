@@ -292,7 +292,7 @@ src/
       `shop/erkek/gomlek/11`
 - [x] top 5 categories should be listed on the screen with images regarding `rating` value
 - [x] all categories should be listed in drop down menu on header
-- [ ] Drop down menu should be in the same format as below:
+- [x] Drop down menu uses grouped gender columns and category links as shown below:
 
 ![Image](https://github.com/user-attachments/assets/d9636df8-396a-4847-9966-7d5c0fe2e35a)
 
@@ -574,7 +574,7 @@ cart: [
 
 ## ✅ T22: Complete Order
 
-- [ ] Test the API via Postman. (Collection request is documented; authenticated live execution remains pending.)
+- [x] Test the API via Postman/Newman against an isolated local Spring/PostgreSQL backend. Production browser E2E was verified separately.
 - [x] Create order by sending a POST request to `/order` endpoint.
 - [x] Payload data should have structure like below:
 
@@ -610,7 +610,7 @@ cart: [
 
 ## 🧾 T23: Previous Orders Page
 
-- [ ] Test the API via Postman. (Collection request is documented; authenticated live execution remains pending.)
+- [x] Test the API via Postman/Newman against an isolated local Spring/PostgreSQL backend. Production browser E2E was verified separately.
 - [x] Create a new page component for previous orders of client.
 - [x] It should be a protected route.
 - [x] The link can be reached in a dropdown menu near user name in Header component.
