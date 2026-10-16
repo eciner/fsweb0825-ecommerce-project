@@ -1,15 +1,34 @@
 # Project Progress
 
-## Frontend Status Through WorkinTech T23 (Re-audited)
+## Current Application Release and Delivery Status
 
-- T01-T23 are complete. T22/T23 authenticated requests were executed through Newman against an isolated local Spring/PostgreSQL backend.
-- Authenticated Production E2E was separately completed for the existing synthetic customer, including exactly one authorized persistent test order (ID 3); do not repeat that order.
-- Phase-9 release is on `main` at `53b10d82d6b921dea3b919a81f3895a875f860ca`.
-- Frontend CI `37214593709` for the exact main SHA completed successfully; verified same-SHA quality baseline: 69 tests across 13 files, lint/test/build PASS.
-- Vercel Production is READY at deployment `dpl_A8W4i4gonFdW2buxLMXo4AujkoEc` for `main` and the release SHA.
-- Production API target is Render: `https://fsweb0825-ecommerce-api.onrender.com`.
+The approved application release is `173a5786ca41dbef2c9ce0f557900a27d0464323`. The 2026-10-16 Production deployment records identify that SHA on Vercel `main` and Render `feat/backend-api`:
 
-The Phase-9 release follows the frontend stabilization sequence: authenticated order-history navigation (`04c69a2`), checkout validation and state synchronization (`15ce012`), Node runtime pinning and frontend CI (`eb6f7e6`), final frontend status reconciliation (`1d19502`), and the pre-Phase-9 stabilization baseline (`ae4322a`). The frontend remains independently deployable. Vercel frontend release and Render backend deployment baselines are separate: Render deploys `feat/backend-api` at `ae4322a47a807c64d16c3126276ca607003a19fc`; the Phase-8 backend implementation baseline remains `da060ef841a3421cfd2a0ebcb6c0d94446c253d6`.
+| Evidence | Verified record |
+| --- | --- |
+| Vercel Production | `dpl_3G5vPZdmVSRk3SEPaicLtA1Act7G` — READY; [frontend](https://fsweb0825-ecommerce-project.vercel.app) |
+| Render Production | `dep-db94gt3bc2fs73blvb10` — live; [API](https://fsweb0825-ecommerce-api.onrender.com) |
+| Main Frontend CI | [38943655647](https://github.com/eciner/fsweb0825-ecommerce-project/actions/runs/38943655647) — completed/success; 73 tests / 13 files; lint/build PASS |
+| Main Backend CI | [38943655457](https://github.com/eciner/fsweb0825-ecommerce-project/actions/runs/38943655457) — completed/success; 65 tests; zero failures/errors/skips; package PASS |
+
+| Delivery layer | Status |
+| --- | --- |
+| Phase 10 application implementation | Complete in the approved application release; latest backend application change `e2b2a67b21973e196b1e90993bb213c3a2a53848` restricts public signup roles |
+| Phase 10 Production release | Verified through Phase 10K; read-only public browser/API acceptance completed 2026-10-17 Europe/Istanbul |
+| Documentation close-out | Phase 10L found material documentation/setup defects; Phase 10M supplies local corrections pending user review, commit and delivery verification |
+| Academic submission readiness | Final delivery close-out remains pending documentation verification/delivery and checking the actual assignment's requirements; no institutional acceptance is claimed |
+
+Phase 10K covered public catalog/detail/category navigation, login/signup rendering, cart, protected-route redirects, direct refresh and responsive layouts. It did not repeat authenticated checkout on the final Production SHA. Exact-SHA CI runs against isolated test databases; Phase 10M does not rerun CI or Production E2E. The [README](README.md) records local setup, database lifetime, cold starts and payment/security limitations.
+
+## Historical Frontend Status Through WorkinTech T23
+
+- The T01-T23 implementation record is preserved in [project-phases.md](project-phases.md), with explicit approved differences from original signup/address wording. T22/T23 authenticated requests were executed through Newman against an isolated local Spring/PostgreSQL backend.
+- Historical Phase-9 authenticated Production E2E completed for the existing synthetic customer, including exactly one authorized persistent test order (ID 3); do not repeat that order.
+- Phase-9 frontend release: `53b10d82d6b921dea3b919a81f3895a875f860ca` on `main`.
+- Historical Frontend CI `37214593709` for that exact main SHA completed successfully; 69 tests across 13 files, lint/test/build PASS.
+- Historical Vercel deployment `dpl_A8W4i4gonFdW2buxLMXo4AujkoEc` was READY for that Phase-9 release and targeted Render.
+
+The Phase-9 release followed authenticated order-history navigation (`04c69a2`), checkout validation/state synchronization (`15ce012`), Node runtime pinning/frontend CI (`eb6f7e6`), final frontend status reconciliation (`1d19502`) and pre-Phase-9 stabilization (`ae4322a`). The frontend remains independently deployable. At that historical checkpoint Render's source branch was `feat/backend-api` at `ae4322a47a807c64d16c3126276ca607003a19fc`, while the Phase-8 backend implementation baseline remained `da060ef841a3421cfd2a0ebcb6c0d94446c253d6`.
 
 ## Internal Backend Progress
 
@@ -26,16 +45,16 @@ WorkinTech T01-T23 labels above are assignment tasks; the backend Phase 1-10 lab
 | 7 — Integration coverage + CI | Complete    | `3b02fff`       | PostgreSQL/Testcontainers and Backend CI                                                    |
 | 8 — Deployment                | Complete    | `da060ef`       | Docker, Render, PostgreSQL, production CORS                                                 |
 | 9 — Frontend cutover          | Complete    | `53b10d8`       | Production Render API integration, cart/checkout repairs, public and authenticated E2E      |
-| 10 — Final hardening          | In progress | —               | Axios security, signup role policy, Postman and documentation reconciliation                |
+| 10 — Final hardening          | Implementation/release verified; docs pending | `173a578` | Phase 10K accepted; Phase 10M documentation patch awaits review and commit/delivery verification |
 
-Current repository/frontend release is `53b10d82d6b921dea3b919a81f3895a875f860ca` on `main`. Current backend implementation baseline is `da060ef841a3421cfd2a0ebcb6c0d94446c253d6`; Render's deployment branch is `feat/backend-api` at `ae4322a47a807c64d16c3126276ca607003a19fc`. Phase 5 closed with 46 passing tests and a passing package; Phase 6 closed with Java 21.0.12, 54 passing tests, zero failures/errors/skips, and a passing package. Phase 6 includes Flyway V7, database-authoritative `BigDecimal` totals, `PESSIMISTIC_WRITE` inventory locking in ascending product order, rollback on failed orders, and no CVV or full card number in order history. Saved cards may retain full `card_no` solely for temporary capstone compatibility; no at-rest masking or PCI-compliance claim is made.
+The current approved application release and exact-SHA Production/CI evidence are recorded above. Phase-8 and Phase-9 baselines recorded here are historical milestones. Phase 5 closed with 46 passing tests and a passing package; Phase 6 closed with Java 21.0.12, 54 passing tests, zero failures/errors/skips, and a passing package. Phase 6 includes Flyway V7, database-authoritative `BigDecimal` totals, `PESSIMISTIC_WRITE` inventory locking in ascending product order, rollback on failed orders, and no CVV or full card number in order history. Saved cards may retain full `card_no` solely for temporary capstone compatibility; no at-rest masking or PCI-compliance claim is made.
 
-Local Phase 7 environment preparation was separately verified with WSL 2, virtualization, Docker Desktop/client/daemon, `docker info`, and `hello-world`. This is preparation, not Phase 7 implementation. The audited Phase 7 plan retains the fast H2 suite, adds real PostgreSQL migration, time-zone and locking checks through Testcontainers, and adds Java 21 Maven Wrapper backend CI without production secrets. Witshop remains a read-only reference for assignment interpretation and architecture; this project's contracts and decisions remain authoritative.
+Historical Phase-7 environment preparation was separately verified with WSL 2, virtualization, Docker Desktop/client/daemon, `docker info` and `hello-world`; that preparation was distinct from the subsequent implementation. Completed Phase 7 retained the fast H2 suite, added real PostgreSQL migration/time-zone/locking checks through Testcontainers, and introduced Java 21 Maven Wrapper backend CI without production secrets. Witshop remains a read-only reference for assignment interpretation and architecture; this project's contracts and decisions remain authoritative.
 
 ## Verified Highlights
 
 - T08-T11: Signup/Login/Remember Me/Verify lifecycle implemented with Redux thunks and token lifecycle (`Authorization: token`, no `Bearer`).
-- Signup validation rejects whitespace-only names, normalizes Turkish store phone/tax/IBAN fields, validates Turkish IBAN checksum, and exposes role-load retry.
+- Signup validation rejects whitespace-only names, normalizes Turkish store phone/tax/IBAN fields, validates Turkish IBAN checksum, and exposes role-load retry. Public signup is Customer/Store only; the backend rejects Admin registration. Accounts are immediately usable, with no activation email.
 - Login/verify preserve the real user response fields in Redux while excluding token fields.
 - Header exposes logout on desktop and mobile.
 - T12-T13: Categories and products fetched from API and stored in Redux with loading/error/empty states.
@@ -102,10 +121,10 @@ Local Phase 7 environment preparation was separately verified with WSL 2, virtua
   - `stock` is stock
 - Local static product data remains for home-page showcase components only, not canonical Shop/Detail API state.
 - T17-T19: Redux owns cart lines, quantity/selection mutations, bounded Header dropdown, cart table, and neutral shipping/discount totals.
-- T20-T22: `/order` is protected, uses Redux address/card collections, React Hook Form CRUD views, transient CCV state, and one shared order payload/total calculation. Newman verified these APIs against local Spring/PostgreSQL; Production E2E separately verified the release.
-- T23: `/orders` is protected, loads authenticated order history, supports loading/failure/empty states and expandable product lines. Local Newman and the separate Production order-history E2E passed.
+- T20-T22: `/order` is protected, uses Redux address/card collections, React Hook Form CRUD views, transient CCV state, and one shared order payload/total calculation. Newman verified these APIs against local Spring/PostgreSQL; the separate authenticated Production E2E was historical Phase 9.
+- T23: `/orders` is protected, loads authenticated order history, supports loading/failure/empty states and expandable product lines. Local Newman and the historical Phase-9 Production order-history E2E passed; fresh authenticated history was not re-exercised on the final Phase-10 Production SHA.
 - Cart identity is `product.id`; variants and product details are not fabricated.
-- CCV is never persisted in Redux, browser storage, logs, or saved cards.
+- CCV is never persisted in Redux, browser storage, logs, or saved cards. Saved-card API responses can contain full `card_no` and populate Redux `client.creditCards`; this capstone is not PCI compliant.
 - Card expiration is validated as a month/year pair against the current month.
 - Address/card load and delete failures remain visible and do not silently mutate checkout state.
 - Node.js 20.19+ is supported; Node 22 is pinned for CI in `.nvmrc` and `.github/workflows/frontend-ci.yml`.
