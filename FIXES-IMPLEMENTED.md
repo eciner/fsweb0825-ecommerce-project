@@ -51,7 +51,7 @@
   - products pagination (`limit`, `offset`)
   - product detail (`/products/:productId`)
 
-## Validation Snapshot
+## Historical Validation Snapshot — 2026-07-21
 
 - `npm install` completed.
 - `npm ci` completed after stopping a stale local Vite dev-server process that was locking a native dependency.
@@ -61,7 +61,7 @@
 - `npm audit fix` completed without `--force`.
 - The 2026-07-21 audit snapshot reported 2 moderate Vitest advisories; the later Phase 10A audit snapshot below supersedes that result.
 
-## Live API Verification Notes
+## Historical WorkinTech API Verification — 2026-07-21
 
 - `GET /roles` returned admin/store/customer roles with semantic `code` values.
 - `GET /categories` returned 14 category objects with `id`, `code`, `title`, `img`, `rating`, and `gender`.
@@ -84,7 +84,8 @@
 - Added protected React Router v5 `/order` flow with address and saved-card CRUD thunks, selected address/card state, transient CCV, duplicate-submit prevention, and success reset after API confirmation.
 - Added protected `/orders` history with loading, failure/retry, empty, table, and expandable detail states.
 - Added focused cart reducer and calculation tests.
-- API requests use the existing Axios instance and normalized errors; no token, card number, or CCV values are added to Redux or documentation.
+- API requests use the existing Axios instance and normalized errors. Authentication tokens are excluded from Redux user objects, and CVV/CCV remains transient rather than being persisted in Redux or saved cards.
+- Saved-card API responses may contain full `card_no`: `fetchCreditCards` dispatches `setCreditCards`, and the reducer stores these records in `client.creditCards`. The backend retains/returns full PAN for temporary capstone compatibility. Development Redux logging redacts sensitive fields and the Production logger is disabled. This is not PCI-compliant production payment handling; no PAN masking or encryption-at-rest claim is made.
 
 ## Phase 10A Final Hardening
 
@@ -103,3 +104,9 @@
 - The Phase 10A audit above is the **before** snapshot from 2026-10-08: 4 affected package entries (1 moderate, 1 high, 2 critical); `npm audit --omit=dev` reported 0 production findings.
 - The verified **after** snapshot from 2026-10-09 uses Node.js 22.19.0 and npm 10.9.3: Vitest and `@vitest/mocker` resolve to 4.1.11, the vulnerable Tinypool dependency is absent, `source-map-js` resolves to 1.2.2, and Axios remains 1.20.0. Vite remains 7.3.6 and the Node engine range is unchanged.
 - `npm ci` passed and left `package-lock.json` byte-identical. Frontend lint and build passed; all 73 tests passed across 13 files. `npm audit --omit=dev` and full `npm audit` each reported 0 vulnerabilities at this verification snapshot. This records the audit result on that date, not a guarantee about future dependency advisories.
+
+## Phase 10M Documentation Remediation (Local)
+
+- Phase 10 application implementation and Production release were verified through Phase 10K at `173a5786ca41dbef2c9ce0f557900a27d0464323`; historical Phase-9 authenticated E2E remains separate from final-release read-only acceptance.
+- Phase 10L identified stale release/status statements, missing local CORS guidance, unqualified assignment differences and the incorrect Redux/card-state assurance corrected above. Phase 10M supplies documentation-only corrections in the four authorized Markdown files, pending user review and commit/delivery verification. Final academic delivery close-out is not declared complete.
+- The dated July, Phase-10A before and Phase-10B after verification results remain historical snapshots. No dependency audit, CI rerun, Production E2E, push or deployment is performed for this documentation patch. See [README.md](README.md) for the approved release evidence, reproducible setup and demo/security limitations.

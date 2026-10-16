@@ -2,6 +2,8 @@
 
 **👨‍💻 Student:** [Emre Ciner](https://github.com/eciner) | **🚀 Live Demo:** [View on Vercel](https://fsweb0825-ecommerce-project.vercel.app/)
 
+> **Implementation note — approved Spring application:** Original task descriptions, examples, ordering and checked/unchecked markers below are preserved as the assignment record. Notes using this label explain the shipped application at approved release `173a5786ca41dbef2c9ce0f557900a27d0464323`; they do not rewrite the original requirements or claim that every requirement was implemented literally. Check the noted differences against the actual academic rubric. Original sample users, dates and payment values are historical examples, not Production credentials or instructions to submit them. Current setup and release evidence are in [README.md](README.md).
+
 ---
 
 ## ⚙️ T01: Project Setup
@@ -131,6 +133,12 @@ src/
 
 ## 📝 T08: Sign Up User Form Page
 
+> **Implementation note — approved Spring application:** The original WorkinTech API URL below is historical. Local requests use Spring Boot at `http://localhost:8080`; Vercel Production uses the explicit `VITE_API_URL=https://fsweb0825-ecommerce-api.onrender.com`.
+>
+> Public registration accepts Customer and Store only, selected by role code from `/roles`. The original Customer/Admin payload description does not authorize public Admin signup in this application: Admin is absent from the selector and the backend rejects it with `ROLE_NOT_ALLOWED_FOR_SIGNUP`.
+>
+> The original activation-email requirement is **not implemented as written**. The shipped app creates an immediately usable account, sends no activation email, and displays account-created/login guidance. The original requirement and its checkbox are retained below so this difference remains visible.
+
 - [x] Create a [Postman collection](https://learning.postman.com/docs/getting-started/first-steps/creating-the-first-collection/) for the project. Add and extend the collection as you go in the project.
 - [x] Test the API before implementing in the project.
 
@@ -234,6 +242,8 @@ src/
 ---
 
 ## 🔐 T10: Login Form
+
+> **Implementation note — approved Spring application:** The sample public users below belong to the original WorkinTech task. They are not supplied login credentials for the deployed Spring database. Use only an appropriate existing account or synthetic local test data; no new Production account or order is authorized by this documentation.
 
 - [x] Test the API via Postman.
 - [x] Create Login Form using `react-hook-form` library
@@ -469,6 +479,8 @@ cart: [
 
 ## 🏠 T20: Create Order Page > Step 1 Address
 
+> **Implementation note — approved Spring application:** The form combines neighborhood and street/building/door details in the `Neighborhood / Address Details` textarea and sends them as `neighborhood`. There is no separate mandatory `address` DTO property. The address contract is `id` (response/update), `title`, `name`, `surname`, `phone`, `city`, `district`, `neighborhood`; the backend derives ownership from the authenticated principal. GET/POST/PUT use `/user/address`; DELETE uses `/user/address/:addressId`. The original separate-field wording and examples remain below.
+
 ### Description
 
 - [x] There will be **two steps** on Create Order Page.
@@ -533,6 +545,8 @@ cart: [
 
 ## 💳 T21: Create Order Page > Step 2 Credit Card
 
+> **Implementation note — approved Spring application:** GET/POST/PUT use `/user/card`; DELETE uses `/user/card/:cardId`. Saved-card responses contain `id`, `card_no`, `expire_month`, `expire_year`, `name_on_card` and can populate Redux `client.creditCards`. Full `card_no` is retained/returned for capstone compatibility; CVV/CCV stays transient and is not persisted. Current-month expiry is valid; past months are expired, so original sample dates are not current validation inputs. Payment is simulated, with no real gateway or charge; the project is not PCI compliant and makes no PAN masking/encryption-at-rest claim.
+
 - [x] Payment methods will be implemented in this task.
 - [x] There will be **add new card** option.
 - [x] Saved cards will be listed.
@@ -574,6 +588,10 @@ cart: [
 
 ## ✅ T22: Complete Order
 
+> **Implementation note — approved Spring application:** The frontend preserves the compatibility payload below. The backend binds `address_id`, `order_date`, `price` and `products` (`product_id`, positive `count`, optional `detail`); it derives the user from authentication, validates address ownership and uses canonical database prices instead of trusting client `price`. The shipped frontend sends a UTC ISO order date; the backend uses `Instant`. Compatibility card fields do not create a payment transaction and are not persisted in order history. Order/line persistence and stock/sell_count changes are transactional.
+>
+> Phase-10A Newman coverage (32 requests/35 assertions across the collection) used isolated local Spring/PostgreSQL data. The separate authenticated Production purchase/history E2E belongs to Phase 9 at `53b10d82d6b921dea3b919a81f3895a875f860ca`, with exactly one authorized persistent order; never repeat it. Phase 10K acceptance on `173a5786ca41dbef2c9ce0f557900a27d0464323` was read-only and did not retest authenticated checkout.
+
 - [x] Test the API via Postman/Newman against an isolated local Spring/PostgreSQL backend. Production browser E2E was verified separately.
 - [x] Create order by sending a POST request to `/order` endpoint.
 - [x] Payload data should have structure like below:
@@ -609,6 +627,8 @@ cart: [
 ---
 
 ## 🧾 T23: Previous Orders Page
+
+> **Implementation note — approved Spring application:** `/orders` is the protected frontend page; the owner-scoped API is GET `/order`. Its response contains `id`, `order_date`, `price` and `products`; lines contain `product_id`, `count` and persisted `detail`. Order history contains no full PAN or CVV/CCV. Local Newman and historical Phase-9 Production E2E verified history separately. Final-SHA CI provides isolated integration coverage; Phase 10K did not freshly exercise authenticated Production history.
 
 - [x] Test the API via Postman/Newman against an isolated local Spring/PostgreSQL backend. Production browser E2E was verified separately.
 - [x] Create a new page component for previous orders of client.
