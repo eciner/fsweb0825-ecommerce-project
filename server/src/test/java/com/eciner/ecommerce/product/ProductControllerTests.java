@@ -31,14 +31,43 @@ class ProductControllerTests {
     @Autowired
     private ObjectMapper objectMapper;
 
+    @Autowired
+    private org.springframework.jdbc.core.JdbcTemplate jdbc;
+
+    @Test
+    void filtersAcrossWholeCatalogBeforePagingAndRejectsInvalidRanges() throws Exception {
+        mockMvc.perform(get("/products").param("gender", "k").param("min_price", "250")
+                .param("max_price", "300").param("in_stock", "true").param("sort", "price:desc").param("limit", "1"))
+            .andExpect(status().isOk()).andExpect(jsonPath("$.total").value(4))
+            .andExpect(jsonPath("$.products.length()").value(1)).andExpect(jsonPath("$.products[0].price").value(299.9));
+        mockMvc.perform(get("/products").param("min_price", "500").param("max_price", "1")).andExpect(status().isBadRequest());
+        mockMvc.perform(get("/products").param("min_price", "-1")).andExpect(status().isBadRequest());
+        mockMvc.perform(get("/products").param("max_price", "abc")).andExpect(status().isBadRequest());
+        mockMvc.perform(get("/products").param("category", "1").param("gender", "e")).andExpect(status().isOk()).andExpect(jsonPath("$.total").value(0));
+    }
+    @Test
+    void globalSearchNormalizesTurkishLettersWhitespaceAndLiteralWildcards() throws Exception {
+        mockMvc.perform(get("/products").param("filter", "  S\u0130YAH  ")).andExpect(status().isOk()).andExpect(jsonPath("$.total").value(2));
+        mockMvc.perform(get("/products").param("filter", "%_")).andExpect(status().isOk()).andExpect(jsonPath("$.total").value(0));
+        mockMvc.perform(get("/products").param("filter", "?")).andExpect(status().isOk()).andExpect(jsonPath("$.total").value(0));
+    }
+
+    @Test
+    @org.springframework.transaction.annotation.Transactional
+    void searchFoldsTurkishCatalogTextAsWellAsTheSearchTerm() throws Exception {
+        jdbc.update("update product set name=?,description='' where id=1", "\u0130zmir \u0131\u015f\u0131k \u015eal G\u00f6mlek \u00c7anta \u00dcr\u00fcn");
+        mockMvc.perform(get("/products").param("filter", "izmir isik sal gomlek canta urun"))
+            .andExpect(status().isOk()).andExpect(jsonPath("$.total").value(1)).andExpect(jsonPath("$.products[0].id").value(1));
+    }
+
     @Test
     void defaultListReturnsSeededProductsWithDeterministicShape() throws Exception {
         mockMvc.perform(get("/products"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.total").value(9))
+                .andExpect(jsonPath("$.total").value(16))
                 .andExpect(jsonPath("$.limit").value(25))
                 .andExpect(jsonPath("$.offset").value(0))
-                .andExpect(jsonPath("$.products.length()").value(9))
+                .andExpect(jsonPath("$.products.length()").value(16))
                 .andExpect(jsonPath("$.products[0].id").exists())
                 .andExpect(jsonPath("$.products[0].name").exists())
                 .andExpect(jsonPath("$.products[0].description").exists())
@@ -229,6 +258,23 @@ class ProductControllerTests {
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.status").value(400))
                 .andExpect(jsonPath("$.code").value("INVALID_REQUEST_PARAMETER"));
+    }
+
+    @Test
+    void genderFilteringIsAuthoritativeAndCombinesWithSearchAndPaging() throws Exception {
+        JsonNode categories = objectMapper.readTree(mockMvc.perform(get("/categories")).andReturn().getResponse().getContentAsString());
+        for (String gender : java.util.List.of("k", "e")) {
+            JsonNode result = objectMapper.readTree(mockMvc.perform(get("/products").param("gender", gender).param("limit", "1").param("offset", "1"))
+                .andExpect(status().isOk()).andExpect(jsonPath("$.total").value(8)).andReturn().getResponse().getContentAsString());
+            long category = result.path("products").get(0).path("category_id").asLong();
+            assertThat(categories.findValuesAsText("id")).contains(String.valueOf(category));
+            assertThat(java.util.stream.StreamSupport.stream(categories.spliterator(), false)
+                .filter(c -> c.path("id").asLong() == category).findFirst().orElseThrow().path("gender").asText()).isEqualTo(gender);
+        }
+        mockMvc.perform(get("/products").param("gender", "e").param("filter", "Kadin")).andExpect(jsonPath("$.total").value(0));
+        mockMvc.perform(get("/products").param("gender", "invalid")).andExpect(status().isBadRequest());
+        mockMvc.perform(get("/products").param("filter", "%")).andExpect(jsonPath("$.total").value(0));
+        mockMvc.perform(get("/products").param("filter", "illustration")).andExpect(jsonPath("$.total").value(7));
     }
 
     private long findCategoryIdByCode(JsonNode categories, String code) {

@@ -32,7 +32,13 @@ class FlywayMigrationTests {
                         MigrationVersion.fromVersion("4"),
                         MigrationVersion.fromVersion("5"),
                         MigrationVersion.fromVersion("6"),
-                        MigrationVersion.fromVersion("7"));
+                        MigrationVersion.fromVersion("7"),
+                        MigrationVersion.fromVersion("8"),
+                        MigrationVersion.fromVersion("9"),
+                        MigrationVersion.fromVersion("10"),
+                        MigrationVersion.fromVersion("11"),
+                        MigrationVersion.fromVersion("12"),
+                        MigrationVersion.fromVersion("13"));
         assertThat(flyway.info().applied()).extracting(MigrationInfo::getScript)
             .contains("R__create_system_probe_table.sql");
     }

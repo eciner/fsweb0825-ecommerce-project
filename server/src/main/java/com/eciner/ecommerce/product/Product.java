@@ -35,6 +35,12 @@ public class Product {
     @Column(name = "store_id", nullable = false)
     private Long storeId;
 
+    @Column(name = "fulfillment_store_id")
+    private Long fulfillmentStoreId;
+
+    public Long getFulfillmentStoreId() { return fulfillmentStoreId; }
+    public void assignFulfillmentStore(Long storeId) { fulfillmentStoreId = storeId; }
+
     @Column(name = "name", nullable = false)
     private String name;
 

@@ -30,6 +30,11 @@ public class SavedCardController {
         return savedCardService.list(principal.getUserId());
     }
 
+    @GetMapping("/summary")
+    public List<SavedCardSummaryResponse> summaries(@AuthenticationPrincipal AuthPrincipal principal) {
+        return savedCardService.summaries(principal.getUserId());
+    }
+
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public SavedCardResponse create(@AuthenticationPrincipal AuthPrincipal principal,

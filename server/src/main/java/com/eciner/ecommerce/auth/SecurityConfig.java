@@ -69,7 +69,7 @@ public class SecurityConfig {
                 .exceptionHandling(exceptions -> exceptions.authenticationEntryPoint(authenticationEntryPoint))
                 .authorizeHttpRequests(auth -> auth
                     .requestMatchers(HttpMethod.GET, "/health", "/roles", "/categories", "/products", "/products/**").permitAll()
-                    .requestMatchers(HttpMethod.POST, "/signup", "/login").permitAll()
+                    .requestMatchers(HttpMethod.POST, "/signup", "/login", "/contact").permitAll()
                         .anyRequest().authenticated())
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();

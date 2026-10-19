@@ -246,6 +246,51 @@ class OrderControllerTests {
         }
     }
 
+    @Test
+    void receiptOwnershipAndAddressSnapshotsSurviveAddressDeletion() throws Exception {
+        Account a = account(); Account b = account();
+        long shipping = address(a.token()); long receipt = address(a.token()); long foreign = address(b.token());
+        String base = payload(shipping, "[{\"product_id\":1,\"count\":1}]");
+        submit(a.token(), base.replace("\"address_id\":" + shipping, "\"address_id\":" + shipping + ",\"receipt_address_id\":" + foreign))
+            .andExpect(status().isNotFound());
+        int stock = number("select stock from product where id=1"); int sold = number("select sell_count from product where id=1");
+        try {
+            JsonNode created = json(submit(a.token(), base.replace("\"address_id\":" + shipping,
+                    "\"address_id\":" + shipping + ",\"receipt_address_id\":" + receipt))
+                .andExpect(status().isCreated()).andExpect(jsonPath("$.receipt_address_id").value(receipt))
+                .andExpect(jsonPath("$.shipping_address").isString()).andExpect(jsonPath("$.receipt_address").isString())
+                .andExpect(jsonPath("$.products[0].unit_price").value(299.9)).andExpect(jsonPath("$.products[0].line_total").value(299.9))
+                .andExpect(jsonPath("$.products[0].product_name").value("Siyah Kadin Elbise"))
+                .andReturn().getResponse().getContentAsString());
+            jdbc.update("delete from user_address where id in (?,?)", shipping, receipt);
+            jdbc.update("update product set name='Changed catalog label' where id=1");
+            JsonNode historical = json(mvc.perform(get("/order").header("Authorization", a.token()))
+                .andExpect(status().isOk()).andReturn().getResponse().getContentAsString()).get(0);
+            assertThat(historical.path("shipping_address")).isEqualTo(created.path("shipping_address"));
+            assertThat(historical.path("receipt_address")).isEqualTo(created.path("receipt_address"));
+            assertThat(historical.path("products").get(0).path("product_name").asText()).isEqualTo("Siyah Kadin Elbise");
+        } finally {
+            jdbc.update("update product set stock=?, sell_count=?, name='Siyah Kadin Elbise' where id=1", stock, sold);
+        }
+    }
+
+    @Test
+    void optionalRequestIdReplaysIdenticalHttpBodyAndRejectsChangedPayload() throws Exception {
+        Account a = account(); long address = address(a.token());
+        int stock = number("select stock from product where id=1"); int sold = number("select sell_count from product where id=1");
+        String body = payload(address, "[{\"product_id\":1,\"count\":1}]");
+        String keyed = body.replaceFirst("\\{", "{\"request_id\":\"" + UUID.randomUUID() + "\",");
+        try {
+            String first = submit(a.token(), keyed).andExpect(status().isCreated()).andReturn().getResponse().getContentAsString();
+            String replay = submit(a.token(), keyed).andExpect(status().isCreated()).andReturn().getResponse().getContentAsString();
+            assertThat(json(replay)).isEqualTo(json(first));
+            submit(a.token(), keyed.replace("\"count\":1", "\"count\":2")).andExpect(status().isConflict())
+                .andExpect(jsonPath("$.code").value("ORDER_REQUEST_CONFLICT"));
+            assertThat(number("select stock from product where id=1")).isEqualTo(stock - 1);
+            assertThat(number("select sell_count from product where id=1")).isEqualTo(sold + 1);
+        } finally { jdbc.update("update product set stock=?,sell_count=? where id=1", stock, sold); }
+    }
+
     private org.springframework.test.web.servlet.ResultActions submit(String token, String body) throws Exception {
         return mvc.perform(post("/order").header("Authorization", token)
                 .contentType(MediaType.APPLICATION_JSON).content(body));

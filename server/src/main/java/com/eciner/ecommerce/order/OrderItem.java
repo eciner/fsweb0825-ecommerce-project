@@ -22,15 +22,31 @@ public class OrderItem {
     @Column(length = 500)
     private String detail;
 
+    @Column(name = "product_name", length = 200)
+    private String productName;
+    @Column(name = "image_url", length = 500)
+    private String imageUrl;
+
+    @Column(name = "fulfillment_store_id")
+    private Long fulfillmentStoreId;
+
     protected OrderItem() {}
 
     public OrderItem(Product product, int count, BigDecimal unitPrice, String detail) {
         this.product = product;
+        this.fulfillmentStoreId = product.getFulfillmentStoreId();
+        this.productName = product.getName();
+        this.imageUrl = product.getImages().isEmpty() ? null : product.getImages().get(0).getUrl();
         this.count = count;
         this.unitPrice = unitPrice;
         this.detail = detail;
     }
 
+    public String getProductName() { return productName; }
+    public Long getId() { return id; }
+    public Long getFulfillmentStoreId() { return fulfillmentStoreId; }
+    public String getImageUrl() { return imageUrl; }
+    public BigDecimal getUnitPrice() { return unitPrice; }
     void attach(Order order) { this.order = order; }
     public Long getProductId() { return product.getId(); }
     public Integer getCount() { return count; }

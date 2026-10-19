@@ -223,6 +223,25 @@ class UserResourcesControllerTests {
                                 .andExpect(jsonPath("$.code").value("EXPIRED_CARD"));
         }
 
+    @Test
+    void maskedCardSummariesAndMetadataUpdatesPreserveOwnershipAndLegacyContract() throws Exception {
+        AuthenticatedUser a = createAccount(); AuthenticatedUser b = createAccount();
+        long id = createCard(a.token(), "4111111111111111");
+        mockMvc.perform(get("/user/card/summary")).andExpect(status().isUnauthorized());
+        String summary = mockMvc.perform(get("/user/card/summary").header("Authorization", a.token()))
+                .andExpect(status().isOk()).andExpect(jsonPath("$[0].card_no").value("**** 1111"))
+                .andReturn().getResponse().getContentAsString();
+        assertThat(summary).doesNotContain("4111111111111111");
+        mockMvc.perform(get("/user/card/summary").header("Authorization", b.token())).andExpect(jsonPath("$").isEmpty());
+        YearMonth expiry = YearMonth.now().plusYears(1);
+        String body = "{\"id\":" + id + ",\"expire_month\":" + expiry.getMonthValue() + ",\"expire_year\":" + expiry.getYear() + ",\"name_on_card\":\"Updated Owner\"}";
+        mockMvc.perform(put("/user/card").header("Authorization", b.token()).contentType(MediaType.APPLICATION_JSON).content(body))
+                .andExpect(status().isNotFound());
+        mockMvc.perform(put("/user/card").header("Authorization", a.token()).contentType(MediaType.APPLICATION_JSON).content(body))
+                .andExpect(status().isOk()).andExpect(jsonPath("$.card_no").value("4111111111111111"));
+        assertThat(savedCardRepository.findById(id).orElseThrow().getCardNo()).isEqualTo("4111111111111111");
+    }
+
     private AuthenticatedUser createAccount() throws Exception {
         String email = "phase5-" + UUID.randomUUID() + "@example.com";
         long roleId = roleRepository.findByCode("customer").map(Role::getId).orElseThrow();

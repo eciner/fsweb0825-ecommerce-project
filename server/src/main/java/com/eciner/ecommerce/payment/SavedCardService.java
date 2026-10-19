@@ -27,6 +27,12 @@ public class SavedCardService {
                 .map(SavedCardResponse::from).toList();
     }
 
+    @Transactional(readOnly = true)
+    public List<SavedCardSummaryResponse> summaries(Long ownerId) {
+        return savedCardRepository.findAllByOwner_IdOrderByIdAsc(ownerId).stream()
+                .map(SavedCardSummaryResponse::from).toList();
+    }
+
     public SavedCardResponse create(Long ownerId, SavedCardRequest request) {
         validateExpiration(request.expireMonth(), request.expireYear());
         User owner = requireUser(ownerId);
@@ -38,7 +44,7 @@ public class SavedCardService {
     public SavedCardResponse update(Long ownerId, SavedCardUpdateRequest request) {
         validateExpiration(request.expireMonth(), request.expireYear());
         SavedCard card = requireOwnedCard(request.id(), ownerId);
-        card.update(request.cardNo(), request.expireMonth(), request.expireYear(), request.nameOnCard().trim());
+        card.update(request.cardNo() == null ? card.getCardNo() : request.cardNo(), request.expireMonth(), request.expireYear(), request.nameOnCard().trim());
         return SavedCardResponse.from(savedCardRepository.save(card));
     }
 
