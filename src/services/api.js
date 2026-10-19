@@ -39,7 +39,7 @@ function normalizeApiError(error) {
   return {
     message: extractErrorMessage(error),
     status: error?.response?.status ?? null,
-    code: error?.code ?? null,
+    code: error?.response?.data?.code ?? error?.code ?? null,
   };
 }
 
@@ -71,7 +71,7 @@ export function getStoredToken() {
     return null;
   }
 
-  return window.localStorage.getItem(TOKEN_KEY);
+  try { return window.localStorage.getItem(TOKEN_KEY); } catch { return null; }
 }
 
 export function storeToken(token) {
@@ -79,7 +79,7 @@ export function storeToken(token) {
     return;
   }
 
-  window.localStorage.setItem(TOKEN_KEY, token);
+  try { window.localStorage.setItem(TOKEN_KEY, token); } catch { /* Continue with the in-memory session. */ }
 }
 
 export function removeStoredToken() {
@@ -87,7 +87,7 @@ export function removeStoredToken() {
     return;
   }
 
-  window.localStorage.removeItem(TOKEN_KEY);
+  try { window.localStorage.removeItem(TOKEN_KEY); } catch { /* The in-memory token is still cleared. */ }
 }
 
 api.interceptors.request.use(

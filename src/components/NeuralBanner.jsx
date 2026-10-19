@@ -18,7 +18,7 @@ function NeuralBanner() {
 
         <div className="flex w-full flex-col items-start gap-4 md:w-1/2">
           <p className="text-sm font-bold tracking-[0.2em] text-[#737373]">
-            SUMMER 2020
+            EVERYDAY COLLECTION
           </p>
 
           <h2 className="text-3xl font-bold leading-tight text-[#252B42] md:text-5xl">
@@ -26,20 +26,20 @@ function NeuralBanner() {
           </h2>
 
           <p className="max-w-105 text-sm text-[#737373] md:text-base">
-            We know how large objects will act, but things on a small scale.
+            Discover wardrobe essentials with clear prices and product details.
           </p>
 
           <div className="mt-2 flex gap-4">
             <Link
-              to="/shop"
-              className={`${interactiveButton} rounded-md bg-[#2DC071] px-8 py-3 text-sm font-bold text-white hover:bg-[#25A55F] focus:ring-[#2DC071]`}
+              to="/shop?gender=k"
+              className={`${interactiveButton} rounded-md bg-success px-8 py-3 text-sm font-bold text-white hover:bg-[#1f755f] focus:ring-[#2DC071]`}
             >
-              BUY NOW
+              SHOP WOMEN
             </Link>
 
             <Link
               to="/about"
-              className={`${interactiveButton} rounded-md border border-[#2DC071] px-8 py-3 text-sm font-bold text-[#2DC071] hover:bg-[#2DC071]/10 focus:ring-[#2DC071]`}
+              className={`${interactiveButton} rounded-md border border-[#2DC071] px-8 py-3 text-sm font-bold text-success hover:bg-success/10 focus:ring-[#2DC071]`}
             >
               Learn More
             </Link>

@@ -7,7 +7,9 @@ export default function ProtectedRoute({ component: Component, ...rest }) {
   const dispatch = useDispatch();
   const user = useSelector((state) => state.client.user);
   const authInitialized = useSelector((state) => state.client.authInitialized);
-  const authVerificationError = useSelector((state) => state.client.authVerificationError);
+  const authVerificationError = useSelector(
+    (state) => state.client.authVerificationError,
+  );
 
   return (
     <Route
@@ -23,11 +25,17 @@ export default function ProtectedRoute({ component: Component, ...rest }) {
 
         if (authVerificationError) {
           return (
-            <div role="alert" className="flex min-h-80 flex-col items-center justify-center gap-3 px-4 text-center text-sm text-[#737373]">
-              <p>We could not verify your session. Your saved login is still available.</p>
+            <div
+              role="alert"
+              className="flex min-h-80 flex-col items-center justify-center gap-3 px-4 text-center text-sm text-[#737373]"
+            >
+              <p>
+                We could not verify your session. Your saved login is still
+                available.
+              </p>
               <button
                 type="button"
-                className="font-semibold text-[#23A6F0]"
+                className="font-semibold text-action"
                 onClick={() => dispatch(verifyStoredSession())}
               >
                 Retry verification

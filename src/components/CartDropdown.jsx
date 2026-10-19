@@ -28,7 +28,7 @@ export default function CartDropdown({ cart, onClose }) {
           <Link
             to="/shop"
             onClick={onClose}
-            className="text-sm font-semibold text-[#23A6F0]"
+            className="text-sm font-semibold text-action"
           >
             Continue shopping
           </Link>
@@ -60,7 +60,7 @@ export default function CartDropdown({ cart, onClose }) {
           <Link
             to="/cart"
             onClick={onClose}
-            className="mt-3 flex h-10 items-center justify-center rounded bg-[#23A6F0] text-sm font-semibold text-white hover:bg-[#1B8FD8]"
+            className="mt-3 flex h-10 items-center justify-center rounded bg-action text-sm font-semibold text-white hover:bg-ink"
           >
             View cart
           </Link>

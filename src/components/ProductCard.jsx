@@ -1,6 +1,8 @@
 import { memo } from "react";
 import { Link } from "react-router-dom";
 
+import FavoriteButton from "./FavoriteButton";
+import AddToCartButton from "./AddToCartButton";
 import { FALLBACK_PRODUCT_IMAGE } from "../utils/productModel";
 
 function ProductCard({ product, to, imageHeight = "h-75" }) {
@@ -16,7 +18,7 @@ function ProductCard({ product, to, imageHeight = "h-75" }) {
           event.currentTarget.src = FALLBACK_PRODUCT_IMAGE;
         }}
         loading="lazy"
-        className={`${imageHeight} w-full bg-white object-cover`}
+        className={`${imageHeight} w-full bg-surface object-contain`}
       />
       <div className="pt-5">
         <h3 className="text-base font-bold text-[#252B42]">{product.title}</h3>
@@ -41,17 +43,23 @@ function ProductCard({ product, to, imageHeight = "h-75" }) {
     return (
       <article className="flex w-full flex-col items-center text-center">
         {content}
+        <FavoriteButton productId={product.id} name={product.title} />
+        <AddToCartButton product={product} />
       </article>
     );
   }
 
   return (
-    <Link
-      to={to}
-      className="flex w-full cursor-pointer flex-col items-center text-center transition hover:opacity-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#23A6F0] focus-visible:ring-offset-2"
-    >
-      {content}
-    </Link>
+    <article className="flex w-full flex-col">
+      <Link
+        to={to}
+        className="flex w-full cursor-pointer flex-col items-center text-center transition hover:opacity-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#23A6F0] focus-visible:ring-offset-2"
+      >
+        {content}
+      </Link>
+      <FavoriteButton productId={product.id} name={product.title} />
+      <AddToCartButton product={product} />
+    </article>
   );
 }
 

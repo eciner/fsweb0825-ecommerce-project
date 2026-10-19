@@ -157,7 +157,7 @@ export default function SignupPage() {
               })}
             />
             {errors.name && (
-              <p id="name-error" className="text-xs text-[#E74040]">
+              <p id="name-error" className="text-xs text-danger-text">
                 {errors.name.message}
               </p>
             )}
@@ -185,7 +185,7 @@ export default function SignupPage() {
               })}
             />
             {errors.email && (
-              <p id="email-error" className="text-xs text-[#E74040]">
+              <p id="email-error" className="text-xs text-danger-text">
                 {errors.email.message}
               </p>
             )}
@@ -214,7 +214,7 @@ export default function SignupPage() {
               })}
             />
             {errors.password && (
-              <p id="password-error" className="text-xs text-[#E74040]">
+              <p id="password-error" className="text-xs text-danger-text">
                 {errors.password.message}
               </p>
             )}
@@ -242,7 +242,10 @@ export default function SignupPage() {
               })}
             />
             {errors.passwordConfirm && (
-              <p id="passwordConfirm-error" className="text-xs text-[#E74040]">
+              <p
+                id="passwordConfirm-error"
+                className="text-xs text-danger-text"
+              >
                 {errors.passwordConfirm.message}
               </p>
             )}
@@ -277,16 +280,16 @@ export default function SignupPage() {
               ))}
             </select>
             {errors.role_id && (
-              <p id="role-error" className="text-xs text-[#E74040]">
+              <p id="role-error" className="text-xs text-danger-text">
                 {errors.role_id.message}
               </p>
             )}
             {rolesError && (
               <div className="flex items-center justify-between gap-3 rounded border border-[#FFE9EA] bg-[#FFF6F6] px-3 py-2">
-                <p className="text-xs text-[#E74040]">{rolesError}</p>
+                <p className="text-xs text-danger-text">{rolesError}</p>
                 <button
                   type="button"
-                  className="text-xs font-semibold text-[#23A6F0]"
+                  className="text-xs font-semibold text-action"
                   onClick={() => loadRoles({ force: true })}
                 >
                   Retry
@@ -320,7 +323,7 @@ export default function SignupPage() {
                   })}
                 />
                 {errors.storeName && (
-                  <p id="storeName-error" className="text-xs text-[#E74040]">
+                  <p id="storeName-error" className="text-xs text-danger-text">
                     {errors.storeName.message}
                   </p>
                 )}
@@ -349,7 +352,7 @@ export default function SignupPage() {
                   })}
                 />
                 {errors.storePhone && (
-                  <p id="storePhone-error" className="text-xs text-[#E74040]">
+                  <p id="storePhone-error" className="text-xs text-danger-text">
                     {errors.storePhone.message}
                   </p>
                 )}
@@ -378,7 +381,7 @@ export default function SignupPage() {
                   })}
                 />
                 {errors.storeTaxNo && (
-                  <p id="storeTaxNo-error" className="text-xs text-[#E74040]">
+                  <p id="storeTaxNo-error" className="text-xs text-danger-text">
                     {errors.storeTaxNo.message}
                   </p>
                 )}
@@ -411,7 +414,7 @@ export default function SignupPage() {
                 {errors.storeBankAccount && (
                   <p
                     id="storeBankAccount-error"
-                    className="text-xs text-[#E74040]"
+                    className="text-xs text-danger-text"
                   >
                     {errors.storeBankAccount.message}
                   </p>
@@ -422,7 +425,7 @@ export default function SignupPage() {
 
           <button
             type="submit"
-            className="mt-2 inline-flex h-11 items-center justify-center gap-2 rounded bg-[#23A6F0] px-4 text-sm font-semibold text-white transition hover:bg-[#1B8FD8] disabled:cursor-not-allowed disabled:bg-[#8EC2F2]"
+            className="mt-2 inline-flex h-11 items-center justify-center gap-2 rounded bg-action px-4 text-sm font-semibold text-white transition hover:bg-ink disabled:cursor-not-allowed disabled:bg-[#8EC2F2]"
             disabled={isSubmitting || rolesLoading || publicRoles.length === 0}
           >
             {isSubmitting && (
@@ -439,7 +442,7 @@ export default function SignupPage() {
               pathname: "/login",
               state: { from: getSafeReturnPath(location.state?.from, "/") },
             }}
-            className="font-semibold text-[#23A6F0] hover:text-[#1B8FD8]"
+            className="font-semibold text-action hover:text-[#1B8FD8]"
           >
             Login
           </Link>

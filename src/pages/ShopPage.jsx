@@ -4,7 +4,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { Loader2 } from "lucide-react";
 
 import ProductCard from "../components/ProductCard";
-import { partnerLogos } from "../data/products";
+import ShopFilters from "../components/ShopFilters";
 import {
   fetchCategoriesIfNeeded,
   fetchProductsByQuery,
@@ -18,6 +18,7 @@ import { buildProductDetailPath, buildCategoryPath } from "../utils/slug";
 import {
   ALLOWED_SORT_VALUES,
   buildShopSearch,
+  createQueryKey,
   normalizeCategoryId,
   normalizeQuery,
   readShopSearch,
@@ -43,10 +44,13 @@ function ResultCount({ total, offset, listLength }) {
 
 export default function ShopPage() {
   const dispatch = useDispatch();
+  const inventoryRevision = useSelector(
+    (state) => state.product.inventoryRevision,
+  );
   const history = useHistory();
   const location = useLocation();
   const listTopRef = useRef(null);
-  const { categoryId: routeCategoryId } = useParams();
+  const { categoryId: routeCategoryId, gender: routeGender } = useParams();
 
   const categories = useSelector((state) => state.product.categories);
   const categoriesFetchState = useSelector(
@@ -57,12 +61,17 @@ export default function ShopPage() {
   const productList = useSelector((state) => state.product.productList);
   const total = useSelector((state) => state.product.total);
   const fetchState = useSelector((state) => state.product.fetchState);
+  const activeQueryKey = useSelector((state) => state.product.activeQueryKey);
+  const successfulQueryKey = useSelector(
+    (state) => state.product.lastSuccessfulQueryKey,
+  );
   const productListError = useSelector(
     (state) => state.product.productListError,
   );
 
   const searchState = readShopSearch(location.search);
-  const category = normalizeCategoryId(routeCategoryId);
+  const category = normalizeCategoryId(routeCategoryId) || searchState.category || null;
+  const gender = searchState.gender || ({ kadin: "k", erkek: "e" }[routeGender]);
   const activePage = searchState.page;
   const limit = 25;
 
@@ -70,12 +79,25 @@ export default function ShopPage() {
     () =>
       normalizeQuery({
         category,
+        gender,
+        min_price: searchState.min_price,
+        max_price: searchState.max_price,
+        in_stock: searchState.in_stock,
         sort: searchState.sort,
         filter: searchState.filter,
         limit,
         offset: calculateOffset(activePage, limit),
       }),
-    [category, searchState.sort, searchState.filter, activePage],
+    [
+      category,
+      gender,
+      searchState.min_price,
+      searchState.max_price,
+      searchState.in_stock,
+      searchState.sort,
+      searchState.filter,
+      activePage,
+    ],
   );
 
   const sortInputRef = useRef(null);
@@ -87,6 +109,8 @@ export default function ShopPage() {
 
   useEffect(() => {
     const canonicalSearch = buildShopSearch({
+      ...activeQuery,
+      gender: activeQuery.gender,
       sort: activeQuery.sort,
       filter: activeQuery.filter,
       page: activePage,
@@ -95,18 +119,11 @@ export default function ShopPage() {
     if (canonicalSearch !== location.search) {
       history.replace(`${location.pathname}${canonicalSearch}`);
     }
-  }, [
-    activePage,
-    activeQuery.filter,
-    activeQuery.sort,
-    history,
-    location.pathname,
-    location.search,
-  ]);
+  }, [activePage, activeQuery, history, location.pathname, location.search]);
 
   useEffect(() => {
     dispatch(fetchProductsByQuery(activeQuery)).catch(() => {});
-  }, [dispatch, activeQuery]);
+  }, [dispatch, activeQuery, inventoryRevision]);
 
   const categoriesById = useMemo(
     () =>
@@ -141,31 +158,40 @@ export default function ShopPage() {
 
   const topCategories = useMemo(
     () =>
-      [...categories]
+      categories
+        .filter(
+          (item) => !activeQuery.gender || item.gender === activeQuery.gender,
+        )
         .sort((left, right) => Number(right.rating) - Number(left.rating))
         .slice(0, 5),
-    [categories],
+    [categories, activeQuery.gender],
   );
 
-  const pageCount = calculatePageCount(total, activeQuery.limit);
+  const currentQueryKey = createQueryKey(activeQuery);
+  const currentRequest = activeQueryKey === currentQueryKey;
+  const isLoadingProducts = !currentRequest || fetchState === "FETCHING";
+  const isProductFetchFailed = currentRequest && fetchState === "FAILED";
+  const isProductFetchSuccessful =
+    currentRequest &&
+    successfulQueryKey === currentQueryKey &&
+    fetchState === "FETCHED";
+  const pageCount = calculatePageCount(
+    isProductFetchSuccessful ? total : 0,
+    activeQuery.limit,
+  );
 
   useEffect(() => {
     if (pageCount > 0 && activePage > pageCount) {
       const canonicalSearch = buildShopSearch({
+      ...activeQuery,
+        gender: activeQuery.gender,
         sort: activeQuery.sort,
         filter: activeQuery.filter,
         page: pageCount,
       });
       history.replace(`${location.pathname}${canonicalSearch}`);
     }
-  }, [
-    pageCount,
-    activePage,
-    activeQuery.sort,
-    activeQuery.filter,
-    history,
-    location.pathname,
-  ]);
+  }, [pageCount, activePage, activeQuery, history, location.pathname]);
 
   const paginationWindow = buildPaginationWindow(activePage, pageCount);
   const paginationItems = useMemo(
@@ -192,9 +218,6 @@ export default function ShopPage() {
       ).items,
     [paginationWindow, activePage],
   );
-  const isLoadingProducts = fetchState === "FETCHING";
-  const isProductFetchFailed = fetchState === "FAILED";
-  const isProductFetchSuccessful = fetchState === "FETCHED";
 
   const applyQueryDrafts = () => {
     const sortValue = sortInputRef.current?.value || "";
@@ -202,7 +225,13 @@ export default function ShopPage() {
 
     const sort = ALLOWED_SORT_VALUES.has(sortValue) ? sortValue : "";
     const filter = String(filterValue).trim();
-    const nextSearch = buildShopSearch({ sort, filter, page: 1 });
+    const nextSearch = buildShopSearch({
+      ...activeQuery,
+      sort,
+      filter,
+      page: 1,
+      gender: activeQuery.gender,
+    });
     history.push(`${location.pathname}${nextSearch}`);
   };
 
@@ -214,6 +243,8 @@ export default function ShopPage() {
     }
 
     const nextSearch = buildShopSearch({
+      ...activeQuery,
+      gender: activeQuery.gender,
       sort: activeQuery.sort,
       filter: activeQuery.filter,
       page: nextPage,
@@ -231,7 +262,7 @@ export default function ShopPage() {
         <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
           <h1 className="text-3xl font-bold text-[#252B42]">Shop</h1>
           <div className="flex items-center gap-3 text-sm font-semibold">
-            <Link to="/" className="text-[#252B42] hover:text-[#23A6F0]">
+            <Link to="/" className="text-[#252B42] hover:text-action">
               Home
             </Link>
             <span className="text-[#BDBDBD]">&gt;</span>
@@ -248,13 +279,13 @@ export default function ShopPage() {
 
         {categoriesFetchState === "FAILED" && (
           <div className="flex flex-col gap-3 rounded border border-[#FFE9EA] bg-[#FFF6F6] p-4">
-            <p className="text-sm text-[#E74040]">
+            <p className="text-sm text-danger-text">
               {categoriesError?.message || "Categories could not be loaded."}
             </p>
             <button
               type="button"
               onClick={() => dispatch(fetchCategoriesIfNeeded({ force: true }))}
-              className="w-fit rounded bg-[#23A6F0] px-4 py-2 text-sm font-semibold text-white"
+              className="w-fit rounded bg-action px-4 py-2 text-sm font-semibold text-white"
             >
               Retry categories
             </button>
@@ -278,7 +309,7 @@ export default function ShopPage() {
                     event.currentTarget.src = FALLBACK_PRODUCT_IMAGE;
                   }}
                 />
-                <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/25 text-white">
+                <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/55 text-white">
                   <h2 className="text-base font-bold tracking-wide">
                     {categoryItem.title}
                   </h2>
@@ -298,15 +329,23 @@ export default function ShopPage() {
       >
         <div className="mx-auto flex w-full max-w-6xl flex-col gap-4 px-4 py-6 md:flex-row md:items-center md:justify-between">
           <p className="text-sm font-semibold text-[#737373]">
-            <ResultCount
-              total={total}
-              offset={activeQuery.offset}
-              listLength={cardProducts.length}
-            />
+            {isProductFetchSuccessful ? (
+              <ResultCount
+                total={total}
+                offset={activeQuery.offset}
+                listLength={cardProducts.length}
+              />
+            ) : (
+              <span>
+                {isProductFetchFailed
+                  ? "Results unavailable"
+                  : "Loading results..."}
+              </span>
+            )}
           </p>
 
           <div
-            className="flex w-full gap-3 md:w-auto"
+            className="flex w-full flex-wrap gap-3 md:w-auto"
             key={`${location.pathname}${location.search}`}
           >
             <select
@@ -334,7 +373,7 @@ export default function ShopPage() {
             <button
               type="button"
               onClick={applyQueryDrafts}
-              className="h-10 rounded bg-[#23A6F0] px-4 text-sm font-semibold text-white hover:bg-[#1B8FD8]"
+              className="h-10 rounded bg-action px-4 text-sm font-semibold text-white hover:bg-ink"
             >
               Apply
             </button>
@@ -342,6 +381,7 @@ export default function ShopPage() {
         </div>
       </section>
 
+      <ShopFilters query={activeQuery} categories={categories} locationKey={`${location.pathname}${location.search}`} />
       <section className="mx-auto w-full max-w-6xl px-4 py-12">
         {isLoadingProducts && (
           <div
@@ -360,7 +400,7 @@ export default function ShopPage() {
             className="flex flex-col gap-3 rounded border border-[#FFE9EA] bg-[#FFF6F6] p-4"
             role="alert"
           >
-            <p className="text-sm text-[#E74040]">
+            <p className="text-sm text-danger-text">
               {productListError?.message || "Products could not be loaded."}
             </p>
             <button
@@ -368,7 +408,7 @@ export default function ShopPage() {
               onClick={() =>
                 dispatch(fetchProductsByQuery(activeQuery, { force: true }))
               }
-              className="w-fit rounded bg-[#23A6F0] px-4 py-2 text-sm font-semibold text-white"
+              className="w-fit rounded bg-action px-4 py-2 text-sm font-semibold text-white"
             >
               Retry products
             </button>
@@ -431,7 +471,7 @@ export default function ShopPage() {
                       aria-current={isActive ? "page" : undefined}
                       className={`h-10 min-w-10 rounded border px-3 text-sm ${
                         isActive
-                          ? "border-[#23A6F0] bg-[#23A6F0] text-white"
+                          ? "border-[#23A6F0] bg-action text-white"
                           : "border-[#DDDDDD] text-[#252B42]"
                       } disabled:cursor-not-allowed disabled:opacity-50`}
                     >
@@ -456,7 +496,10 @@ export default function ShopPage() {
 
       <section className="w-full border-t border-[#E8E8E8] bg-[#FAFAFA]">
         <div className="mx-auto flex w-full max-w-6xl flex-wrap justify-center gap-6 px-4 py-10 text-[#737373]">
-          {partnerLogos.map((logo) => (
+          <h2 className="w-full text-center text-sm font-semibold">
+            Built with
+          </h2>
+          {["React", "Spring", "PostgreSQL", "Flyway"].map((logo) => (
             <p
               key={logo}
               className="w-[calc(50%-12px)] text-center text-4xl font-bold text-[#8A8A8A] sm:w-[calc(33.333%-16px)] md:w-[calc(20%-19.2px)]"

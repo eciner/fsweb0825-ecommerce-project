@@ -110,6 +110,14 @@ src/
 
 ## 👥 T06: Team Page
 
+> **Dated enhancement decision - 2026-10-17:** The original T06 requirement below
+> explicitly names Gökhan Özdemir as Project Manager. It remains preserved as an
+> assignment requirement. The later approved enhancement independently supplies
+> seven named contributors/roles and uses those seven in the current Team/About
+> UI; it does not implement the original Project Manager item literally. Academic
+> acceptance of this specification difference remains unverified.
+
+
 > ⚠️ **NOTE:** There should be only ONE Header, Footer components for all pages, no color changes needed!
 
 - [x] Create Team Page Component Mobile View
@@ -545,7 +553,7 @@ cart: [
 
 ## 💳 T21: Create Order Page > Step 2 Credit Card
 
-> **Implementation note — approved Spring application:** GET/POST/PUT use `/user/card`; DELETE uses `/user/card/:cardId`. Saved-card responses contain `id`, `card_no`, `expire_month`, `expire_year`, `name_on_card` and can populate Redux `client.creditCards`. Full `card_no` is retained/returned for capstone compatibility; CVV/CCV stays transient and is not persisted. Current-month expiry is valid; past months are expired, so original sample dates are not current validation inputs. Payment is simulated, with no real gateway or charge; the project is not PCI compliant and makes no PAN masking/encryption-at-rest claim.
+> **Historical Phase-10 implementation note — approved Spring application:** GET/POST/PUT use `/user/card`; DELETE uses `/user/card/:cardId`. Saved-card responses contain `id`, `card_no`, `expire_month`, `expire_year`, `name_on_card` and can populate Redux `client.creditCards`. Full `card_no` is retained/returned for capstone compatibility; CVV/CCV stays transient and is not persisted. Current-month expiry is valid; past months are expired, so original sample dates are not current validation inputs. Payment is simulated, with no real gateway or charge; the project is not PCI compliant and makes no PAN masking/encryption-at-rest claim.
 
 - [x] Payment methods will be implemented in this task.
 - [x] There will be **add new card** option.
@@ -588,7 +596,7 @@ cart: [
 
 ## ✅ T22: Complete Order
 
-> **Implementation note — approved Spring application:** The frontend preserves the compatibility payload below. The backend binds `address_id`, `order_date`, `price` and `products` (`product_id`, positive `count`, optional `detail`); it derives the user from authentication, validates address ownership and uses canonical database prices instead of trusting client `price`. The shipped frontend sends a UTC ISO order date; the backend uses `Instant`. Compatibility card fields do not create a payment transaction and are not persisted in order history. Order/line persistence and stock/sell_count changes are transactional.
+> **Historical Phase-10 implementation note — approved Spring application:** The frontend preserves the compatibility payload below. The backend binds `address_id`, `order_date`, `price` and `products` (`product_id`, positive `count`, optional `detail`); it derives the user from authentication, validates address ownership and uses canonical database prices instead of trusting client `price`. The shipped frontend sends a UTC ISO order date; the backend uses `Instant`. Compatibility card fields do not create a payment transaction and are not persisted in order history. Order/line persistence and stock/sell_count changes are transactional.
 >
 > Phase-10A Newman coverage (32 requests/35 assertions across the collection) used isolated local Spring/PostgreSQL data. The separate authenticated Production purchase/history E2E belongs to Phase 9 at `53b10d82d6b921dea3b919a81f3895a875f860ca`, with exactly one authorized persistent order; never repeat it. Phase 10K acceptance on `173a5786ca41dbef2c9ce0f557900a27d0464323` was read-only and did not retest authenticated checkout.
 
@@ -628,7 +636,7 @@ cart: [
 
 ## 🧾 T23: Previous Orders Page
 
-> **Implementation note — approved Spring application:** `/orders` is the protected frontend page; the owner-scoped API is GET `/order`. Its response contains `id`, `order_date`, `price` and `products`; lines contain `product_id`, `count` and persisted `detail`. Order history contains no full PAN or CVV/CCV. Local Newman and historical Phase-9 Production E2E verified history separately. Final-SHA CI provides isolated integration coverage; Phase 10K did not freshly exercise authenticated Production history.
+> **Historical Phase-10 implementation note — approved Spring application:** `/orders` is the protected frontend page; the owner-scoped API is GET `/order`. Its response contains `id`, `order_date`, `price` and `products`; lines contain `product_id`, `count` and persisted `detail`. Order history contains no full PAN or CVV/CCV. Local Newman and historical Phase-9 Production E2E verified history separately. Final-SHA CI provides isolated integration coverage; Phase 10K did not freshly exercise authenticated Production history.
 
 - [x] Test the API via Postman/Newman against an isolated local Spring/PostgreSQL backend. Production browser E2E was verified separately.
 - [x] Create a new page component for previous orders of client.
@@ -637,3 +645,43 @@ cart: [
 - [x] Create a GET request to `/order` endpoint to get previous orders.
 - [x] Create proper data table view for orders and order details.
 - [x] You can use collapsable panels for order details.
+
+
+## Current local enhancement annotation - 2026-10-17
+
+Original T01-T23 descriptions, examples and checkboxes above are preserved as the
+assignment/history record. The later enhancement/remediation changes current UI
+behavior: Home uses the API; search and owned favorites are active; T20 adds 81
+province names with partial dependent suggestions/manual fallback and optional
+same/separate receipt selection; T21 uses masked summary reads and optional unchanged
+PAN edits; T22 sends no PAN/CCV from the updated client and optionally identifies
+its typed order intent with a customer-scoped request_id UUID (V12). Legacy payloads
+remain accepted; no payment charge is introduced. T23 shows stored price/name/address
+snapshots, with missing historical fields disclosed. V8-V11 remain immutable.
+
+The original PAN payload examples and historical implementation notes do not describe
+new client storage guarantees. Legacy full-PAN storage/API responses remain a
+commercial-payment blocker. The seven-person team decision is separate from T06.
+No nationwide district/neighborhood completeness, product photography rights or
+institutional approval of assignment differences is asserted.
+
+Current observed verification is in [PROJECT_DETAILS.md](PROJECT_DETAILS.md).
+No historical release result is reused as current verification. Cross-platform
+release requires [the release gates](PROJECT_DETAILS.md#deployment-evolution-and-release-gates); publication
+and production writes are not part of this task.
+
+
+## Current local release-review annotation ? 2026-10-20
+
+The original task wording above remains unchanged. The current schema is V1-V13.
+E01-E07 add bounded same-browser carts, collection-independent global search,
+server-side price/stock filters, searchable provinces and verified audited shipment
+management. Customer shipment JSON omits internal actor ids; authorized management
+retains audit. Latest setup, requirement classifications, fresh verification and
+local-versus-deployed distinctions are in [PROJECT_DETAILS.md](PROJECT_DETAILS.md).
+T06 seven-person Team, T08 immediate activation and T22 no-PAN/CVV payload remain
+approved deviations. Grid/custom CSS also means literal Flex/Tailwind-only styling
+is not claimed. Shipping/discount remain zero-valued demo rows. Public Admin signup,
+real payment capture, email activation and carrier integration are absent. Legacy
+full-PAN compatibility remains a commercial blocker. No institutional acceptance
+or new Production release is asserted by these annotations.

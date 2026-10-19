@@ -1,4 +1,65 @@
-# Re-Audit and Repair Ledger (T01-T16)
+# Fixes implemented
+
+Current technical record: 2026-10-20. Latest changes are local, unreleased.
+The dated historical records below remain evidence of those snapshots. Their older
+state descriptions (including full card records in Redux) are superseded by the
+current summary and [PROJECT_DETAILS.md](PROJECT_DETAILS.md). [README.md](README.md)
+is the current setup guide; [PROJECT_EXTRAS.md](PROJECT_EXTRAS.md) compares scope.
+
+## Current fixes and regression evidence
+
+The table records symptoms, root cause, effect, solution, source/commit evidence,
+verification/regression and residual limits. Historical commit identifiers refer
+to preserved local development history; clean publication candidates carry the
+reviewed source delta without private operational documents.
+
+| Issue/component | Symptoms, root cause and impact | Implemented correction/source evidence | Verification/regression | Remaining limit |
+| --- | --- | --- | --- | --- |
+| Catalog query races | Unkeyed promises or unguarded responses could mix old rows/totals with a new query | Query-keyed deduplication and request/committed-query guards in actions/reducer/ShopPage; historical T01-T16 repairs and `dfea34e` | actions/reducer/query tests and real search navigation | Remote failures still require visible retry |
+| False detail fallback | Missing id could display the first local item, misrepresenting identity | API-backed id fetch, explicit 404/error/loading and metadata-aware route helpers | productModel/productDetailRoute/slug tests and browser direct navigation | Unsupported attributes remain absent |
+| Routing/layout/overflow | History menu and mobile cart readiness were inconsistent | Shared routes/navigation and validity-gated checkout, bounded responsive cart; `04c69a2`, `15ce012`, `53b10d8` | DOM flows and mobile browser checks | Tested widths are not every-device certification |
+| Session/account callbacks | Late A callbacks could clear B's checkout or restore stale state | Session revision, account/request/attempt settlement guards; `9dec3b1` | checkoutSafety/reducer/DOM cases including account switch | Browser profile itself is not an encrypted security boundary |
+| Public signup semantics | Admin was selectable and success copy implied unsent activation mail | Customer/Store allowlist in UI/server; truthful immediate activation; `e2b2a67` and Phase-10 records | Auth/signup tests | No email verification or auth throttling |
+| Local Spring API/configuration | Old external default and missing production target could silently select localhost | Local fallback retained; explicit production-build HTTP(S) target required via config/apiTarget.js and Vite callback | buildConfig tests, clean positive/negative build checks | Deployment must still supply the intended HTTPS URL |
+| Resource mutation reconciliation | Successful mutation followed by failed refresh appeared failed and invited duplicates | Confirmed writes retain success; ambiguous writes block repetition and offer GET reconciliation; ownedResources/actions, `dfea34e` | remediation/journeys DOM tests | Unknown results may require manual reconciliation |
+| Canonical transaction/inventory | Client totals and concurrent last-unit requests could otherwise undermine purchase integrity | Owner validation, canonical prices, ordered product locks, stock/sell_count bounds and atomic order/line/shipment writes; OrderService, `d4e9f63`, later extensions | PostgreSQL last-unit, failed-line rollback and price tests inspect stored values | No real payment, shipping or tax engine |
+| Order replay/recovery | Lost committed response could be retried as a new purchase; later 401 wrongly cleared uncertainty | Nullable V12 owner-scoped key/fingerprint and immutable account-bound intent retained through errors/reload; `dfea34e`, `9dec3b1` | PostgreSQL identical/different UUID races, lost-response browser cases | Legacy unkeyed calls and lost storage lack the same protection |
+| Historical snapshots/cart consumption | Later product/address edits or new cart lines could distort confirmed history/consumption | V9 purchase snapshots, stored confirmation, original opaque-line reservations and selective quantity consumption | order/checkout/cart-session/browser regressions | Missing old snapshots cannot be reconstructed |
+| Guest merge/revalidation | Memory-only carts vanished on refresh and stale-tab merges could duplicate guest lines | Bounded account-separated IDs, merge claims and canonical hydration; cartSession/cartActions, `06897d9` | cartSession/reducer/DOM and browser refresh/login cases | Same-browser only; no live multi-tab sync |
+| Search/Turkish folding | Collection-scoped global search or asymmetric text folding missed expected results | Unrestricted global Header query, symmetric Turkish normalization, escaped LIKE punctuation and whole-set SQL filters; `a2ef922`, `06897d9` | query/product/PostgreSQL and real mouse/keyboard/touch cases | No invented brand/size taxonomy |
+| Store ownership | Legacy scalar store ids could collide with newly registered Store ids | Explicit verified foreign key and Admin audit; snapshot on purchase; V13, `a2ef922` | Collision, reassignment and foreign Store H2/PostgreSQL tests | Unknown/historical ownership remains Admin-managed |
+| Shipment concurrency/audit | Concurrent editors/retries could lose changes or duplicate events | Scoped row locks, expected versions, UUID replay, immutable events and consistent read snapshot; ShipmentService/repository | H2/PostgreSQL concurrent winner/duplicate/read-snapshot tests, restart/browser cases | Demo lifecycle, no live carrier |
+| AUD-023 customer actor exposure | Shared management DTO leaked internal numeric account ids in customer JSON; hiding text alone would leave exposure | ShipmentView.forCustomer removes actor ids before serialization; NON_NULL omits the field. Management projection/database events remain. UI retains status/kind/time without inventing a migration actor | Shared customerHistoryOmitsActorIdsWhileScopedManagementRetainsAudit runs on H2/PostgreSQL; DOM and actual browser JSON checks; foreign user/Store denial | Customer timeline deliberately gives no unverified historical role |
+| E2E isolation/portability | Inherited config/JVM/datasources could migrate a wrong database; hard-coded username path blocked reuse | Fixture-issued container capability, explicit classpath/Flyway/data source, minimal Java env, label/binding cleanup guards; `67228c0`; current-user Docker discovery in Stage 2 | Four canaries, real restart and browser suites | Windows Docker Desktop named pipes and Edge required |
+| Malformed information hash | decodeURIComponent could throw on malformed fragments | Guard invalid decoding, preserve valid focus/scroll; `67228c0` | informationNavigation DOM test | No broad router rewrite |
+| AUD-001/007 publication privacy | Deleting private files at HEAD would still publish earlier local blobs; public docs linked excluded plans | Clean-base candidate deltas, explicit inventories/outgoing scans, canonical public links; original local history retained | Complete outgoing commit/tree/content checks and clean checkout | Original enhancement/audit/custom refs must never be pushed wholesale |
+| AUD-006/WP3 documentation | README migration/routes/test/release statements conflicted | Four canonical English documents, original-task annotations and historical progress positioning | Relative-link/path/commit/claim checks plus fresh setup verification | Historical observations are dated, not current Production PASS |
+| WP6/WP7 CI/cleanup | Implicit workflow token policy; obsolete unconsumed configuration/starter art | Explicit contents:read for checkout/build-only workflows; removed tailwind.config.js and unreferenced React starter SVG | Reference/dynamic/config review, lint/tests/build and browser regressions | history is used by tests; favicon and uncertain archival images retained |
+
+## Stage 2 decisions and limitations
+
+T06 retains the seven supplied contributors, T08 immediately activates accounts,
+and T22 sends no PAN/CVV. These approved differences remain explicit. Legacy saved
+card storage/response PAN remains a commercial-security blocker. No V14, payment
+provider, mail service, carrier, proxy-trust or authentication redesign was introduced.
+Historical image/Figma rights are UNKNOWN / REQUIRES USER REVIEW; Montserrat's OFL
+notice remains. No root project license was invented.
+
+Initial fresh Stage 2 evidence: frontend lint/build PASS, 183 tests in 27 files;
+Java 21 isolated clean verify PASS, 112 tests including 23 PostgreSQL, zero failures/
+errors/skips and packaged JAR. A running original local JAR blocked clean in the
+primary checkout; an exact-source temporary build preserved that process and data.
+The clean candidate worktree also passed all 183 frontend tests, 112 backend tests,
+four isolation canaries, one restart test and 27 Edge browser cases (130 route/width
+combinations). Details and warnings are in PROJECT_DETAILS.
+No historical test is promoted to current evidence and no Production write occurred.
+
+## Historical records
+
+The following dated notes retain reliable original detail. Statements about actions
+not performed apply to the dated patch described, not every later engineering session.
+
+## Retained historical repair ledger (T01-T16)
 
 ## Audit Date
 
@@ -73,11 +134,10 @@
 
 ## Figma
 
-- Expected export was found at:
-  - `src/figmas/figma-export/Ecommerce_UI_Kit_Full_Export`
+- Historical visual review used a local Figma export. It is not a required public build input and redistribution rights are not established here.
 - Functional implementation prioritized `project-phases.md`; visual work preserved without inventing unsupported product-detail data.
 
-## T17-T23 Audit and Repair
+## Historical T17-T23 Audit and Repair
 
 - Added one Redux-owned cart model with product-id identity, repeat-add increments, checked selection, bounded Header dropdown, and explicit empty state.
 - Added responsive `/cart` table and reusable Order Summary with derived products total, neutral shipping/discount, and grand total.
@@ -110,3 +170,25 @@
 - Phase 10 application implementation and Production release were verified through Phase 10K at `173a5786ca41dbef2c9ce0f557900a27d0464323`; historical Phase-9 authenticated E2E remains separate from final-release read-only acceptance.
 - Phase 10L identified stale release/status statements, missing local CORS guidance, unqualified assignment differences and the incorrect Redux/card-state assurance corrected above. Phase 10M supplies documentation-only corrections in the four authorized Markdown files, pending user review and commit/delivery verification. Final academic delivery close-out is not declared complete.
 - The dated July, Phase-10A before and Phase-10B after verification results remain historical snapshots. No dependency audit, CI rerun, Production E2E, push or deployment is performed for this documentation patch. See [README.md](README.md) for the approved release evidence, reproducible setup and demo/security limitations.
+
+## Independent audit remediation - 2026-10-17 (local, unreleased)
+
+The earlier entries retain their historical dates and results. Later P00-P12
+changes replaced the mailto CTA with persisted contact, enabled search/favorites,
+and replaced static Home products with API data. Saved-card summary reads and
+mutation reconciliation mask PAN before Redux; legacy full-PAN storage/responses
+remain compatible and continue to BLOCK commercial-production readiness.
+
+The new remediation separates confirmed resource writes from failed GET refreshes,
+blocks uncertain write repetition, invalidates inventory caches after confirmed
+orders, binds Shop totals to committed queries, and adds customer-scoped optional
+UUID order replay protection through additive V12. Purchase-time snapshots and
+selective cart consumption remain. Durable DOM and isolated full-stack browser
+suites replace one-off diagnostics as repeatable acceptance evidence.
+
+Exact root causes, files, observed counts, known limitations and local commits are
+recorded in [PROJECT_DETAILS.md](PROJECT_DETAILS.md).
+Release strategy is [the release gates](PROJECT_DETAILS.md#deployment-evolution-and-release-gates).
+No previous release/test is claimed to include these corrections. No remote delivery
+or production write is performed; no PCI, legal-compliance or commercial-readiness
+claim is made.

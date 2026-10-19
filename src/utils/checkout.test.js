@@ -27,15 +27,19 @@ describe("checkout readiness", () => {
     ["two-digit CCV", { ccv: "12" }],
     ["non-numeric CCV", { ccv: "abc" }],
     ["mixed CCV", { ccv: "12a" }],
+    ["four-digit CCV", { ccv: "1234" }],
     ["five-digit CCV", { ccv: "12345" }],
     ["empty cart", { cart: [] }],
-    ["no selected product", { cart: [{ ...validCheckout.cart[0], checked: false }] }],
+    [
+      "no selected product",
+      { cart: [{ ...validCheckout.cart[0], checked: false }] },
+    ],
     ["submission in progress", { submitting: true }],
   ])("prevents checkout with %s", (_reason, changes) => {
     expect(isCheckoutReady({ ...validCheckout, ...changes })).toBe(false);
   });
 
-  it.each(["321", "4321"])("accepts a valid %s CCV", (ccv) => {
+  it.each(["321"])("accepts a valid %s CCV", (ccv) => {
     expect(isCheckoutReady({ ...validCheckout, ccv })).toBe(true);
   });
 });

@@ -2,10 +2,9 @@ import { useEffect, useMemo, useState } from "react";
 import { Link, useHistory, useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { ChevronLeft, ChevronRight, Loader2 } from "lucide-react";
-import { toast } from "react-toastify";
+import AddToCartButton from "../components/AddToCartButton";
 
 import {
-  addCartItem,
   fetchCategoriesIfNeeded,
   fetchProductDetail,
 } from "../store/actions";
@@ -14,6 +13,7 @@ import {
   toProductDetailModel,
 } from "../utils/productModel";
 import { getProductDetailRouteState } from "../utils/productDetailRoute";
+import FavoriteButton from "../components/FavoriteButton";
 import { buildCategoryPath, buildProductDetailPath } from "../utils/slug";
 
 function formatCurrency(value) {
@@ -31,6 +31,9 @@ function isRetryableStatus(status) {
 
 export default function ProductDetailPage() {
   const dispatch = useDispatch();
+  const inventoryRevision = useSelector(
+    (state) => state.product.inventoryRevision,
+  );
   const history = useHistory();
   const {
     gender,
@@ -68,7 +71,7 @@ export default function ProductDetailPage() {
 
   useEffect(() => {
     dispatch(fetchProductDetail(parsedProductId)).catch(() => {});
-  }, [dispatch, parsedProductId]);
+  }, [dispatch, parsedProductId, inventoryRevision]);
 
   const categoriesById = useMemo(
     () =>
@@ -101,7 +104,13 @@ export default function ProductDetailPage() {
     }
 
     return buildProductDetailPath(currentProduct, resolvedCategory);
-  }, [canCanonicalize, product, parsedProductId, currentProduct, resolvedCategory]);
+  }, [
+    canCanonicalize,
+    product,
+    parsedProductId,
+    currentProduct,
+    resolvedCategory,
+  ]);
 
   useEffect(() => {
     if (
@@ -168,25 +177,22 @@ export default function ProductDetailPage() {
     <div className="w-full bg-[#FAFAFA]">
       <div className="mx-auto w-full max-w-6xl px-4 py-6 md:py-10">
         <div className="flex flex-wrap items-center gap-3 text-sm font-semibold">
-          <Link
-            to="/"
-            className="text-[#252B42] transition hover:text-[#23A6F0]"
-          >
+          <Link to="/" className="text-[#252B42] transition hover:text-action">
             Home
           </Link>
-          <span className="text-[#BDBDBD]">&gt;</span>
+          <span className="text-muted">&gt;</span>
           <Link
             to="/shop"
-            className="text-[#737373] transition hover:text-[#23A6F0]"
+            className="text-[#737373] transition hover:text-action"
           >
             Shop
           </Link>
           {resolvedCategory && (
             <>
-              <span className="text-[#BDBDBD]">&gt;</span>
+              <span className="text-muted">&gt;</span>
               <Link
                 to={buildCategoryPath(resolvedCategory)}
-                className="text-[#737373] transition hover:text-[#23A6F0]"
+                className="text-[#737373] transition hover:text-action"
               >
                 {resolvedCategory.title}
               </Link>
@@ -194,7 +200,7 @@ export default function ProductDetailPage() {
           )}
           {product?.title && (
             <>
-              <span className="text-[#BDBDBD]">&gt;</span>
+              <span className="text-muted">&gt;</span>
               <span className="text-[#252B42]">{product.title}</span>
             </>
           )}
@@ -228,7 +234,7 @@ export default function ProductDetailPage() {
             className="mt-8 rounded border border-[#FFE9EA] bg-[#FFF6F6] p-4"
             role="alert"
           >
-            <p className="text-sm text-[#E74040]">
+            <p className="text-sm text-danger-text">
               {selectedProductError?.status === 404
                 ? "Product not found."
                 : selectedProductError?.message ||
@@ -239,7 +245,7 @@ export default function ProductDetailPage() {
                 <button
                   type="button"
                   onClick={handleRetry}
-                  className="rounded bg-[#23A6F0] px-4 py-2 text-sm font-semibold text-white"
+                  className="rounded bg-action px-4 py-2 text-sm font-semibold text-white"
                 >
                   Retry
                 </button>
@@ -269,7 +275,7 @@ export default function ProductDetailPage() {
                     event.currentTarget.onerror = null;
                     event.currentTarget.src = FALLBACK_PRODUCT_IMAGE;
                   }}
-                  className="h-75 w-full object-cover sm:h-105"
+                  className="h-75 w-full bg-surface object-contain sm:h-105"
                 />
 
                 {images.length > 1 && (
@@ -347,7 +353,7 @@ export default function ProductDetailPage() {
                             event.currentTarget.onerror = null;
                             event.currentTarget.src = FALLBACK_PRODUCT_IMAGE;
                           }}
-                          className="h-20 w-24 object-cover"
+                          className="h-20 w-24 bg-surface object-contain"
                         />
                       </button>
                     );
@@ -378,22 +384,13 @@ export default function ProductDetailPage() {
                   : "Out of Stock"}
               </p>
 
-              <p className="mt-6 max-w-lg text-sm leading-6 text-[#858585]">
+              <p className="mt-6 max-w-lg text-sm leading-6 text-muted">
                 {product.description}
               </p>
 
               <div className="mt-8 border-t border-[#E8E8E8] pt-6">
-                <button
-                  type="button"
-                  disabled={product.stock <= 0}
-                  className="h-11 rounded bg-[#23A6F0] px-6 text-sm font-semibold text-white hover:bg-[#1B8FD8] disabled:cursor-not-allowed disabled:bg-[#BDBDBD]"
-                  onClick={() => {
-                    dispatch(addCartItem(currentProduct));
-                    toast.success("Product added to cart.");
-                  }}
-                >
-                  {product.stock > 0 ? "Add to Cart" : "Out of Stock"}
-                </button>
+                <AddToCartButton product={product} detail />
+                <FavoriteButton productId={product.id} name={product.title} />
               </div>
             </div>
           </section>
@@ -402,10 +399,13 @@ export default function ProductDetailPage() {
 
       <section className="w-full border-t border-[#E8E8E8] bg-[#FAFAFA]">
         <div className="mx-auto flex w-full max-w-6xl flex-wrap justify-center gap-6 px-4 py-10 text-[#737373]">
-          {["Hooli", "Lyft", "Stripe", "AWS", "Reddit"].map((logo) => (
+          <h2 className="w-full text-center text-sm font-semibold">
+            Built with
+          </h2>
+          {["React", "Spring", "PostgreSQL", "Flyway"].map((logo) => (
             <p
               key={logo}
-              className="w-[calc(50%-12px)] text-center text-4xl font-bold text-[#8A8A8A] sm:w-[calc(33.333%-16px)] md:w-[calc(20%-19.2px)]"
+              className="w-[calc(50%-12px)] text-center text-4xl font-bold text-muted sm:w-[calc(33.333%-16px)] md:w-[calc(20%-19.2px)]"
             >
               {logo}
             </p>

@@ -15,3 +15,15 @@ src/figmas
 npm-debug.log
 yarn-debug.log
 yarn-error.log
+
+# Frontend uploads exclude local operational documents and backend build inputs.
+/*.md*
+.codex/
+.agents/
+server/
+
+# Local-only verification harnesses
+/e2e/
+/playwright.config.js
+/test-results/
+/playwright-report/

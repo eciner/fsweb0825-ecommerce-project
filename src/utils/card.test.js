@@ -9,6 +9,12 @@ describe("isCardExpired", () => {
     expect(isCardExpired(5, 2026, currentDate)).toBe(true);
   });
 
+  it("accepts the current month and rejects out-of-range months", () => {
+    expect(isCardExpired(9, 2026, currentDate)).toBe(false);
+    expect(isCardExpired(13, 2027, currentDate)).toBe(true);
+    expect(isCardExpired(0, 2027, currentDate)).toBe(true);
+  });
+
   it("accepts a later month in the current year", () => {
     expect(isCardExpired(10, 2026, currentDate)).toBe(false);
   });

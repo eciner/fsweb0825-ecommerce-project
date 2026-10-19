@@ -9,6 +9,11 @@ import {
   PRODUCT_LIST_FETCH_STARTED,
   PRODUCT_LIST_FETCH_SUCCEEDED,
 } from "./actions";
+import {
+  CHECKOUT_OPEN,
+  CHECKOUT_ATTEMPT,
+  CHECKOUT_CONFIRMED,
+} from "./checkoutState";
 
 describe("product reducer", () => {
   it("tracks list request lifecycle", () => {
@@ -91,4 +96,51 @@ describe("product reducer", () => {
     expect(failed.product.selectedProductFetchState).toBe("FAILED");
     expect(failed.product.selectedProductError.status).toBe(404);
   });
+});
+
+it("removes only purchased quantities while preserving unchecked and newly added units", () => {
+  let state = reducer(undefined, { type: "CART_ADD_ITEM", payload: { id: 1 } });
+  state = reducer(state, { type: "CART_ADD_ITEM", payload: { id: 1 } });
+  state = reducer(state, { type: "CART_ADD_ITEM", payload: { id: 2 } });
+  state = reducer(state, { type: "CART_TOGGLE_ITEM", payload: 2 });
+  state = reducer(state, {
+    type: "SET_USER",
+    payload: { email: "cart@example.test" },
+  });
+  const scope = {
+    account: "cart@example.test",
+    revision: 0,
+    requestId: "a0000000-0000-4000-8000-000000000001",
+  };
+  state = reducer(state, {
+    type: CHECKOUT_OPEN,
+    payload: {
+      scope,
+      intent: {
+        scope,
+        payload: { request_id: scope.requestId },
+        purchased: [{ productId: 1, count: 1 }],
+        attempt: 0,
+        status: "NEW",
+      },
+    },
+  });
+  state = reducer(state, {
+    type: CHECKOUT_ATTEMPT,
+    payload: { scope, attempt: 0 },
+  });
+  state = reducer(state, {
+    type: CHECKOUT_CONFIRMED,
+    payload: { scope, attempt: 1, order: { id: 1 } },
+  });
+  expect(
+    state.shoppingCart.cart.map((line) => [
+      line.product.id,
+      line.count,
+      line.checked,
+    ]),
+  ).toEqual([
+    [1, 1, true],
+    [2, 1, false],
+  ]);
 });

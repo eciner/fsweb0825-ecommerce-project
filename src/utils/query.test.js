@@ -9,6 +9,17 @@ import {
 } from "./query";
 
 describe("query utilities", () => {
+  it("preserves gender through URLs, paging, API params and deduplication keys", () => {
+    const parsed = readShopSearch("?gender=k&filter=blue&page=2");
+    expect(buildShopSearch(parsed)).toBe("?gender=k&filter=blue&page=2");
+    expect(buildProductsParams({ ...parsed, offset: 25 }).gender).toBe("k");
+    expect(createQueryKey({ gender: "k" })).not.toBe(
+      createQueryKey({ gender: "e" }),
+    );
+    expect(buildProductsParams({ gender: "invalid" })).not.toHaveProperty(
+      "gender",
+    );
+  });
   it("normalizes empty query values", () => {
     expect(normalizeQuery({})).toEqual({
       category: null,
@@ -57,11 +68,23 @@ describe("query utilities", () => {
 
   it("builds API params while omitting empty optional fields", () => {
     expect(
-      buildProductsParams({ category: null, sort: "", filter: "", limit: 25, offset: 0 }),
+      buildProductsParams({
+        category: null,
+        sort: "",
+        filter: "",
+        limit: 25,
+        offset: 0,
+      }),
     ).toEqual({ limit: 25, offset: 0 });
 
     expect(
-      buildProductsParams({ category: 2, sort: "price:asc", filter: "siyah", limit: 25, offset: 25 }),
+      buildProductsParams({
+        category: 2,
+        sort: "price:asc",
+        filter: "siyah",
+        limit: 25,
+        offset: 25,
+      }),
     ).toEqual({
       category: 2,
       sort: "price:asc",
@@ -72,8 +95,20 @@ describe("query utilities", () => {
   });
 
   it("creates deterministic query key", () => {
-    const one = createQueryKey({ category: 2, sort: "price:desc", filter: "siyah", limit: 25, offset: 25 });
-    const two = createQueryKey({ category: "2", sort: "price:desc", filter: "  siyah ", limit: "25", offset: "25" });
+    const one = createQueryKey({
+      category: 2,
+      sort: "price:desc",
+      filter: "siyah",
+      limit: 25,
+      offset: 25,
+    });
+    const two = createQueryKey({
+      category: "2",
+      sort: "price:desc",
+      filter: "  siyah ",
+      limit: "25",
+      offset: "25",
+    });
     expect(one).toEqual(two);
   });
 

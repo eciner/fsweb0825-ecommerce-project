@@ -1,3 +1,38 @@
+# Historical project progress
+
+Retained on 2026-10-20 as a distinct record of earlier engineering/CI/deployment
+checkpoints. The canonical current explanation is [PROJECT_DETAILS.md](PROJECT_DETAILS.md),
+with [README.md](README.md) for setup. Dated headings and claims below describe
+those checkpoints, not fresh Production identity or the latest local enhancement.
+The current local schema is V13; E01-E07 and Stage 2 are local/unreleased. No earlier
+count or deployment acceptance is relabeled as current. The original source records
+remain useful for exact historical SHAs and intentional frontend/backend identities.
+
+---
+
+# Current enhancement note - 2026-10-17
+
+Local enhancement/remediation status supersedes current-state claims in the dated
+Phase-10 snapshots below. Search and account-persistent favorites work; Home is
+API-backed. V8-V11 add the catalog, owned snapshots/favorites and persisted contact.
+V12 provides optional customer-scoped order request IDs; legacy clients still work.
+Card summaries/mutation reconciliation are masked before client state, but legacy
+PAN storage/responses continue to block commercial payment readiness. CCV is transient.
+
+Confirmed writes are separate from refresh failures; unknown resource writes require
+reconciliation. Order success invalidates list/detail caches; Shop totals and rows
+share committed query identity. The seven-person team is a newer enhancement
+choice, separate from the preserved original T06 Project Manager requirement.
+
+Demo accounts are isolated local provisioned records, not public production accounts.
+Current test and actual browser evidence are in the appended independent remediation
+section of [PROJECT_DETAILS.md](PROJECT_DETAILS.md). No historical test
+or release is being relabeled as having contained these enhancements. Release ordering
+and backup/rollback gates are in [the release gates](PROJECT_DETAILS.md#deployment-evolution-and-release-gates).
+Commercial-production readiness BLOCKED; no push/deploy/production mutation performed.
+
+---
+
 # Project Progress
 
 ## Current Application Release and Delivery Status
@@ -79,7 +114,7 @@ Historical Phase-7 environment preparation was separately verified with WSL 2, v
   - detail requests by product id
 - Stale response protection uses request ids stored in Redux.
 
-## Canonical Product State (current)
+## Canonical Product State (historical T16 shape; enhancement fields described above)
 
 ```js
 {
@@ -113,18 +148,18 @@ Historical Phase-7 environment preparation was separately verified with WSL 2, v
 
 ## Notes
 
-- T17 cart behavior is active; Favorites and Search remain visibly disabled because they are outside T01-T23 scope.
+- T17 cart behavior is active; Favorites and Search were outside the T01-T23 baseline; both are implemented by the later local enhancement.
 - Product-detail route correction waits for real category metadata and does not fabricate `kategori/kategori` URLs.
 - Product card and detail now use real API semantics:
   - `rating` is rating
   - `sell_count` is sold count
   - `stock` is stock
-- Local static product data remains for home-page showcase components only, not canonical Shop/Detail API state.
+- Home, Shop and Detail now read API data; the unused legacy showcase data/component were removed by the dated remediation.
 - T17-T19: Redux owns cart lines, quantity/selection mutations, bounded Header dropdown, cart table, and neutral shipping/discount totals.
 - T20-T22: `/order` is protected, uses Redux address/card collections, React Hook Form CRUD views, transient CCV state, and one shared order payload/total calculation. Newman verified these APIs against local Spring/PostgreSQL; the separate authenticated Production E2E was historical Phase 9.
 - T23: `/orders` is protected, loads authenticated order history, supports loading/failure/empty states and expandable product lines. Local Newman and the historical Phase-9 Production order-history E2E passed; fresh authenticated history was not re-exercised on the final Phase-10 Production SHA.
 - Cart identity is `product.id`; variants and product details are not fabricated.
-- CCV is never persisted in Redux, browser storage, logs, or saved cards. Saved-card API responses can contain full `card_no` and populate Redux `client.creditCards`; this capstone is not PCI compliant.
+- CCV is never persisted in Redux, browser storage, logs, or saved cards. Legacy saved-card API responses can contain full `card_no`; the current client uses masked summary reads and masks mutation responses before Redux. This capstone is not PCI compliant.
 - Card expiration is validated as a month/year pair against the current month.
 - Address/card load and delete failures remain visible and do not silently mutate checkout state.
 - Node.js 20.19+ is supported; Node 22 is pinned for CI in `.nvmrc` and `.github/workflows/frontend-ci.yml`.

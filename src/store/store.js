@@ -3,8 +3,9 @@ import { thunk } from "redux-thunk";
 import { createLogger } from "redux-logger";
 import reducer from "./reducer";
 import { redactForLogger } from "./redactForLogger";
+import { cartPersistence, readCart } from "./cartSession";
 
-const middlewares = [thunk];
+const middlewares = [thunk, cartPersistence];
 
 if (import.meta.env.DEV) {
 	middlewares.push(
@@ -19,4 +20,5 @@ if (import.meta.env.DEV) {
 }
 
 const store = createStore(reducer, applyMiddleware(...middlewares));
+store.dispatch({ type: "CART_SESSION_RESTORE", payload: { cartOwner: "guest", cart: readCart("guest") } });
 export default store;

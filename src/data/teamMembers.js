@@ -1,36 +1,48 @@
-// Unified team members data - single source of truth
 export const teamMembers = [
   {
     id: 1,
-    name: "Gökhan Özdemir",
-    role: "Project Manager",
-    image: "https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=900&q=80",
-    social: {
-      facebook: "https://www.facebook.com/",
-      instagram: "https://www.instagram.com/",
-      twitter: "https://x.com/",
-    },
+    name: "Emre Ciner",
+    role: "Full-Stack Developer",
+    responsibility:
+      "Connects storefront interactions with secure API and data flows.",
   },
   {
     id: 2,
-    name: "Emre Ciner",
-    role: "Full Stack Developer",
-    image: "https://images.unsplash.com/photo-1568602471122-7832951cc4c5?auto=format&fit=crop&w=900&q=80",
-    social: {
-      facebook: "https://www.facebook.com/",
-      instagram: "https://www.instagram.com/",
-      twitter: "https://x.com/",
-    },
+    name: "Hazal Tuncay",
+    role: "Business Analyst",
+    responsibility:
+      "Clarifies requirements and maps customer and store journeys.",
   },
   {
     id: 3,
-    name: "Kathryn Murphy",
-    role: "Frontend Developer",
-    image: "https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=900&q=80",
-    social: {
-      facebook: "https://www.facebook.com/",
-      instagram: "https://www.instagram.com/",
-      twitter: "https://x.com/",
-    },
+    name: "Jurgen Hifzi",
+    role: "Database Developer / Database Engineer",
+    responsibility: "Supports data modeling, consistency and database design.",
+  },
+  {
+    id: 4,
+    name: "Serhat Salih Karaca",
+    role: "UI/UX Designer & Frontend Developer",
+    responsibility:
+      "Shapes accessible interfaces and coherent responsive experiences.",
+  },
+  {
+    id: 5,
+    name: "Kürşat Tarı",
+    role: "General Manager of Stores",
+    responsibility: "Contributes store operations and assortment perspectives.",
+  },
+  {
+    id: 6,
+    name: "Mert Selçuk",
+    role: "Social Media & Performance Marketing",
+    responsibility:
+      "Contributes communication and audience strategy perspectives.",
+  },
+  {
+    id: 7,
+    name: "Özge Ciner",
+    role: "Translator / Localization Specialist",
+    responsibility: "Supports clear language and localization decisions.",
   },
 ];

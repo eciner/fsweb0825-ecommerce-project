@@ -1,5 +1,21 @@
+import { OWNED_RESOURCE_STATE } from "./ownedResources";
+import { cartScope } from "./cartSession";
+import {
+  CHECKOUT_OPEN,
+  CHECKOUT_ATTEMPT,
+  CHECKOUT_FAILED,
+  CHECKOUT_CONFIRMED,
+  CHECKOUT_DISMISS_RESULT,
+  ownsCheckout,
+  reduceCheckout,
+  checkoutBusy,
+  expiredInventory,
+  accountKey,
+} from "./checkoutState";
 import {
   SET_USER,
+  PRODUCT_INVENTORY_INVALIDATED,
+  FAVORITES_STATE,
   SET_ROLES,
   SET_THEME,
   SET_LANGUAGE,
@@ -30,6 +46,11 @@ import {
 const initialState = {
   client: {
     user: {},
+    favorites: [],
+    favoritesRequestId: null,
+    favoritesFetchState: "NOT_FETCHED",
+    favoritesError: "",
+    resourceStatus: {},
     addressList: [],
     creditCards: [],
     roles: [],
@@ -40,6 +61,7 @@ const initialState = {
     sessionRevision: 0,
   },
   product: {
+    inventoryRevision: 0,
     categories: [],
     productList: [],
     total: 0,
@@ -70,20 +92,45 @@ const initialState = {
     activeDetailRequestId: null,
   },
   shoppingCart: {
+    cartOwner: "guest",
+    cartReservations: {},
+    cartClaims: {},
+    cartValidating: false,
+    cartError: "",
     cart: [],
     payment: {},
     address: {},
+    orderIntent: null,
+    pendingOrders: {},
+    checkoutResult: null,
   },
 };
 
 export default function reducer(state = initialState, action) {
   switch (action.type) {
+    case "CART_SESSION_RESTORE":
+      return { ...state, shoppingCart: { ...state.shoppingCart, ...action.payload } };
+    case "CART_VALIDATING":
+      return { ...state, shoppingCart: { ...state.shoppingCart, cartValidating: true, cartError: "" } };
+    case "CART_VALIDATION_ERROR":
+      return { ...state, shoppingCart: { ...state.shoppingCart, cartValidating: false, cartError: action.payload } };
+    case "CART_REVALIDATED": {
+      const products = new Map(action.payload.map(product => [String(product.id), product]));
+      const cart = state.shoppingCart.cart.map(line => products.has(String(line.product.id))
+        ? { ...line, needsRefresh: false, product: { ...line.product, ...products.get(String(line.product.id)) } } : line);
+      return { ...state, shoppingCart: { ...state.shoppingCart, cart, cartValidating: false, cartError: "" } };
+    }
     case RESET_ACCOUNT_SESSION:
       return {
         ...state,
         client: {
           ...state.client,
           user: {},
+          favorites: [],
+          favoritesRequestId: null,
+          favoritesFetchState: "NOT_FETCHED",
+          favoritesError: "",
+          resourceStatus: {},
           addressList: [],
           creditCards: [],
           authVerificationError: false,
@@ -91,19 +138,96 @@ export default function reducer(state = initialState, action) {
         },
         shoppingCart: {
           ...state.shoppingCart,
+          ...(action.cartSession || (!action.preserveCart && state.shoppingCart.cartOwner !== "guest" ? { cartOwner: "guest", cart: [] } : {})),
+          cartValidating: false,
+          cartError: "",
           address: {},
+          orderIntent: null,
+          checkoutResult: null,
+          pendingOrders: Object.fromEntries(
+            Object.entries(state.shoppingCart.pendingOrders).map(
+              ([account, intent]) => [
+                account,
+                checkoutBusy(intent)
+                  ? { ...intent, uncertain: true, status: "INDETERMINATE" }
+                  : intent,
+              ],
+            ),
+          ),
           payment: {},
         },
       };
 
-    case SET_USER:
+    case CHECKOUT_OPEN:
+    case CHECKOUT_ATTEMPT:
+    case CHECKOUT_FAILED:
+    case CHECKOUT_CONFIRMED:
+    case CHECKOUT_DISMISS_RESULT:
+      return reduceCheckout(state, action);
+    case OWNED_RESOURCE_STATE: {
+      const { revision, resource, status, items } = action.payload;
+      if (revision !== state.client.sessionRevision) return state;
       return {
         ...state,
+        client: {
+          ...state.client,
+          ...(items
+            ? {
+                [resource === "addresses" ? "addressList" : "creditCards"]:
+                  items,
+              }
+            : {}),
+          resourceStatus: {
+            ...state.client.resourceStatus,
+            [resource]: status,
+          },
+        },
+      };
+    }
+    case PRODUCT_INVENTORY_INVALIDATED:
+      if (action.scope && !ownsCheckout(state, action.scope, action.attempt))
+        return state;
+      return {
+        ...state,
+        product: expiredInventory(state.product),
+      };
+
+    case FAVORITES_STATE:
+      if (
+        action.payload.revision !== state.client.sessionRevision ||
+        (action.payload.fetchState !== "FETCHING" &&
+          action.payload.requestId !== state.client.favoritesRequestId)
+      )
+        return state;
+      return {
+        ...state,
+        client: {
+          ...state.client,
+          favorites: action.payload.items || state.client.favorites,
+          favoritesRequestId: action.payload.requestId,
+          favoritesFetchState: action.payload.fetchState,
+          favoritesError: action.payload.error,
+        },
+      };
+
+    case SET_USER: {
+      if (
+        accountKey(state.client.user?.email) &&
+        accountKey(state.client.user?.email) !==
+          accountKey(action.payload?.email)
+      ) {
+        state = reducer(state, { type: RESET_ACCOUNT_SESSION });
+      }
+      return {
+        ...state,
+        shoppingCart: { ...state.shoppingCart,
+          ...(action.cartSession || { cartOwner: cartScope(action.payload) }) },
         client: {
           ...state.client,
           user: action.payload,
         },
       };
+    }
 
     case SET_ADDRESS_LIST:
       return {
@@ -297,6 +421,8 @@ export default function reducer(state = initialState, action) {
 
     case CART_ADD_ITEM: {
       const product = action.payload;
+      const capacity = Math.min(99, Number.isFinite(product.stock) ? product.stock : 99);
+      if (capacity <= 0) return state;
       const existing = state.shoppingCart.cart.some(
         (item) => String(item.product?.id) === String(product?.id),
       );
@@ -304,13 +430,10 @@ export default function reducer(state = initialState, action) {
       const cart = existing
         ? state.shoppingCart.cart.map((item) =>
             String(item.product?.id) === String(product.id)
-              ? { ...item, count: item.count + 1 }
+              ? { ...item, count: Math.max(item.count, Math.min(capacity, item.count + 1)), product, needsRefresh: false }
               : item,
           )
-        : [
-            ...state.shoppingCart.cart,
-            { count: 1, checked: true, product },
-          ];
+        : [...state.shoppingCart.cart, { count: 1, checked: true, product, ...(action.lineToken ? { lineToken: action.lineToken } : {}) }];
 
       return {
         ...state,
@@ -323,7 +446,8 @@ export default function reducer(state = initialState, action) {
       const amount = action.type === CART_INCREMENT_ITEM ? 1 : -1;
       const cart = state.shoppingCart.cart.map((item) => {
         if (String(item.product?.id) !== String(action.payload)) return item;
-        return { ...item, count: Math.max(1, item.count + amount) };
+        const capacity = Math.min(99, Number.isFinite(item.product.stock) ? item.product.stock : 99);
+        return { ...item, count: amount > 0 ? Math.max(item.count, Math.min(capacity, item.count + 1)) : Math.max(1, item.count - 1) };
       });
 
       return {
@@ -359,7 +483,12 @@ export default function reducer(state = initialState, action) {
     case CART_RESET:
       return {
         ...state,
-        shoppingCart: { ...state.shoppingCart, cart: [], address: {}, payment: {} },
+        shoppingCart: {
+          ...state.shoppingCart,
+          cart: [],
+          address: {},
+          payment: {},
+        },
       };
 
     case SET_CHECKOUT_ADDRESS:

@@ -35,7 +35,7 @@ export default function CartPage() {
         </p>
         <Link
           to="/shop"
-          className="mt-6 rounded bg-[#23A6F0] px-6 py-3 text-sm font-semibold text-white"
+          className="mt-6 rounded bg-action px-6 py-3 text-sm font-semibold text-white"
         >
           Go to Shop
         </Link>
@@ -47,6 +47,7 @@ export default function CartPage() {
     <section className="mx-auto flex w-full max-w-6xl flex-col gap-8 px-4 py-10 lg:flex-row lg:items-start">
       <div className="min-w-0 flex-1">
         <h1 className="text-3xl font-bold text-[#252B42]">Shopping Cart</h1>
+        <p className="mt-3 text-sm text-muted">Saved in this browser only. Prices are estimates until checked against the API; final order totals are calculated by the server.</p>
         <div className="mt-6 overflow-x-auto rounded-md bg-white shadow-sm">
           <table className="w-full min-w-170 text-left text-sm">
             <thead className="border-b border-[#E8E8E8] text-xs uppercase text-[#737373]">
@@ -81,6 +82,7 @@ export default function CartPage() {
                       />
                       <span className="font-semibold text-[#252B42]">
                         {productName(item.product)}
+                        {(item.product.unavailable || (!item.needsRefresh && item.count > item.product.stock)) && <span className="block text-xs text-danger-text">{item.product.unavailable ? "No longer available" : `Only ${item.product.stock} available — reduce quantity or remove`}</span>}
                       </span>
                     </div>
                   </td>
@@ -102,6 +104,7 @@ export default function CartPage() {
                       <span className="min-w-6 text-center">{item.count}</span>
                       <button
                         type="button"
+                        disabled={item.needsRefresh || item.product.unavailable || item.count >= Math.min(99, item.product.stock ?? 99)}
                         onClick={() =>
                           dispatch(incrementCartItem(item.product.id))
                         }
@@ -120,7 +123,7 @@ export default function CartPage() {
                       type="button"
                       onClick={() => dispatch(removeCartItem(item.product.id))}
                       aria-label={`Remove ${productName(item.product)}`}
-                      className="text-[#E74040]"
+                      className="text-danger-text"
                     >
                       <Trash2 size={18} />
                     </button>

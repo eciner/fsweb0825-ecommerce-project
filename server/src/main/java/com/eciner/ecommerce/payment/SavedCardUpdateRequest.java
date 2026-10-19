@@ -10,7 +10,7 @@ import jakarta.validation.constraints.Size;
 
 public record SavedCardUpdateRequest(
         @NotNull @Positive Long id,
-        @NotBlank @Pattern(regexp = "^\\d{12,19}$") String cardNo,
+        @Pattern(regexp = "^\\d{12,19}$") String cardNo,
         @NotNull @Min(1) @Max(12) Integer expireMonth,
         @NotNull @Min(2000) @Max(9999) Integer expireYear,
         @NotBlank @Size(max = 150) String nameOnCard) {

@@ -1,3 +1,21 @@
+import {
+  forgetOrder,
+  orderPayload,
+  recoverOrder,
+  rememberOrder,
+} from "./pendingOrder";
+import {
+  accountKey,
+  CHECKOUT_OPEN,
+  CHECKOUT_ATTEMPT,
+  CHECKOUT_FAILED,
+  CHECKOUT_CONFIRMED,
+  CHECKOUT_DISMISS_RESULT,
+  checkoutBusy,
+  checkoutFailure,
+  ownsCheckout,
+  sameCheckoutSession,
+} from "./checkoutState";
 import api, {
   clearAuthToken,
   getStoredToken,
@@ -72,7 +90,7 @@ export const setAuthVerificationError = (hasError) => ({
   payload: hasError,
 });
 
-export const resetAccountSession = () => ({ type: RESET_ACCOUNT_SESSION });
+export const resetAccountSession = (preserveCart = false) => ({ type: RESET_ACCOUNT_SESSION, ...(preserveCart ? { preserveCart: true } : {}) });
 
 export const setCategories = (categories) => ({
   type: SET_CATEGORIES,
@@ -105,7 +123,12 @@ export const productListFetchSucceeded = ({
   payload: { products, total, query, queryKey, requestId },
 });
 
-export const productListFetchFailed = ({ error, query, queryKey, requestId }) => ({
+export const productListFetchFailed = ({
+  error,
+  query,
+  queryKey,
+  requestId,
+}) => ({
   type: PRODUCT_LIST_FETCH_FAILED,
   payload: { error, query, queryKey, requestId },
 });
@@ -115,7 +138,11 @@ export const productDetailFetchStarted = ({ productId, requestId }) => ({
   payload: { productId, requestId },
 });
 
-export const productDetailFetchSucceeded = ({ product, productId, requestId }) => ({
+export const productDetailFetchSucceeded = ({
+  product,
+  productId,
+  requestId,
+}) => ({
   type: PRODUCT_DETAIL_FETCH_SUCCEEDED,
   payload: { product, productId, requestId },
 });
@@ -335,11 +362,13 @@ export const fetchProductsByQuery = (queryInput, { force = false } = {}) => {
         state.activeQueryKey !== queryKey ||
         state.activeListRequestId !== pending.requestId
       ) {
-        dispatch(productListFetchStarted({
-          query,
-          queryKey,
-          requestId: pending.requestId,
-        }));
+        dispatch(
+          productListFetchStarted({
+            query,
+            queryKey,
+            requestId: pending.requestId,
+          }),
+        );
       }
       return pending.request;
     }
@@ -396,7 +425,8 @@ export const fetchProductsByQuery = (queryInput, { force = false } = {}) => {
         throw serializableError;
       })
       .finally(() => {
-        listRequestsByKey.delete(queryKey);
+        if (listRequestsByKey.get(queryKey)?.requestId === requestId)
+          listRequestsByKey.delete(queryKey);
       });
 
     listRequestsByKey.set(queryKey, { requestId, request });
@@ -443,10 +473,12 @@ export const fetchProductDetail = (productIdInput, { force = false } = {}) => {
         currentState.selectedProductId !== productId ||
         currentState.activeDetailRequestId !== pending.requestId
       ) {
-        dispatch(productDetailFetchStarted({
-          productId,
-          requestId: pending.requestId,
-        }));
+        dispatch(
+          productDetailFetchStarted({
+            productId,
+            requestId: pending.requestId,
+          }),
+        );
       }
       return pending.request;
     }
@@ -465,7 +497,9 @@ export const fetchProductDetail = (productIdInput, { force = false } = {}) => {
           return { product, stale: true };
         }
 
-        dispatch(productDetailFetchSucceeded({ product, productId, requestId }));
+        dispatch(
+          productDetailFetchSucceeded({ product, productId, requestId }),
+        );
         return { product, stale: false };
       })
       .catch((error) => {
@@ -491,7 +525,8 @@ export const fetchProductDetail = (productIdInput, { force = false } = {}) => {
         throw serializableError;
       })
       .finally(() => {
-        detailRequestsByProductId.delete(productId);
+        if (detailRequestsByProductId.get(productId)?.requestId === requestId)
+          detailRequestsByProductId.delete(productId);
       });
 
     detailRequestsByProductId.set(productId, { requestId, request });
@@ -515,7 +550,7 @@ export const loginUser = ({ email, password, rememberMe }) => {
     }
 
     verifyRequest = null;
-    dispatch(resetAccountSession());
+    dispatch(resetAccountSession(true));
     setAuthToken(token);
 
     if (rememberMe) {
@@ -551,7 +586,7 @@ export const verifyStoredSession = () => {
       return { authenticated: false };
     }
 
-    dispatch(resetAccountSession());
+    dispatch(resetAccountSession(true));
     dispatch(setAuthInitialized(false));
     const sessionRevision = getState().client.sessionRevision;
     setAuthToken(storedToken);
@@ -594,7 +629,10 @@ export const verifyStoredSession = () => {
         return {
           authenticated: false,
           transient: true,
-          error: normalizeError(error, "Session verification is temporarily unavailable."),
+          error: normalizeError(
+            error,
+            "Session verification is temporarily unavailable.",
+          ),
         };
       })
       .finally(() => {
@@ -630,93 +668,171 @@ function toMutationError(error, fallbackMessage) {
   return normalizeError(error, fallbackMessage);
 }
 
-export const fetchAddresses = () => async (dispatch, getState) => {
-  const sessionRevision = getState().client.sessionRevision;
-  try {
-    const response = await api.get("/user/address");
-    const addresses = toCollectionPayload(response, ["addresses", "address"]);
-    if (getState().client.sessionRevision !== sessionRevision) return [];
-    dispatch(setAddressList(addresses));
-    return addresses;
-  } catch (error) {
-    throw toMutationError(error, "Addresses could not be loaded.");
-  }
+export {
+  fetchAddresses,
+  createAddress,
+  updateAddress,
+  deleteAddress,
+  fetchCreditCards,
+  createCreditCard,
+  updateCreditCard,
+  deleteCreditCard,
+} from "./ownedResources";
+
+export const PRODUCT_INVENTORY_INVALIDATED = "PRODUCT_INVENTORY_INVALIDATED";
+export const invalidateProductInventory =
+  (scope, attempt) => (dispatch, getState) => {
+    if (scope && !ownsCheckout(getState(), scope, attempt)) return;
+    listRequestsByKey.clear();
+    detailRequestsByProductId.clear();
+    dispatch({ type: PRODUCT_INVENTORY_INVALIDATED, scope, attempt });
+  };
+
+export const restorePendingCheckout = () => (dispatch, getState) => {
+  const state = getState();
+  const account = accountKey(state.client.user?.email);
+  if (!account || state.shoppingCart.orderIntent) return;
+  const saved =
+    state.shoppingCart.pendingOrders[account] || recoverOrder(account);
+  if (!saved) return;
+  const scope = {
+    account,
+    revision: state.client.sessionRevision,
+    requestId: saved.payload.request_id,
+  };
+  const intent = {
+    ...saved,
+    attempt: saved.attempt || 0,
+    status: saved.status === "UNRESOLVED" ? "UNRESOLVED" : "INDETERMINATE",
+    uncertain: saved.uncertain || checkoutBusy(saved),
+    error:
+      saved.status === "UNRESOLVED"
+        ? "This purchase is unresolved. Check Previous Orders and resolve the original purchase before another checkout."
+        : "",
+    scope,
+  };
+  intent.payload.products.forEach(Object.freeze);
+  Object.freeze(intent.payload.products);
+  Object.freeze(intent.payload);
+  dispatch({ type: CHECKOUT_OPEN, payload: { scope, intent } });
 };
 
-export const createAddress = (payload) => async (dispatch) => {
-  try {
-    await api.post("/user/address", payload);
-    return dispatch(fetchAddresses());
-  } catch (error) {
-    throw toMutationError(error, "Address could not be created.");
-  }
+export const dismissCheckoutResult = () => (dispatch, getState) => {
+  const result = getState().shoppingCart.checkoutResult;
+  if (result)
+    dispatch({
+      type: CHECKOUT_DISMISS_RESULT,
+      payload: { scope: result.scope },
+    });
 };
 
-export const updateAddress = (payload) => async (dispatch) => {
-  try {
-    await api.put("/user/address", payload);
-    return dispatch(fetchAddresses());
-  } catch (error) {
-    throw toMutationError(error, "Address could not be updated.");
-  }
-};
-
-export const deleteAddress = (addressId) => async (dispatch) => {
-  try {
-    await api.delete(`/user/address/${addressId}`);
-    return dispatch(fetchAddresses());
-  } catch (error) {
-    throw toMutationError(error, "Address could not be deleted.");
-  }
-};
-
-export const fetchCreditCards = () => async (dispatch, getState) => {
-  const sessionRevision = getState().client.sessionRevision;
-  try {
-    const response = await api.get("/user/card");
-    const cards = toCollectionPayload(response, ["cards", "creditCards"]);
-    if (getState().client.sessionRevision !== sessionRevision) return [];
-    dispatch(setCreditCards(cards));
-    return cards;
-  } catch (error) {
-    throw toMutationError(error, "Saved cards could not be loaded.");
-  }
-};
-
-export const createCreditCard = (payload) => async (dispatch) => {
-  try {
-    await api.post("/user/card", payload);
-    return dispatch(fetchCreditCards());
-  } catch (error) {
-    throw toMutationError(error, "Card could not be saved.");
-  }
-};
-
-export const updateCreditCard = (payload) => async (dispatch) => {
-  try {
-    await api.put("/user/card", payload);
-    return dispatch(fetchCreditCards());
-  } catch (error) {
-    throw toMutationError(error, "Card could not be updated.");
-  }
-};
-
-export const deleteCreditCard = (cardId) => async (dispatch) => {
-  try {
-    await api.delete(`/user/card/${cardId}`);
-    return dispatch(fetchCreditCards());
-  } catch (error) {
-    throw toMutationError(error, "Card could not be deleted.");
-  }
-};
-
-export const createOrder = (payload) => async () => {
-  try {
-    return await api.post("/order", payload);
-  } catch (error) {
-    throw toMutationError(error, "Order could not be completed.");
-  }
-};
+export const createOrder =
+  (payload, { purchased = [] } = {}) =>
+  async (dispatch, getState) => {
+    dispatch(restorePendingCheckout());
+    let intent = getState().shoppingCart.orderIntent;
+    if (!intent) {
+      const account = accountKey(getState().client.user?.email);
+      if (!account) throw { status: 401, message: "Sign in before checkout." };
+      const settled = getState().shoppingCart.checkoutResult;
+      if (
+        settled?.order &&
+        sameCheckoutSession(getState(), settled.scope) &&
+        payload?.request_id === settled.scope.requestId
+      )
+        return settled.order;
+      if (!payload)
+        throw {
+          status: 400,
+          message: "There is no pending purchase to reconcile.",
+        };
+      const immutable = orderPayload(payload);
+      immutable.products.forEach(Object.freeze);
+      Object.freeze(immutable.products);
+      Object.freeze(immutable);
+      const scope = {
+        account,
+        revision: getState().client.sessionRevision,
+        requestId: immutable.request_id,
+      };
+      dispatch({
+        type: CHECKOUT_OPEN,
+        payload: {
+          scope,
+          intent: {
+            scope,
+            payload: immutable,
+            purchased: purchased.map((line) => ({ ...line })),
+            attempt: 0,
+            status: "NEW",
+            uncertain: false,
+            error: "",
+          },
+        },
+      });
+      intent = getState().shoppingCart.orderIntent;
+    }
+    if (
+      payload &&
+      (payload.request_id !== intent.payload.request_id ||
+        JSON.stringify(orderPayload(payload)) !==
+          JSON.stringify(intent.payload))
+    ) {
+      throw {
+        code: "PENDING_PURCHASE",
+        message:
+          "Resolve the retained purchase before starting or changing an order.",
+      };
+    }
+    if (
+      checkoutBusy(intent) ||
+      ["AUTH_REQUIRED", "UNRESOLVED"].includes(intent.status)
+    )
+      throw {
+        code: "PENDING_PURCHASE",
+        message:
+          "This purchase requires reconciliation before another submission.",
+      };
+    const { scope } = intent;
+    dispatch({
+      type: CHECKOUT_ATTEMPT,
+      payload: { scope, attempt: intent.attempt },
+    });
+    intent = getState().shoppingCart.orderIntent;
+    const attempt = intent.attempt;
+    rememberOrder(scope.account, intent);
+    try {
+      const result = await api.post("/order", intent.payload);
+      if (!ownsCheckout(getState(), scope, attempt)) return { stale: true };
+      if (!result?.id)
+        throw new Error(
+          "Order response was incomplete. Retry with the same request ID or check history.",
+        );
+      listRequestsByKey.clear();
+      detailRequestsByProductId.clear();
+      dispatch({
+        type: CHECKOUT_CONFIRMED,
+        payload: { scope, attempt, order: result },
+      });
+      if (
+        !sameCheckoutSession(getState(), scope) ||
+        getState().shoppingCart.checkoutResult?.scope !== scope
+      )
+        return { stale: true };
+      forgetOrder(scope.account, scope.requestId);
+      return result;
+    } catch (reason) {
+      if (!ownsCheckout(getState(), scope, attempt)) return { stale: true };
+      const error = toMutationError(reason, "Order could not be completed.");
+      const failure = checkoutFailure(intent, error);
+      dispatch({ type: CHECKOUT_FAILED, payload: { scope, attempt, failure } });
+      if (!sameCheckoutSession(getState(), scope)) return { stale: true };
+      if (failure.status === "REJECTED")
+        forgetOrder(scope.account, scope.requestId);
+      else rememberOrder(scope.account, getState().shoppingCart.orderIntent);
+      throw error;
+    }
+  };
 
 export const fetchOrders = () => async () => {
   try {
@@ -726,3 +842,44 @@ export const fetchOrders = () => async () => {
     throw toMutationError(error, "Previous orders could not be loaded.");
   }
 };
+
+let favoritesRequestSequence = 0;
+export const FAVORITES_STATE = "FAVORITES_STATE";
+export const fetchFavorites = () => async (dispatch, getState) => {
+  const revision = getState().client.sessionRevision;
+  if (!getState().client.user?.email) return [];
+  const requestId = ++favoritesRequestSequence;
+  dispatch({
+    type: FAVORITES_STATE,
+    payload: { revision, requestId, fetchState: "FETCHING", error: "" },
+  });
+  try {
+    const items = await api.get("/user/favorites");
+    dispatch({
+      type: FAVORITES_STATE,
+      payload: { revision, requestId, items, fetchState: "FETCHED", error: "" },
+    });
+    return items;
+  } catch (reason) {
+    const error = toMutationError(reason, "Favorites could not be loaded.");
+    dispatch({
+      type: FAVORITES_STATE,
+      payload: {
+        revision,
+        requestId,
+        fetchState: "FAILED",
+        error: error.message,
+      },
+    });
+    throw error;
+  }
+};
+
+export const changeFavorite =
+  (productId, add) => async (dispatch, getState) => {
+    const revision = getState().client.sessionRevision;
+    if (add) await api.put(`/user/favorites/${productId}`);
+    else await api.delete(`/user/favorites/${productId}`);
+    if (getState().client.sessionRevision === revision)
+      await dispatch(fetchFavorites());
+  };

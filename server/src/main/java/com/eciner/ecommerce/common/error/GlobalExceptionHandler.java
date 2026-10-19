@@ -15,6 +15,17 @@ import com.eciner.ecommerce.auth.InvalidCredentialsException;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
+    @ExceptionHandler(org.springframework.security.access.AccessDeniedException.class)
+    public ResponseEntity<ApiError> handleForbidden(org.springframework.security.access.AccessDeniedException ex) {
+        return ResponseEntity.status(403).body(new ApiError(403, "FORBIDDEN", "This operation is not permitted for this account."));
+    }
+
+    @ExceptionHandler(RateLimitException.class)
+    public ResponseEntity<ApiError> handleRateLimit(RateLimitException ex) {
+        return ResponseEntity.status(429).header("Retry-After", "600")
+                .body(new ApiError(429, "RATE_LIMITED", ex.getMessage()));
+    }
+
     @ExceptionHandler(ResourceNotFoundException.class)
     public ResponseEntity<ApiError> handleNotFound(ResourceNotFoundException ex) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND)

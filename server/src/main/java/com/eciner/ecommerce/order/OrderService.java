@@ -22,23 +22,41 @@ public class OrderService {
     private final AddressRepository addresses;
     private final ProductRepository products;
     private final UserRepository users;
+    private final com.eciner.ecommerce.fulfillment.ShipmentService shipments;
 
     public OrderService(OrderRepository orders, AddressRepository addresses,
-            ProductRepository products, UserRepository users) {
+            ProductRepository products, UserRepository users, com.eciner.ecommerce.fulfillment.ShipmentService shipments) {
         this.orders = orders;
         this.addresses = addresses;
         this.products = products;
         this.users = users;
+        this.shipments = shipments;
     }
 
     @Transactional
     public OrderResponse create(Long userId, OrderRequest request) {
-        addresses.findByIdAndOwner_Id(request.addressId(), userId)
-                .orElseThrow(() -> new ResourceNotFoundException("ADDRESS_NOT_FOUND", "Address was not found."));
-        User owner = users.findById(userId)
+        // Lock one customer's keyed requests before product locks. A waiting replay
+        // observes the committed order under READ_COMMITTED, including after a lost response.
+        User owner = (request.requestId() == null ? users.findById(userId) : users.lockOrderOwner(userId))
                 .orElseThrow(() -> new ResourceNotFoundException("USER_NOT_FOUND", "Authenticated user was not found."));
+        String fingerprint = request.requestId() == null ? null : OrderIntentFingerprint.of(request);
+        if (request.requestId() != null) {
+            var previous = orders.findByOwner_IdAndRequestId(userId, request.requestId());
+            if (previous.isPresent()) {
+                if (!fingerprint.equals(previous.get().getRequestFingerprint())) {
+                    throw new ConflictException("ORDER_REQUEST_CONFLICT", "Request ID was already used for a different order intent.");
+                }
+                return OrderResponse.from(previous.get());
+            }
+        }
+        var shipping = addresses.findByIdAndOwner_Id(request.addressId(), userId)
+                .orElseThrow(() -> new ResourceNotFoundException("ADDRESS_NOT_FOUND", "Address was not found."));
+        Long receiptId = request.receiptAddressId() == null ? request.addressId() : request.receiptAddressId();
+        var receipt = addresses.findByIdAndOwner_Id(receiptId, userId)
+                .orElseThrow(() -> new ResourceNotFoundException("ADDRESS_NOT_FOUND", "Address was not found."));
 
-        Instant orderDate = request.orderDate() == null ? Instant.now() : request.orderDate();
+        Instant orderDate = (request.orderDate() == null ? Instant.now() : request.orderDate())
+                .truncatedTo(java.time.temporal.ChronoUnit.MICROS);
         Map<Long, Integer> quantities = new TreeMap<>();
         for (OrderRequest.Line line : request.products()) {
             try {
@@ -64,6 +82,8 @@ public class OrderService {
 
         BigDecimal total = BigDecimal.ZERO;
         Order order = new Order(owner, request.addressId(), orderDate, BigDecimal.ZERO);
+        order.snapshotAddresses(shipping, receipt);
+        order.identifyRequest(request.requestId(), fingerprint);
         for (OrderRequest.Line line : request.products()) {
             Product product = locked.get(line.productId());
             total = total.add(product.getPrice().multiply(BigDecimal.valueOf(line.count())));
@@ -76,7 +96,9 @@ public class OrderService {
         for (Map.Entry<Long, Integer> entry : quantities.entrySet()) {
             locked.get(entry.getKey()).recordSale(entry.getValue());
         }
-        return OrderResponse.from(orders.saveAndFlush(order));
+        orders.saveAndFlush(order);
+        shipments.initialize(order, userId);
+        return OrderResponse.from(order);
     }
 
     @Transactional(readOnly = true)

@@ -1,0 +1,16 @@
+# Explicitly selected local-only profile. No credentials or automatic provisioning.
+spring:
+  datasource:
+    url: jdbc:postgresql://127.0.0.1:${DEMO_DB_PORT}/enhancement_demo
+    username: enhancement_demo
+    password: ${DEMO_DB_PASSWORD}
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: false
+  flyway:
+    enabled: true
+server:
+  address: 127.0.0.1
+  port: ${DEMO_API_PORT:8082}

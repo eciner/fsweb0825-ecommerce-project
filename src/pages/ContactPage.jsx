@@ -1,63 +1,40 @@
-import { Twitter, Facebook, Instagram, Linkedin } from "lucide-react";
+import { useState } from "react";
+import { Link } from "react-router-dom";
+import ContactForm from "./ContactForm";
 
 export default function ContactPage() {
+  const [open, setOpen] = useState(false);
   return (
-    <section className="flex w-full justify-center bg-[#F4F4F4] px-5 py-20 md:px-8 md:py-28">
-      <div className="flex w-full max-w-262.5 flex-col items-center text-center">
-        <h1 className="max-w-140 text-5xl font-bold leading-[1.2] text-[#252B42] md:text-[58px] md:leading-[1.3]">
-          Get answers to all your questions.
-        </h1>
-
-        <p className="mt-8 max-w-155 text-3xl leading-[1.35] text-[#737373] md:text-[32px] md:leading-[1.4]">
-          Problems trying to resolve the conflict between the two major realms
-          of Classical physics:
+    <section className="w-full bg-surface px-5 py-16 md:py-24">
+      <div className="mx-auto flex max-w-3xl flex-col items-center gap-8 text-center">
+        <p className="text-sm font-bold tracking-widest text-action">
+          LET US HEAR FROM YOU
         </p>
-
-        <a
-          href="mailto:michelle.rivera@example.com"
-          className="mt-8 inline-flex h-14.5 items-center justify-center rounded-[5px] bg-[#23A6F0] px-10 text-sm font-bold tracking-[0.2px] text-white transition-colors hover:bg-[#1B8FD8]"
+        <h1 className="text-4xl font-bold leading-tight md:text-6xl">
+          Questions about your demo shopping experience?
+        </h1>
+        <p className="max-w-2xl text-lg text-muted">
+          Tell us about the catalog, your account or the checkout flow. This is
+          a capstone demonstration; use synthetic details and never include
+          passwords or payment information.
+        </p>
+        <button
+          type="button"
+          aria-expanded={open}
+          aria-controls="contact-form-panel"
+          onClick={() => setOpen((value) => !value)}
+          className="rounded-control bg-action px-8 py-4 font-bold text-white hover:bg-ink"
         >
-          CONTACT OUR COMPANY
-        </a>
-
-        <div className="mt-12 flex items-center gap-6 text-[#BDBDBD]">
-          <a
-            href="https://x.com"
-            target="_blank"
-            rel="noreferrer"
-            aria-label="Twitter"
-            className="transition-colors hover:text-[#23A6F0]"
-          >
-            <Twitter size={32} strokeWidth={1.8} />
-          </a>
-          <a
-            href="https://facebook.com"
-            target="_blank"
-            rel="noreferrer"
-            aria-label="Facebook"
-            className="transition-colors hover:text-[#23A6F0]"
-          >
-            <Facebook size={32} strokeWidth={1.8} />
-          </a>
-          <a
-            href="https://instagram.com"
-            target="_blank"
-            rel="noreferrer"
-            aria-label="Instagram"
-            className="transition-colors hover:text-[#23A6F0]"
-          >
-            <Instagram size={32} strokeWidth={1.8} />
-          </a>
-          <a
-            href="https://linkedin.com"
-            target="_blank"
-            rel="noreferrer"
-            aria-label="LinkedIn"
-            className="transition-colors hover:text-[#23A6F0]"
-          >
-            <Linkedin size={32} strokeWidth={1.8} />
-          </a>
-        </div>
+          {open ? "Close form" : "CONTACT OUR COMPANY"}
+        </button>
+        {open && (
+          <div id="contact-form-panel" className="w-full">
+            <ContactForm />
+          </div>
+        )}
+        <Link to="/faq" className="font-semibold text-action">
+          Browse frequently asked questions
+        </Link>
       </div>
     </section>
   );

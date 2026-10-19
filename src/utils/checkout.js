@@ -10,7 +10,7 @@ export function isCheckoutReady({
     shippingAddress?.id &&
       receiptAddress?.id &&
       card?.id &&
-      /^\d{3,4}$/.test(ccv) &&
+      /^\d{3}$/.test(ccv) &&
       cart.some((item) => item?.checked) &&
       !submitting,
   );

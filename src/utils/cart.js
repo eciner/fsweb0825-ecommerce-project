@@ -22,17 +22,19 @@ export function calculateCartTotals(cart = [], shipping = 0, discount = 0) {
   };
 }
 
-export function buildOrderPayload({ addressId, card, ccv, cart, price, orderDate }) {
+export function buildOrderPayload({
+  addressId,
+  receiptAddressId,
+  cart,
+  price,
+  orderDate,
+}) {
   const selectedItems = (cart || []).filter((item) => item?.checked);
 
   return {
     address_id: addressId,
+    ...(receiptAddressId ? { receipt_address_id: receiptAddressId } : {}),
     order_date: orderDate || new Date().toISOString(),
-    card_no: card?.card_no || "",
-    card_name: card?.name_on_card || "",
-    card_expire_month: card?.expire_month,
-    card_expire_year: card?.expire_year,
-    card_ccv: ccv,
     price,
     products: selectedItems.map((item) => ({
       product_id: item.product.id,

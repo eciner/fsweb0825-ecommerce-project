@@ -1,161 +1,60 @@
 import { memo } from "react";
 import { Link } from "react-router-dom";
-import { Facebook, Instagram, Twitter } from "lucide-react";
+import { footerSections } from "../data/informationPages";
 
 function Footer() {
-  const currentYear = new Date().getFullYear();
-
-  const footerSections = [
-    {
-      title: "Company Info",
-      links: [
-        { label: "About Us", href: "/about", active: true },
-        { label: "Career", href: "", active: false },
-        { label: "We are hiring", href: "", active: false },
-        { label: "Blog", href: "", active: false },
-      ],
-    },
-    {
-      title: "Legal",
-      links: [
-        { label: "Privacy Policy", href: "", active: false },
-        { label: "Terms of Service", href: "", active: false },
-        { label: "Cookie Policy", href: "", active: false },
-        { label: "License", href: "", active: false },
-      ],
-    },
-    {
-      title: "Features",
-      links: [
-        { label: "Business Marketing", href: "", active: false },
-        { label: "User Analytic", href: "", active: false },
-        { label: "Live Chat", href: "", active: false },
-        { label: "Unlimited Support", href: "", active: false },
-      ],
-    },
-    {
-      title: "Resources",
-      links: [
-        { label: "IOS & Android", href: "", active: false },
-        { label: "Watch a Demo", href: "", active: false },
-        { label: "Customers", href: "", active: false },
-        { label: "API", href: "", active: false },
-      ],
-    },
-  ];
-
   return (
-    <footer className="flex w-full flex-col bg-white">
-      {/* Brand and Social Section */}
-      <div className="w-full border-b border-[#E6E6E6] bg-[#FAFAFA]">
-        <div className="mx-auto flex w-full max-w-6xl flex-col items-start justify-between gap-5 px-5 py-10 sm:flex-row sm:items-center md:px-0">
-          <h3 className="text-2xl font-bold text-[#252B42]">WiT</h3>
-          <div className="flex items-center gap-5">
-            <a
-              href="https://facebook.com"
-              target="_blank"
-              rel="noreferrer"
-              className="text-[#23A6F0] transition-colors hover:text-[#1a8cd4]"
-              aria-label="Facebook"
-            >
-              <Facebook size={24} />
-            </a>
-            <a
-              href="https://instagram.com"
-              target="_blank"
-              rel="noreferrer"
-              className="text-[#23A6F0] transition-colors hover:text-[#1a8cd4]"
-              aria-label="Instagram"
-            >
-              <Instagram size={24} />
-            </a>
-            <a
-              href="https://x.com"
-              target="_blank"
-              rel="noreferrer"
-              className="text-[#23A6F0] transition-colors hover:text-[#1a8cd4]"
-              aria-label="Twitter"
-            >
-              <Twitter size={24} />
-            </a>
-          </div>
+    <footer className="w-full border-t border-outline bg-white">
+      <div className="bg-surface">
+        <div className="mx-auto flex max-w-6xl flex-col justify-between gap-4 px-5 py-9 sm:flex-row">
+          <Link to="/" className="text-2xl font-bold">
+            WiT
+          </Link>
+          <p className="text-sm text-muted">
+            A WorkinTech capstone. Demo checkout, no real charges.
+          </p>
         </div>
       </div>
-
-      {/* Footer Links Grid */}
-      <div className="w-full py-12">
-        <div className="mx-auto flex w-full max-w-6xl flex-col gap-8 px-5 md:flex-row md:justify-between md:gap-7.5 md:px-0">
-          {/* Footer Columns */}
-          {footerSections.map((section) => (
-            <div key={section.title} className="flex flex-col gap-5">
-              <h5 className="text-base font-bold text-[#252B42]">
-                {section.title}
-              </h5>
-              <nav className="flex flex-col gap-2.5">
-                {section.links.map((link) =>
-                  link.active ? (
-                    <Link
-                      key={link.label}
-                      to={link.href}
-                      className="text-sm font-bold text-[#737373] transition-colors hover:text-[#252B42]"
-                    >
-                      {link.label}
-                    </Link>
-                  ) : (
-                    <span
-                      key={link.label}
-                      className="text-sm font-bold text-[#B0B0B0]"
-                    >
-                      {link.label}
-                    </span>
-                  ),
-                )}
-              </nav>
-            </div>
-          ))}
-
-          {/* Newsletter Column */}
-          <div className="flex flex-col gap-5">
-            <h5 className="text-base font-bold text-[#252B42]">Get In Touch</h5>
-            <form
-              className="flex flex-col gap-2.5"
-              onSubmit={(e) => e.preventDefault()}
+      <div className="mx-auto flex max-w-6xl flex-wrap gap-x-10 gap-y-9 px-5 py-12">
+        {footerSections.map((section) => (
+          <div key={section.title} className="min-w-36 flex-1">
+            <h2 className="mb-5 font-bold">{section.title}</h2>
+            <nav
+              aria-label={`Footer ${section.title}`}
+              className="flex flex-col gap-3"
             >
-              <div className="flex h-14.5 overflow-hidden rounded-[5px] border border-[#E6E6E6] bg-[#F9F9F9]">
-                <input
-                  type="email"
-                  placeholder="Your Email"
-                  className="flex-1 bg-transparent px-5 text-sm text-[#737373] outline-none placeholder:text-[#737373]"
-                  required
-                />
-                <button
-                  type="submit"
-                  disabled
-                  aria-disabled="true"
-                  className="border-l border-[#E6E6E6] bg-[#BDBDBD] px-[22.5px] text-sm text-white"
+              {section.links.map(([label, href]) => (
+                <Link
+                  key={href}
+                  to={href}
+                  className="w-fit text-sm font-semibold text-muted hover:text-action hover:underline"
                 >
-                  Coming Soon
-                </button>
-              </div>
-              <p className="text-xs text-[#737373]">
-                Newsletter sign-up will be available in a later phase.
-              </p>
-            </form>
+                  {label}
+                </Link>
+              ))}
+            </nav>
           </div>
+        ))}
+        <div className="min-w-48 flex-1">
+          <h2 className="mb-5 font-bold">Get in touch</h2>
+          <p className="text-sm text-muted">
+            Questions about the demo? Submit a message to the project API.
+          </p>
+          <Link
+            to="/contact"
+            className="mt-5 inline-flex rounded-control bg-action px-5 py-3 text-sm font-bold text-white hover:bg-ink"
+          >
+            Contact us
+          </Link>
         </div>
       </div>
-
-      {/* Bottom Bar */}
-      <div className="w-full bg-[#FAFAFA] py-6">
-        <div className="mx-auto flex w-full max-w-6xl flex-col items-center gap-2 px-5 text-center sm:flex-row sm:justify-between md:px-0">
-          <h6 className="text-sm font-bold text-[#737373]">
-            © {currentYear} WiT. All rights reserved.
-          </h6>
-          <p className="text-sm font-bold text-[#737373]">Made by Emre Ciner</p>
+      <div className="bg-surface">
+        <div className="mx-auto flex max-w-6xl flex-col justify-between gap-3 px-5 py-6 text-sm text-muted sm:flex-row">
+          <p>WiT - {new Date().getFullYear()} - Capstone demonstration</p>
+          <p>Made by Emre Ciner</p>
         </div>
       </div>
     </footer>
   );
 }
-
 export default memo(Footer);

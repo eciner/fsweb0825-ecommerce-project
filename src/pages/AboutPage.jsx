@@ -1,205 +1,101 @@
-import { Facebook, Instagram, Play, Twitter } from "lucide-react";
 import { Link } from "react-router-dom";
 import { teamMembers } from "../data/teamMembers";
-
-import heroWoman from "../assets/hero-woman-2.png";
-import ctaImage from "../assets/hero-woman.jpg";
-
-const stats = [
-  { value: "15K", label: "Happy Customers" },
-  { value: "150K", label: "Monthly Visitors" },
-  { value: "15", label: "Countries Worldwide" },
-  { value: "100+", label: "Top Partners" },
-];
-
-const logos = ["Hooli", "Lyft", "Stripe", "AWS", "Reddit", "Wave"];
+import TeamCard from "../components/TeamCard";
+import hero from "../assets/hero-woman.jpg";
 
 export default function AboutPage() {
   return (
-    <section className="w-full bg-[#F6F6F6]">
-      <div className="mx-auto w-full max-w-6xl px-5 py-10 md:px-8 md:py-14">
-        <div className="flex flex-col items-center gap-10 md:flex-row md:gap-6">
-          <div className="max-w-105 text-center md:w-1/2 md:text-left">
-            <p className="text-sm font-bold tracking-[0.2px] text-[#252B42]">
-              ABOUT COMPANY
-            </p>
-            <h1 className="mt-4 text-5xl font-bold tracking-[0.2px] text-[#252B42] md:text-[58px] md:leading-20">
-              ABOUT US
-            </h1>
-            <p className="mt-6 text-xl leading-7.5 text-[#737373] md:text-2xl md:leading-9">
-              We know how large objects will act, but things on a small scale
-            </p>
-            <Link
-              to="/contact"
-              className="mt-8 inline-flex h-13 items-center justify-center rounded-[5px] bg-[#23A6F0] px-10 text-sm font-bold text-white"
-            >
-              Get Quote Now
-            </Link>
-          </div>
-
-          <div className="relative mx-auto w-full max-w-105 md:w-1/2 md:max-w-none">
-            <img
-              src={heroWoman}
-              alt="Woman holding shopping bags"
-              className="relative z-10 w-full object-contain"
-            />
-          </div>
-        </div>
-
-        <div className="mt-14 flex flex-col gap-7 md:flex-row md:items-start md:justify-between">
-          <div className="max-w-95 md:w-1/2">
-            <p className="text-sm font-semibold text-[#E74040]">
-              Problems trying
-            </p>
-            <h2 className="mt-3 text-[24px] font-bold leading-8 text-[#252B42] md:text-[28px] md:leading-10">
-              Met minim Mollie non desert Alamo est sit cliquey dolor do met
-              sent.
-            </h2>
-          </div>
-          <p className="text-sm leading-5 text-[#737373] md:w-1/2 md:max-w-115 md:text-base md:leading-6">
-            Problems trying to resolve the conflict between the two major realms
-            of Classical physics: Newtonian mechanics
+    <div className="w-full bg-white">
+      <section className="mx-auto flex max-w-6xl flex-col items-center gap-12 px-5 py-16 md:flex-row">
+        <div className="flex flex-1 flex-col gap-6">
+          <p className="text-sm font-bold tracking-widest text-action">
+            ABOUT WiT
           </p>
-        </div>
-
-        <div className="mt-14 flex flex-wrap text-center">
-          {stats.map((stat) => (
-            <article key={stat.label} className="mb-9 w-1/2 md:w-1/4">
-              <h3 className="text-[40px] font-bold leading-[1.4] text-[#252B42]">
-                {stat.value}
-              </h3>
-              <p className="text-sm font-bold text-[#737373]">{stat.label}</p>
-            </article>
-          ))}
-        </div>
-
-        <div className="mt-16 overflow-hidden rounded-[20px]">
-          <div className="relative h-75 w-full md:h-130">
-            <img
-              src="https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1800&q=80"
-              alt="Mountain view"
-              className="h-full w-full object-cover"
-            />
-            <button
-              type="button"
-              disabled
-              aria-disabled="true"
-              aria-label="Play intro video"
-              className="absolute left-1/2 top-1/2 flex h-18 w-18 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-[#8EC2F2] text-white"
-            >
-              <Play size={26} fill="currentColor" strokeWidth={0} />
-            </button>
-          </div>
-        </div>
-
-        <div className="mx-auto mt-16 max-w-175 text-center md:mt-24">
-          <h2 className="text-[40px] font-bold text-[#252B42] md:text-5xl">
-            Meet Our Team
-          </h2>
-          <p className="mt-3 text-sm leading-5 text-[#737373]">
-            Problems trying to resolve the conflict between the two major realms
-            of Classical physics: Newtonian mechanics
-          </p>
-        </div>
-
-        <div className="mt-12 flex flex-col gap-7 md:flex-row md:flex-wrap">
-          {teamMembers.map((member) => (
-            <article
-              key={member.id}
-              className="w-full overflow-hidden text-center md:w-[calc(33.333%-18.667px)]"
-            >
-              <img
-                src={member.image}
-                alt={member.name}
-                className="h-75 w-full object-cover md:h-57.75"
-              />
-              <div className="py-8">
-                <h3 className="text-base font-bold text-[#252B42]">
-                  {member.name}
-                </h3>
-                <p className="mt-2 text-sm font-semibold text-[#737373]">
-                  {member.role}
-                </p>
-                <div className="mt-3 flex items-center justify-center gap-5 text-[#23A6F0]">
-                  <a
-                    href={member.social.facebook}
-                    target="_blank"
-                    rel="noreferrer"
-                    aria-label={`${member.name} Facebook`}
-                  >
-                    <Facebook size={20} />
-                  </a>
-                  <a
-                    href={member.social.instagram}
-                    target="_blank"
-                    rel="noreferrer"
-                    aria-label={`${member.name} Instagram`}
-                  >
-                    <Instagram size={20} />
-                  </a>
-                  <a
-                    href={member.social.twitter}
-                    target="_blank"
-                    rel="noreferrer"
-                    aria-label={`${member.name} Twitter`}
-                  >
-                    <Twitter size={20} />
-                  </a>
-                </div>
-              </div>
-            </article>
-          ))}
-        </div>
-      </div>
-
-      <div className="w-full bg-[#FAFAFA] px-5 py-16">
-        <div className="mx-auto w-full max-w-6xl text-center">
-          <h2 className="text-[40px] font-bold text-[#252B42] md:text-5xl">
-            Big Companies Are Here
-          </h2>
-          <p className="mx-auto mt-3 max-w-130 text-sm leading-5 text-[#737373]">
-            Problems trying to resolve the conflict between the two major realms
-            of Classical physics: Newtonian mechanics
-          </p>
-          <div className="mt-10 flex flex-wrap justify-center gap-8 text-4xl font-bold text-[#8C8C8C] md:text-[46px]">
-            {logos.map((logo) => (
-              <span
-                key={logo}
-                className="w-[calc(50%-16px)] opacity-80 md:w-[calc(16.666%-26.667px)]"
-              >
-                {logo}
-              </span>
-            ))}
-          </div>
-        </div>
-      </div>
-
-      <div className="flex w-full flex-col md:flex-row">
-        <div className="bg-[#2A7CC7] px-8 py-16 text-white md:w-1/2 md:px-20 md:py-24">
-          <p className="text-sm font-bold">WORK WITH US</p>
-          <h2 className="mt-4 text-4xl font-bold leading-[1.3] md:text-5xl">
-            Now Let&apos;s grow Yours
-          </h2>
-          <p className="mt-4 max-w-107.5 text-sm leading-5 text-[#DCEEFF] md:text-base md:leading-6">
-            The gradual accumulation of information about atomic and small-scale
-            behavior during the first quarter of the 20th
+          <h1 className="text-4xl font-bold leading-tight md:text-6xl">
+            Thoughtful shopping.
+            <br />
+            Built to learn.
+          </h1>
+          <p className="text-lg text-muted">
+            A WorkinTech full-stack capstone connecting a responsive storefront
+            with secure accounts, a real catalog and persistent demo orders.
           </p>
           <Link
-            to="/contact"
-            className="mt-8 inline-flex h-13 items-center justify-center rounded-[5px] border border-white px-10 text-sm font-bold"
+            to="/shop"
+            className="w-fit rounded-control bg-action px-8 py-3 font-bold text-white hover:bg-ink"
           >
-            Contact Us
+            Explore the collection
           </Link>
         </div>
-
-        <div className="min-h-90 bg-[#EDEDED] md:w-1/2">
-          <img
-            src={ctaImage}
-            alt="Model portrait"
-            className="h-full w-full object-cover"
-          />
+        <img
+          src={hero}
+          alt="Editorial fashion collection"
+          className="w-full max-w-md rounded-control object-cover md:w-1/2"
+        />
+      </section>
+      <section className="bg-surface px-5 py-14">
+        <div className="mx-auto flex max-w-6xl flex-col gap-10 md:flex-row">
+          <div className="flex-1">
+            <h2 className="text-2xl font-bold">Clear choices for shoppers</h2>
+            <p className="mt-4 text-muted">
+              Search the catalog, compare current prices and stock, save
+              favorites to an account and choose delivery and billing addresses.
+              Orders use prices calculated by the API.
+            </p>
+          </div>
+          <div className="flex-1">
+            <h2 className="text-2xl font-bold">
+              A practical learning platform
+            </h2>
+            <p className="mt-4 text-muted">
+              React and Redux power the storefront; Java, Spring Security,
+              PostgreSQL and Flyway support its data. Customer and Store
+              registration are available. Store accounts manage only verified owned shipment groups;
+              a complete seller dashboard is not offered.
+            </p>
+          </div>
+          <div className="flex-1">
+            <h2 className="text-2xl font-bold">Honest about the demo</h2>
+            <p className="mt-4 text-muted">
+              Checkout records a demonstration order. No card is charged and no
+              shipment is arranged. Use synthetic data. This project is not a
+              production payment service.
+            </p>
+          </div>
         </div>
-      </div>
-    </section>
+      </section>
+      <section className="mx-auto max-w-6xl px-5 py-16">
+        <header className="text-center">
+          <h2 className="text-3xl font-bold">People, design and engineering</h2>
+          <p className="mt-3 text-muted">
+            Meet the contributors behind the capstone.
+          </p>
+        </header>
+        <div className="mt-10 flex flex-wrap gap-6">
+          {teamMembers.slice(0, 3).map((member) => (
+            <div key={member.id} className="w-full md:w-[calc(33.333%-16px)]">
+              <TeamCard member={member} />
+            </div>
+          ))}
+        </div>
+        <div className="mt-8 text-center">
+          <Link to="/team" className="font-bold text-action">
+            Meet all seven team members
+          </Link>
+        </div>
+      </section>
+      <section className="bg-action px-5 py-14 text-center text-white">
+        <h2 className="text-3xl font-bold">Questions about the project?</h2>
+        <p className="mt-4">
+          Tell us which part of the experience you would like to understand.
+        </p>
+        <Link
+          to="/contact"
+          className="mt-6 inline-flex rounded-control border border-white px-8 py-3 font-bold hover:bg-white/10"
+        >
+          Contact us
+        </Link>
+      </section>
+    </div>
   );
 }

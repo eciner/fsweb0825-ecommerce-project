@@ -14,17 +14,15 @@ const slides = [
     image: heroWoman,
     alt: "Summer collection hero image",
     title: "NEW COLLECTION",
-    subtitle: "SUMMER 2020",
-    description:
-      "We know how large objects will act, but things on a small scale.",
+    subtitle: "EVERYDAY STYLE",
+    description: "Explore the current collection, with real prices and stock.",
   },
   {
     image: heroWoman2,
     alt: "Summer collection hero image 2",
     title: "NEW COLLECTION",
-    subtitle: "SUMMER 2020",
-    description:
-      "We know how large objects will act, but things on a small scale.",
+    subtitle: "EVERYDAY STYLE",
+    description: "Explore the current collection, with real prices and stock.",
   },
 ];
 
@@ -37,10 +35,7 @@ function Slider() {
         spaceBetween={0}
         slidesPerView={1}
         modules={[Autoplay]}
-        autoplay={{
-          delay: 3500,
-          disableOnInteraction: false,
-        }}
+        autoplay={false}
         loop={true}
         onSwiper={(swiper) => {
           swiperRef.current = swiper;
@@ -57,7 +52,7 @@ function Slider() {
                 className="h-full w-full object-cover object-[62%_50%] md:object-[78%_50%] lg:object-[85%_50%]"
               />
 
-              <div className="absolute inset-0 bg-[#23A6F0]/25" />
+              <div className="absolute inset-0 bg-linear-to-r from-ink/70 via-ink/20 to-transparent" />
 
               <div className="absolute inset-0 flex w-full">
                 <div className="flex w-full flex-col justify-center gap-4 px-6 pt-28 md:px-16 md:pt-32">
@@ -74,8 +69,8 @@ function Slider() {
                   </p>
 
                   <Link
-                    to="/shop"
-                    className={`${interactiveButton} flex w-fit items-center justify-center rounded-md bg-[#2DC071] px-6 py-3 text-sm font-bold text-white hover:bg-[#25A55F] focus:ring-[#2DC071] md:text-base`}
+                    to="/shop?gender=k"
+                    className={`${interactiveButton} flex w-fit items-center justify-center rounded-md bg-success px-6 py-3 text-sm font-bold text-white hover:bg-[#1f755f] focus:ring-[#2DC071] md:text-base`}
                   >
                     SHOP NOW
                   </Link>
@@ -85,7 +80,7 @@ function Slider() {
               <button
                 type="button"
                 onClick={() => swiperRef.current?.slidePrev()}
-                className="absolute left-4 top-1/2 flex h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full bg-white/85 text-[#252B42] shadow-lg backdrop-blur transition-all duration-200 hover:bg-white hover:shadow-2xl focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#23A6F0] cursor-pointer md:left-8"
+                className="absolute left-4 bottom-6 flex h-12 w-12 items-center justify-center rounded-full bg-white/85 text-[#252B42] shadow-lg backdrop-blur transition-all duration-200 hover:bg-white hover:shadow-2xl focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#23A6F0] cursor-pointer md:left-8"
                 aria-label="Previous slide"
               >
                 <ChevronLeft size={22} />
@@ -93,7 +88,7 @@ function Slider() {
               <button
                 type="button"
                 onClick={() => swiperRef.current?.slideNext()}
-                className="absolute right-4 top-1/2 flex h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full bg-white/85 text-[#252B42] shadow-lg backdrop-blur transition-all duration-200 hover:bg-white hover:shadow-2xl focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#23A6F0] cursor-pointer md:right-8"
+                className="absolute right-4 bottom-6 flex h-12 w-12 items-center justify-center rounded-full bg-white/85 text-[#252B42] shadow-lg backdrop-blur transition-all duration-200 hover:bg-white hover:shadow-2xl focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#23A6F0] cursor-pointer md:right-8"
                 aria-label="Next slide"
               >
                 <ChevronRight size={22} />

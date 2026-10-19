@@ -2,7 +2,12 @@ export function isCardExpired(month, year, now = new Date()) {
   const expiryMonth = Number(month);
   const expiryYear = Number(year);
 
-  if (!Number.isInteger(expiryMonth) || !Number.isInteger(expiryYear)) {
+  if (
+    !Number.isInteger(expiryMonth) ||
+    !Number.isInteger(expiryYear) ||
+    expiryMonth < 1 ||
+    expiryMonth > 12
+  ) {
     return true;
   }
 

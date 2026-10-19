@@ -1,0 +1,2 @@
+export const shipmentStates = ["ORDER_PLACED", "PREPARING", "SHIPPED", "DELIVERED"];
+export const shipmentLabel = value => ({ ORDER_PLACED: "Order placed", PREPARING: "Preparing", SHIPPED: "Shipped", DELIVERED: "Delivered", PARTIALLY_PREPARING: "Partially preparing", PARTIALLY_SHIPPED: "Partially shipped", PARTIALLY_DELIVERED: "Partially delivered", NOT_RECORDED: "Not recorded" }[value] || "Not recorded");

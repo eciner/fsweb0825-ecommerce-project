@@ -10,7 +10,7 @@ spring:
   jpa:
     hibernate:
       ddl-auto: validate
-    show-sql: true
+    show-sql: false
   flyway:
     enabled: true
     locations: classpath:db/migration,classpath:db/test-migration
@@ -19,3 +19,11 @@ app:
   jwt:
     secret: test-secret-key-that-is-at-least-32-characters-long
     expiration: 3600000
+
+# Test request/response bodies can contain synthetic credentials and payment values.
+# Keep framework body logging disabled rather than retaining them in Surefire output.
+logging:
+  level:
+    root: INFO
+    org.springframework.web: INFO
+    org.hibernate.SQL: WARN

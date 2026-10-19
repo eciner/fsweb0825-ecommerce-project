@@ -3,10 +3,13 @@ import { Link } from "react-router-dom";
 import { interactiveButton } from "../utils/buttonClasses";
 import menImg from "../assets/editors-men.png";
 import womenImg from "../assets/editors-women.png";
-import kidsImg from "../assets/editors-kids.png";
-import accessoriesImg from "../assets/editors-accessories.png";
 
-const Card = memo(function Card({ img, label, position = "object-center" }) {
+const Card = memo(function Card({
+  img,
+  label,
+  to = "/shop",
+  position = "object-center",
+}) {
   return (
     <div className="relative h-full w-full min-h-0 overflow-hidden bg-[#F1F1F1]">
       <img
@@ -17,7 +20,7 @@ const Card = memo(function Card({ img, label, position = "object-center" }) {
       />
 
       <Link
-        to="/shop"
+        to={to}
         className={`${interactiveButton} absolute left-6 bottom-6 rounded-md bg-white/95 px-8 py-3 text-sm font-bold tracking-wide text-[#252B42] hover:bg-white focus:ring-[#23A6F0]`}
       >
         {label}
@@ -44,26 +47,41 @@ function EditorsPick() {
         <div className="flex flex-col gap-6 md:flex-row md:h-140 md:items-stretch">
           {/* MEN */}
           <div className="md:flex-2 md:h-full min-h-0">
-            <Card img={menImg} label="MEN" position="object-[50%_15%]" />
+            <Card
+              img={menImg}
+              label="MEN"
+              to="/shop?gender=e"
+              position="object-[50%_15%]"
+            />
           </div>
 
           {/* WOMEN */}
           <div className="md:flex-1 md:h-full min-h-0">
-            <Card img={womenImg} label="WOMEN" position="object-[50%_20%]" />
+            <Card
+              img={womenImg}
+              label="WOMEN"
+              to="/shop?gender=k"
+              position="object-[50%_20%]"
+            />
           </div>
 
           {/* RIGHT COLUMN */}
           <div className="flex flex-col gap-6 md:flex-1 md:h-full min-h-0">
             <div className="md:flex-1 min-h-0">
               <Card
-                img={accessoriesImg}
-                label="ACCESSORIES"
+                img="/catalog/tan-bag.svg"
+                label="BAGS"
+                to="/shop?filter=canta"
                 position="object-[50%_0%]"
               />
             </div>
 
             <div className="md:flex-1 min-h-0">
-              <Card img={kidsImg} label="KIDS" position="object-[50%_15%]" />
+              <Card
+                img="/catalog/white-shoe.svg"
+                label="SHOES"
+                to="/shop?filter=ayakkabi"
+              />
             </div>
           </div>
         </div>

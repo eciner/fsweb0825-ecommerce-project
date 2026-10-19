@@ -78,7 +78,7 @@ export default function LoginPage() {
               })}
             />
             {errors.email && (
-              <p id="email-error" className="text-xs text-[#E74040]">
+              <p id="email-error" className="text-xs text-danger-text">
                 {errors.email.message}
               </p>
             )}
@@ -102,7 +102,7 @@ export default function LoginPage() {
               })}
             />
             {errors.password && (
-              <p id="password-error" className="text-xs text-[#E74040]">
+              <p id="password-error" className="text-xs text-danger-text">
                 {errors.password.message}
               </p>
             )}
@@ -111,7 +111,7 @@ export default function LoginPage() {
           <label className="mt-1 inline-flex items-center gap-2 text-sm text-[#737373]">
             <input
               type="checkbox"
-              className="h-4 w-4 rounded border-[#BDBDBD] text-[#23A6F0]"
+              className="h-4 w-4 rounded border-[#BDBDBD] text-action"
               {...register("remember")}
             />
             Remember me
@@ -119,7 +119,7 @@ export default function LoginPage() {
 
           <button
             type="submit"
-            className="mt-2 inline-flex h-11 items-center justify-center gap-2 rounded bg-[#23A6F0] px-4 text-sm font-semibold text-white transition hover:bg-[#1B8FD8] disabled:cursor-not-allowed disabled:bg-[#8EC2F2]"
+            className="mt-2 inline-flex h-11 items-center justify-center gap-2 rounded bg-action px-4 text-sm font-semibold text-white transition hover:bg-ink disabled:cursor-not-allowed disabled:bg-[#8EC2F2]"
             disabled={isSubmitting}
           >
             {isSubmitting && (
@@ -136,7 +136,7 @@ export default function LoginPage() {
               pathname: "/signup",
               state: { from: getSafeReturnPath(location.state?.from, "/") },
             }}
-            className="font-semibold text-[#23A6F0] hover:text-[#1B8FD8]"
+            className="font-semibold text-action hover:text-[#1B8FD8]"
           >
             Create an account
           </Link>

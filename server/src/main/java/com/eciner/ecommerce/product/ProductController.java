@@ -24,11 +24,15 @@ public class ProductController {
     @GetMapping("/products")
     public ProductListResponse getProducts(
             @RequestParam(required = false) Long category,
-            @RequestParam(required = false) String filter,
+            @RequestParam(required = false) @jakarta.validation.constraints.Size(max = 200) String filter,
+            @RequestParam(required = false) String gender,
             @RequestParam(required = false) String sort,
             @RequestParam(defaultValue = "25") @Positive @Max(MAX_LIMIT) int limit,
-            @RequestParam(defaultValue = "0") @PositiveOrZero int offset) {
-        return productService.list(category, filter, sort, limit, offset);
+            @RequestParam(defaultValue = "0") @PositiveOrZero int offset,
+            @RequestParam(name = "min_price", required = false) @jakarta.validation.constraints.Digits(integer = 10, fraction = 2) java.math.BigDecimal minPrice,
+            @RequestParam(name = "max_price", required = false) @jakarta.validation.constraints.Digits(integer = 10, fraction = 2) java.math.BigDecimal maxPrice,
+            @RequestParam(name = "in_stock", defaultValue = "false") boolean inStock) {
+        return productService.list(category, gender, filter, sort, limit, offset, minPrice, maxPrice, inStock);
     }
 
     @GetMapping("/products/{id}")

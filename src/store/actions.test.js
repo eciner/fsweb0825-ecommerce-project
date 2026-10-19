@@ -162,7 +162,7 @@ describe("in-flight product requests", () => {
 });
 
 describe("account session", () => {
-  it("clears private account data on logout while preserving cart and shared data", () => {
+  it("clears private account data and hides the account cart on logout while preserving shared catalog data", () => {
     const store = createTestStore();
     seedPrivateState(store);
     store.dispatch(setRoles([{ id: 1 }]));
@@ -180,7 +180,8 @@ describe("account session", () => {
     expect(state.client.creditCards).toEqual([]);
     expect(state.shoppingCart.address).toEqual({});
     expect(state.shoppingCart.payment).toEqual({});
-    expect(state.shoppingCart.cart).toHaveLength(1);
+    expect(state.shoppingCart.cart).toEqual([]);
+    expect(state.shoppingCart.cartOwner).toBe("guest");
     expect(state.client.roles).toEqual([{ id: 1 }]);
     expect(state.product.categories).toEqual([{ id: 2 }]);
   });

@@ -1,5 +1,8 @@
 name: Frontend CI
 
+permissions:
+  contents: read
+
 on:
   push:
   pull_request:
@@ -23,3 +26,5 @@ jobs:
         run: npm test -- --run
       - name: Build
         run: npm run build
+        env:
+          VITE_API_URL: http://127.0.0.1:8080

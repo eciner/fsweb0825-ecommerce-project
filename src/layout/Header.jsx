@@ -3,12 +3,6 @@ import { Link, useLocation } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import md5 from "js-md5";
 import {
-  Phone,
-  Mail,
-  Instagram,
-  Youtube,
-  Facebook,
-  Twitter,
   Search,
   ShoppingCart,
   Heart,
@@ -19,8 +13,14 @@ import {
   X,
 } from "lucide-react";
 
-import { fetchCategoriesIfNeeded, logoutUser, verifyStoredSession } from "../store/actions";
+import {
+  fetchCategoriesIfNeeded,
+  fetchFavorites,
+  logoutUser,
+  verifyStoredSession,
+} from "../store/actions";
 import { buildCategoryPath } from "../utils/slug";
+import HeaderSearch from "../components/HeaderSearch";
 import CartDropdown from "../components/CartDropdown";
 
 const AVATAR_FALLBACK =
@@ -37,6 +37,9 @@ function Header() {
   const dispatch = useDispatch();
   const location = useLocation();
 
+  const favorites = useSelector((state) => state.client.favorites);
+  const sessionRevision = useSelector((state) => state.client.sessionRevision);
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isDesktopCategoriesOpen, setIsDesktopCategoriesOpen] = useState(false);
   const [isMobileCategoriesOpen, setIsMobileCategoriesOpen] = useState(false);
@@ -51,7 +54,9 @@ function Header() {
   const cart = useSelector((state) => state.shoppingCart.cart);
   const user = useSelector((state) => state.client.user);
   const authInitialized = useSelector((state) => state.client.authInitialized);
-  const authVerificationError = useSelector((state) => state.client.authVerificationError);
+  const authVerificationError = useSelector(
+    (state) => state.client.authVerificationError,
+  );
   const categories = useSelector((state) => state.product.categories);
   const categoriesFetchState = useSelector(
     (state) => state.product.categoriesFetchState,
@@ -85,6 +90,7 @@ function Header() {
         !userMenuRef.current.contains(event.target)
       ) {
         setIsUserMenuOpen(false);
+        setIsSearchOpen(false);
       }
     };
 
@@ -94,6 +100,7 @@ function Header() {
         setIsMobileCategoriesOpen(false);
         setIsCartOpen(false);
         setIsUserMenuOpen(false);
+        setIsSearchOpen(false);
       }
     };
 
@@ -110,6 +117,13 @@ function Header() {
   const returnPath = `${location.pathname}${location.search}`;
 
   const isLoggedIn = Boolean(user?.email);
+  useEffect(() => {
+    if (isLoggedIn)
+      dispatch((send, getState) => {
+        if (getState().client.favoritesFetchState === "NOT_FETCHED")
+          return send(fetchFavorites()).catch(() => {});
+      });
+  }, [dispatch, isLoggedIn, sessionRevision]);
   const userLabel = user?.name || user?.email || "User";
   const normalizedEmail = String(user?.email || "")
     .trim()
@@ -160,12 +174,12 @@ function Header() {
     if (categoriesFetchState === "FAILED") {
       return (
         <div className="flex flex-col gap-2 px-3 py-2">
-          <p className="text-xs text-[#E74040]">
+          <p className="text-xs text-danger-text">
             Categories could not be loaded.
           </p>
           <button
             type="button"
-            className="w-fit rounded bg-[#23A6F0] px-2 py-1 text-xs font-semibold text-white"
+            className="w-fit rounded bg-action px-2 py-1 text-xs font-semibold text-white"
             onClick={() => dispatch(fetchCategoriesIfNeeded({ force: true }))}
           >
             Retry
@@ -184,9 +198,11 @@ function Header() {
 
     const renderGroup = (group) => (
       <div key={group.key} className="flex min-w-0 flex-1 flex-col">
-        <p className="px-3 py-2 text-xs font-bold uppercase tracking-wide text-[#737373]">
-          {group.label}
-        </p>
+        {group.key === "other" ? <p className="px-3 py-2 text-xs font-bold text-muted">{group.label}</p> :
+          <Link to={`/shop?gender=${group.key === "women" ? "k" : "e"}`} onClick={closeMenus}
+            className="px-3 py-2 text-xs font-bold tracking-wide text-action hover:bg-surface">
+            {group.key === "women" ? "KADIN" : "ERKEK"}
+          </Link>}
         {group.items.map((category) => (
           <Link
             key={category.id}
@@ -201,8 +217,12 @@ function Header() {
     );
 
     if (desktop) {
-      const primaryGroups = groupedCategories.filter((group) => group.key !== "other");
-      const otherGroup = groupedCategories.find((group) => group.key === "other");
+      const primaryGroups = groupedCategories.filter(
+        (group) => group.key !== "other",
+      );
+      const otherGroup = groupedCategories.find(
+        (group) => group.key === "other",
+      );
 
       return (
         <>
@@ -258,11 +278,25 @@ function Header() {
           <ChevronDown size={15} aria-hidden="true" />
         </button>
         {isUserMenuOpen && (
-          <div className="absolute right-0 top-full z-30 mt-3 flex min-w-44 flex-col rounded-md border border-[#E8E8E8] bg-white py-2 shadow-lg" role="menu">
-            <Link to="/orders" onClick={closeMenus} className="px-3 py-2 text-sm text-[#252B42] hover:bg-[#F5F5F5]" role="menuitem">
+          <div
+            className="absolute right-0 top-full z-30 mt-3 flex min-w-44 flex-col rounded-md border border-[#E8E8E8] bg-white py-2 shadow-lg"
+            role="menu"
+          >
+            <Link
+              to="/orders"
+              onClick={closeMenus}
+              className="px-3 py-2 text-sm text-[#252B42] hover:bg-[#F5F5F5]"
+              role="menuitem"
+            >
               Previous Orders
             </Link>
-            <button type="button" onClick={handleLogout} className="flex items-center gap-2 px-3 py-2 text-left text-sm text-[#737373] hover:bg-[#F5F5F5]" role="menuitem">
+            {["admin", "store"].includes(user.role_code || user.roleCode) && <Link to="/fulfillment" onClick={closeMenus} role="menuitem" className="px-3 py-2 text-sm text-action hover:bg-surface">Fulfillment</Link>}
+            <button
+              type="button"
+              onClick={handleLogout}
+              className="flex items-center gap-2 px-3 py-2 text-left text-sm text-[#737373] hover:bg-[#F5F5F5]"
+              role="menuitem"
+            >
               <LogOut size={15} aria-hidden="true" />
               Logout
             </button>
@@ -275,14 +309,14 @@ function Header() {
       <div className="hidden items-center gap-3 md:flex">
         <Link
           to={{ pathname: "/login", state: { from: returnPath } }}
-          className="inline-flex items-center gap-1 text-xs font-semibold text-[#23A6F0] transition-colors hover:text-[#1B8FD8]"
+          className="inline-flex items-center gap-1 text-xs font-semibold text-action transition-colors hover:text-[#1B8FD8]"
         >
           <User size={16} />
           Login
         </Link>
         <Link
           to={{ pathname: "/signup", state: { from: returnPath } }}
-          className="text-xs font-semibold text-[#252B42] transition-colors hover:text-[#23A6F0]"
+          className="text-xs font-semibold text-[#252B42] transition-colors hover:text-action"
         >
           Sign Up
         </Link>
@@ -292,38 +326,22 @@ function Header() {
 
   return (
     <header className="flex w-full flex-col bg-white">
-      {/* Top Info Bar - Desktop Only */}
-      <div className="hidden w-full bg-[#252B42] text-white md:flex">
-        <div className="mx-auto flex w-full max-w-6xl items-center justify-between px-4 py-3 text-xs font-semibold">
-          <div className="flex flex-col items-start gap-4 sm:flex-row sm:gap-6">
-            <div className="flex items-center gap-2">
-              <Phone size={14} />
-              <a href="tel:(225)555-0118" className="hover:text-[#23A6F0]">
-                (225) 555-0118
-              </a>
-            </div>
-
-            <div className="flex items-center gap-2">
-              <Mail size={14} />
-              <a
-                href="mailto:michelle.rivera@example.com"
-                className="hover:text-[#23A6F0]"
-              >
-                michelle.rivera@example.com
-              </a>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-2">
-            <span>Follow Us and get a chance to win 80% off</span>
-          </div>
-
-          <div className="flex items-center gap-3">
-            <span>Follow Us :</span>
-            <Instagram size={16} aria-hidden="true" />
-            <Youtube size={16} aria-hidden="true" />
-            <Facebook size={16} aria-hidden="true" />
-            <Twitter size={16} aria-hidden="true" />
+      <a
+        href="#main-content"
+        className="absolute left-4 top-0 z-50 -translate-y-full rounded-control bg-ink px-5 py-3 text-white focus:translate-y-2"
+      >
+        Skip to content
+      </a>
+      <div className="hidden bg-ink text-white md:block">
+        <div className="mx-auto flex max-w-6xl justify-between gap-4 px-4 py-2 text-xs">
+          <p>WorkinTech capstone - demo checkout, no real charges</p>
+          <div className="flex gap-5">
+            <Link to="/faq" className="hover:underline">
+              Help
+            </Link>
+            <Link to="/contact" className="hover:underline">
+              Contact
+            </Link>
           </div>
         </div>
       </div>
@@ -340,7 +358,7 @@ function Header() {
           <div className="hidden items-center gap-8 md:flex">
             <Link
               to="/"
-              className="text-sm font-semibold text-[#252B42] transition-colors hover:text-[#23A6F0]"
+              className="text-sm font-semibold text-[#252B42] transition-colors hover:text-action"
             >
               Home
             </Link>
@@ -357,11 +375,14 @@ function Header() {
               </button>
 
               {isDesktopCategoriesOpen && (
-                <div id="desktop-categories" className="absolute left-0 z-20 mt-3 flex min-w-80 flex-col rounded-md border border-[#E8E8E8] bg-white py-2 shadow-lg">
+                <div
+                  id="desktop-categories"
+                  className="absolute left-0 z-20 mt-3 flex min-w-80 flex-col rounded-md border border-[#E8E8E8] bg-white py-2 shadow-lg"
+                >
                   {renderCategoryLinks(false, true)}
                   <Link
                     to="/shop"
-                    className="border-t border-[#F1F1F1] px-5 py-2 text-sm font-semibold text-[#23A6F0] hover:bg-[#F5F5F5]"
+                    className="border-t border-[#F1F1F1] px-5 py-2 text-sm font-semibold text-action hover:bg-[#F5F5F5]"
                     onClick={closeMenus}
                   >
                     All Products
@@ -396,10 +417,10 @@ function Header() {
 
             <button
               type="button"
-              disabled
-              aria-disabled="true"
-              className="flex items-center justify-center text-[#BDBDBD]"
+              onClick={() => setIsSearchOpen((open) => !open)}
               aria-label="Search"
+              aria-expanded={isSearchOpen}
+              className="text-action"
             >
               <Search size={20} />
             </button>
@@ -407,7 +428,7 @@ function Header() {
             <div className="relative" ref={cartDropdownRef}>
               <button
                 type="button"
-                className="flex items-center gap-1 text-[#252B42] hover:text-[#23A6F0]"
+                className="flex items-center gap-1 text-[#252B42] hover:text-action"
                 aria-label="Cart"
                 aria-expanded={isCartOpen}
                 onClick={() => setIsCartOpen((previous) => !previous)}
@@ -425,15 +446,16 @@ function Header() {
               )}
             </div>
 
-            <button
-              type="button"
-              disabled
-              aria-disabled="true"
-              className="flex items-center gap-1 text-[#BDBDBD]"
-              aria-label="Favorites (coming soon)"
+            <Link
+              to="/favorites"
+              aria-label={`Favorites (${favorites.length})`}
+              className="inline-flex items-center gap-1 text-action"
             >
               <Heart size={20} />
-            </button>
+              {favorites.length > 0 && (
+                <span className="text-xs font-bold">{favorites.length}</span>
+              )}
+            </Link>
 
             {/* Mobile Menu Toggle */}
             <button
@@ -450,10 +472,19 @@ function Header() {
         </div>
       </nav>
 
+      {isSearchOpen && <HeaderSearch onDone={() => setIsSearchOpen(false)} />}
+
       {authVerificationError && (
-        <div role="alert" className="flex items-center justify-center gap-3 bg-[#FFF8E7] px-4 py-2 text-sm text-[#252B42]">
+        <div
+          role="alert"
+          className="flex items-center justify-center gap-3 bg-[#FFF8E7] px-4 py-2 text-sm text-[#252B42]"
+        >
           <span>Session verification is temporarily unavailable.</span>
-          <button type="button" className="font-semibold text-[#23A6F0]" onClick={() => dispatch(verifyStoredSession())}>
+          <button
+            type="button"
+            className="font-semibold text-action"
+            onClick={() => dispatch(verifyStoredSession())}
+          >
             Retry
           </button>
         </div>
@@ -461,11 +492,14 @@ function Header() {
 
       {/* Mobile Navigation Menu */}
       {isMenuOpen && (
-        <div id="mobile-main-menu" className="flex w-full flex-col border-b border-[#E8E8E8] bg-white md:hidden">
+        <div
+          id="mobile-main-menu"
+          className="flex w-full flex-col border-b border-[#E8E8E8] bg-white md:hidden"
+        >
           <div className="mx-auto flex w-full max-w-6xl flex-col gap-0 px-4 py-3">
             <Link
               to="/"
-              className="border-b border-[#E8E8E8] py-3 text-sm font-semibold text-[#252B42] transition-colors hover:text-[#23A6F0]"
+              className="border-b border-[#E8E8E8] py-3 text-sm font-semibold text-[#252B42] transition-colors hover:text-action"
               onClick={() => setIsMenuOpen(false)}
             >
               Home
@@ -499,7 +533,7 @@ function Header() {
               >
                 <Link
                   to="/shop"
-                  className="px-3 py-2 text-sm font-semibold text-[#23A6F0]"
+                  className="px-3 py-2 text-sm font-semibold text-action"
                   onClick={closeMenus}
                 >
                   All Products
@@ -546,16 +580,17 @@ function Header() {
                 <Link
                   to="/orders"
                   onClick={closeMenus}
-                  className="text-sm font-semibold text-[#23A6F0]"
+                  className="text-sm font-semibold text-action"
                 >
                   Previous Orders
                 </Link>
+                {["admin", "store"].includes(user.role_code || user.roleCode) && <Link to="/fulfillment" onClick={closeMenus} className="text-sm font-semibold text-action">Fulfillment</Link>}
               </div>
             ) : (
               <div className="flex items-center gap-3 py-3">
                 <Link
                   to={{ pathname: "/login", state: { from: returnPath } }}
-                  className="text-sm font-semibold text-[#23A6F0]"
+                  className="text-sm font-semibold text-action"
                   onClick={closeMenus}
                 >
                   Login

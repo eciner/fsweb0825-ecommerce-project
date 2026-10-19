@@ -47,14 +47,14 @@ export default function OrderSummary({
         <button
           type="button"
           onClick={onAction}
-          className="mt-6 flex h-11 w-full items-center justify-center rounded bg-[#23A6F0] text-sm font-semibold text-white hover:bg-[#1B8FD8]"
+          className="mt-6 flex h-11 w-full items-center justify-center rounded bg-action text-sm font-semibold text-white hover:bg-ink"
         >
           {actionLabel}
         </button>
       ) : (
         <Link
           to={actionTo}
-          className="mt-6 flex h-11 items-center justify-center rounded bg-[#23A6F0] text-sm font-semibold text-white hover:bg-[#1B8FD8]"
+          className="mt-6 flex h-11 items-center justify-center rounded bg-action text-sm font-semibold text-white hover:bg-ink"
         >
           {actionLabel}
         </Link>
