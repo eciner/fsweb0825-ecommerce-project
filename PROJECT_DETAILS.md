@@ -234,6 +234,8 @@ PAN/CVV in history and no customer shipment actor ids.
 Dates are Git author dates unless labeled as verification records, not estimates
 of effort. Older July audit text was committed later; its stated activity date is
 not a July Git commit. Board planning dates also do not establish implementation.
+For unpublished enhancements, links identify implementation and regression evidence
+in this candidate; the dates record local development, not publication.
 
 | Date | Evidence | Technical purpose |
 | --- | --- | --- |
@@ -248,8 +250,8 @@ not a July Git commit. Board planning dates also do not establish implementation
 | 2026-09-29 | `53b10d8` | Checkout validity/mobile cart; historical authenticated acceptance is separate |
 | 2026-10-08/09 | Dated Phase-10A/B records; `7bcf7a1`, `e2b2a67` on Oct 9 | Dependencies, local API and signup hardening |
 | 2026-10-16/17 | Dated release records; `173a578`, `13ec2fc` | Approved application identity and documentation-only reconciliation |
-| 2026-10-17 | `112d2e0`, `5aab42f`, `dfea34e`, `9dec3b1`, `67228c0` | P00-P12 persistence/content/replay/account/isolation repairs |
-| 2026-10-19/20 | Started Oct 19; `a2ef922`, `06897d9`, `fb0a2b4` committed Oct 20 | E01-E07 carts, catalog, city and verified fulfillment |
+| 2026-10-17 | Local development; [P00-P12 traceability](#enhancement-traceability) and [order replay tests](server/src/test/java/com/eciner/ecommerce/order/PostgresOrderIntegrationTests.java) | P00-P12 persistence/content/replay/account/isolation repairs |
+| 2026-10-19/20 | Started Oct 19; committed locally Oct 20; [E01-E07 traceability](#enhancement-traceability) and [browser regressions](e2e/enhancements.spec.js) | E01-E07 carts, catalog, city and verified fulfillment |
 | 2026-10-20 | Stage 2 local changes | Actor minimization, build/CI configuration and public documentation |
 
 Internal backend phases 1-10 are foundation, persistence, catalog, JWT, owned
