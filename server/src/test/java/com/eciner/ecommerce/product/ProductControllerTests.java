@@ -12,18 +12,37 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.DynamicPropertyRegistry;
+import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
+import org.testcontainers.containers.PostgreSQLContainer;
+import org.testcontainers.junit.jupiter.Container;
+import org.testcontainers.junit.jupiter.Testcontainers;
 
 /**
  * Contract tests derived from src/services/api.js, src/utils/query.js, src/utils/productModel.js
  * and the Postman collection: {total, limit, offset, products} list shape, category/filter/sort/
  * pagination query params, and the product detail field set productModel.js reads.
+ * Use the production database dialect: H2 LOWER is JVM-locale-dependent and its TRANSLATE
+ * retains source characters with no replacement, unlike PostgreSQL.
  */
 @SpringBootTest
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
+@Testcontainers
 class ProductControllerTests {
+
+    @Container
+    static final PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>("postgres:16-alpine");
+
+    @DynamicPropertySource
+    static void postgresProperties(DynamicPropertyRegistry registry) {
+        registry.add("spring.datasource.url", postgres::getJdbcUrl);
+        registry.add("spring.datasource.username", postgres::getUsername);
+        registry.add("spring.datasource.password", postgres::getPassword);
+        registry.add("spring.datasource.driver-class-name", () -> "org.postgresql.Driver");
+    }
 
     @Autowired
     private MockMvc mockMvc;
@@ -55,9 +74,38 @@ class ProductControllerTests {
     @Test
     @org.springframework.transaction.annotation.Transactional
     void searchFoldsTurkishCatalogTextAsWellAsTheSearchTerm() throws Exception {
-        jdbc.update("update product set name=?,description='' where id=1", "\u0130zmir \u0131\u015f\u0131k \u015eal G\u00f6mlek \u00c7anta \u00dcr\u00fcn");
+        String name = "\u0130zmir \u0131\u015f\u0131k \u015eal G\u00f6mlek \u00c7anta \u00dcr\u00fcn";
+        assertThat(jdbc.update("update product set name=?,description='' where id=1", name)).isEqualTo(1);
+        assertThat(jdbc.queryForObject("select name from product where id=1", String.class)).isEqualTo(name);
         mockMvc.perform(get("/products").param("filter", "izmir isik sal gomlek canta urun"))
             .andExpect(status().isOk()).andExpect(jsonPath("$.total").value(1)).andExpect(jsonPath("$.products[0].id").value(1));
+    }
+
+    @Test
+    @org.springframework.transaction.annotation.Transactional
+    void searchFoldsTurkishDescriptionsAndCombiningDot() throws Exception {
+        String description = "I \u0131 \u0130 i I\u0307 \u015e\u015f \u011e\u011f \u00dc\u00fc \u00d6\u00f6 \u00c7\u00e7";
+        assertThat(jdbc.update("update product set name='Synthetic description fixture',description=? where id=1", description))
+                .isEqualTo(1);
+        for (String filter : java.util.List.of("i i i i i ss gg uu oo cc", description)) {
+            mockMvc.perform(get("/products").param("filter", filter))
+                    .andExpect(status().isOk()).andExpect(jsonPath("$.total").value(1))
+                    .andExpect(jsonPath("$.products[0].id").value(1));
+        }
+    }
+
+    @Test
+    @org.springframework.transaction.annotation.Transactional
+    void searchTreatsLikeMetacharactersAsLiteralText() throws Exception {
+        assertThat(jdbc.update("update product set name=?,description='' where id=1", "100%_! synthetic marker"))
+                .isEqualTo(1);
+        assertThat(jdbc.update("update product set name=?,description='' where id=2", "100ABX synthetic marker"))
+                .isEqualTo(1);
+        for (String filter : java.util.List.of("100%_!", "%", "_", "!")) {
+            mockMvc.perform(get("/products").param("filter", filter).param("sort", "price:asc").param("limit", "1"))
+                    .andExpect(status().isOk()).andExpect(jsonPath("$.total").value(1))
+                    .andExpect(jsonPath("$.products[0].id").value(1));
+        }
     }
 
     @Test
