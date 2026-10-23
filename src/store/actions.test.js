@@ -314,3 +314,96 @@ describe("stored-session verification", () => {
     expect(store.getState().client.user).toEqual({});
   });
 });
+
+
+describe("login attempt isolation", () => {
+  it.each([false, true])("ignores a login resolved after logout (remember=%s)", async (rememberMe) => {
+    const response = deferred();
+    vi.spyOn(api, "post").mockReturnValue(response.promise);
+    const store = createTestStore();
+    const pending = store.dispatch(loginUser({ email: "a@example.test", password: "synthetic", rememberMe }));
+    store.dispatch(logoutUser());
+    response.resolve({ token: "stale-a-token", email: "a@example.test" });
+    expect(await pending).toMatchObject({ authenticated: false, stale: true });
+    expect(store.getState().client.user).toEqual({});
+    expect(api.defaults.headers.common.Authorization).toBeUndefined();
+    expect(window.localStorage.getItem("token")).toBeNull();
+  });
+
+  it.each([false, true])("keeps newer login B when A resolves last (remember B=%s)", async (rememberMe) => {
+    const a = deferred(), b = deferred();
+    vi.spyOn(api, "post").mockReturnValueOnce(a.promise).mockReturnValueOnce(b.promise);
+    const store = createTestStore();
+    const first = store.dispatch(loginUser({ email: "a@example.test", password: "synthetic", rememberMe: true }));
+    const second = store.dispatch(loginUser({ email: "b@example.test", password: "synthetic", rememberMe }));
+    b.resolve({ token: "current-b-token", email: "b@example.test" });
+    await second;
+    a.resolve({ token: "stale-a-token", email: "a@example.test" });
+    expect(await first).toMatchObject({ authenticated: false, stale: true });
+    expect(store.getState().client.user.email).toBe("b@example.test");
+    expect(api.defaults.headers.common.Authorization).toBe("current-b-token");
+    expect(window.localStorage.getItem("token")).toBe(rememberMe ? "current-b-token" : null);
+  });
+
+  it("does not revive A when the newer login B fails", async () => {
+    const a = deferred(), b = deferred();
+    vi.spyOn(api, "post").mockReturnValueOnce(a.promise).mockReturnValueOnce(b.promise);
+    const store = createTestStore();
+    const first = store.dispatch(loginUser({ email: "a@example.test", password: "synthetic", rememberMe: true }));
+    const second = store.dispatch(loginUser({ email: "b@example.test", password: "synthetic", rememberMe: true }));
+    b.reject({ status: 401 });
+    await expect(second).rejects.toMatchObject({ status: 401 });
+    a.resolve({ token: "stale-a-token", email: "a@example.test" });
+    expect(await first).toMatchObject({ authenticated: false, stale: true });
+    expect(store.getState().client.user).toEqual({});
+    expect(api.defaults.headers.common.Authorization).toBeUndefined();
+    expect(window.localStorage.getItem("token")).toBeNull();
+  });
+
+  it("ignores a stale login rejection after logout", async () => {
+    const response = deferred();
+    vi.spyOn(api, "post").mockReturnValue(response.promise);
+    const store = createTestStore();
+    const pending = store.dispatch(loginUser({ email: "a@example.test", password: "synthetic", rememberMe: true }));
+    store.dispatch(logoutUser());
+    response.reject({ status: 500, message: "Synthetic failure" });
+    expect(await pending).toMatchObject({ authenticated: false, stale: true });
+    expect(window.localStorage.getItem("token")).toBeNull();
+    expect(api.defaults.headers.common.Authorization).toBeUndefined();
+  });
+
+  it("supersedes an older verification as soon as a login starts", async () => {
+    window.localStorage.setItem("token", "remembered-token");
+    const verification = deferred(), login = deferred();
+    vi.spyOn(api, "get").mockReturnValue(verification.promise);
+    vi.spyOn(api, "post").mockReturnValue(login.promise);
+    const store = createTestStore();
+    const oldVerify = store.dispatch(verifyStoredSession());
+    const pendingLogin = store.dispatch(loginUser({ email: "b@example.test", password: "synthetic", rememberMe: false }));
+    verification.resolve({ token: "stale-verify-token", email: "a@example.test" });
+    expect(await oldVerify).toMatchObject({ authenticated: false, stale: true });
+    expect(window.localStorage.getItem("token")).toBe("remembered-token");
+    expect(api.defaults.headers.common.Authorization).toBe("remembered-token");
+    login.resolve({ token: "current-b-token", email: "b@example.test" });
+    await pendingLogin;
+    expect(store.getState().client.user.email).toBe("b@example.test");
+    expect(window.localStorage.getItem("token")).toBeNull();
+  });
+
+  it("lets a newer verification supersede a pending login", async () => {
+    window.localStorage.setItem("token", "remembered-token");
+    const verification = deferred(), login = deferred();
+    vi.spyOn(api, "get").mockReturnValue(verification.promise);
+    vi.spyOn(api, "post").mockReturnValue(login.promise);
+    const store = createTestStore();
+    const oldLogin = store.dispatch(loginUser({ email: "a@example.test", password: "synthetic", rememberMe: true }));
+    const newVerify = store.dispatch(verifyStoredSession());
+    verification.resolve({ token: "verified-token", email: "b@example.test" });
+    await newVerify;
+    login.resolve({ token: "stale-a-token", email: "a@example.test" });
+    expect(await oldLogin).toMatchObject({ authenticated: false, stale: true });
+    expect(store.getState().client.user.email).toBe("b@example.test");
+    expect(api.defaults.headers.common.Authorization).toBe("verified-token");
+    expect(window.localStorage.getItem("token")).toBe("verified-token");
+  });
+});

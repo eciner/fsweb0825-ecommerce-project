@@ -202,6 +202,15 @@ export const setCheckoutPayment = (payment) => ({
 let rolesRequest = null;
 let categoriesRequest = null;
 let verifyRequest = null;
+const authenticationAttempts = new WeakMap();
+
+function beginAuthenticationAttempt(getState) {
+  const attempt = {};
+  const sessionRevision = getState().client.sessionRevision;
+  authenticationAttempts.set(getState, attempt);
+  return () => authenticationAttempts.get(getState) === attempt &&
+    getState().client.sessionRevision === sessionRevision;
+}
 let listRequestSequence = 0;
 let detailRequestSequence = 0;
 
@@ -541,8 +550,17 @@ export const signupUser = (payload) => {
 };
 
 export const loginUser = ({ email, password, rememberMe }) => {
-  return async (dispatch) => {
-    const response = await api.post("/login", { email, password });
+  return async (dispatch, getState) => {
+    const isCurrent = beginAuthenticationAttempt(getState);
+    verifyRequest = null;
+    let response;
+    try {
+      response = await api.post("/login", { email, password });
+    } catch (error) {
+      if (!isCurrent()) return { authenticated: false, stale: true };
+      throw error;
+    }
+    if (!isCurrent()) return { authenticated: false, stale: true };
     const token = getAuthToken(response);
 
     if (!token) {
@@ -580,6 +598,7 @@ export const verifyStoredSession = () => {
     const storedToken = getStoredToken();
 
     if (!storedToken) {
+      authenticationAttempts.delete(getState);
       clearAuthToken();
       dispatch(resetAccountSession());
       dispatch(setAuthInitialized(true));
@@ -588,13 +607,13 @@ export const verifyStoredSession = () => {
 
     dispatch(resetAccountSession(true));
     dispatch(setAuthInitialized(false));
-    const sessionRevision = getState().client.sessionRevision;
+    const isCurrent = beginAuthenticationAttempt(getState);
     setAuthToken(storedToken);
 
     const request = api
       .get("/verify")
       .then((response) => {
-        if (getState().client.sessionRevision !== sessionRevision) {
+        if (!isCurrent()) {
           return { authenticated: false, stale: true };
         }
         const renewedToken = getAuthToken(response) || storedToken;
@@ -612,7 +631,7 @@ export const verifyStoredSession = () => {
         };
       })
       .catch((error) => {
-        if (getState().client.sessionRevision !== sessionRevision) {
+        if (!isCurrent()) {
           return { authenticated: false, stale: true };
         }
 
@@ -647,7 +666,8 @@ export const verifyStoredSession = () => {
 };
 
 export const logoutUser = () => {
-  return (dispatch) => {
+  return (dispatch, getState) => {
+    authenticationAttempts.delete(getState);
     verifyRequest = null;
     removeStoredToken();
     clearAuthToken();

@@ -27,7 +27,7 @@ export default function LoginPage() {
 
   const onSubmit = async (values) => {
     try {
-      await dispatch(
+      const result = await dispatch(
         loginUser({
           email: values.email.trim().toLowerCase(),
           password: values.password,
@@ -35,6 +35,7 @@ export default function LoginPage() {
         }),
       );
 
+      if (result?.stale) return;
       toast.success("Logged in successfully.");
       const nextPath = getSafeReturnPath(location.state?.from, "/");
       history.push(nextPath);

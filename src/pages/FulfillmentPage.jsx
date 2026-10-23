@@ -92,14 +92,15 @@ function Management({ user }) {
   const search = new URLSearchParams(location.search);
   const status = shipmentStates.includes(search.get("status")) ? search.get("status") : "";
   const page = Math.max(0, Math.min(1000000, Number.parseInt(search.get("page"), 10) || 0));
-  const [result, setResult] = useState(null), [error, setError] = useState(""), [attempt, setAttempt] = useState(0);
+  const [result, setResult] = useState(null), [attempt, setAttempt] = useState(0);
   const [message, setMessage] = useState(""), [ownership, setOwnership] = useState(false);
   const key = `${status}:${page}:${attempt}`;
+  const readState = result?.key === key ? result : { status: "loading" };
   useEffect(() => {
     if (!allowed) return;
     let active = true;
-    api.get(`/fulfillment/shipments?page=${page}&size=10${status ? `&status=${status}` : ""}`).then(data => { if (active) { setResult({ data, key }); setError(""); } })
-      .catch(reason => { if (active) setError(reason.message); });
+    api.get(`/fulfillment/shipments?page=${page}&size=10${status ? `&status=${status}` : ""}`).then(data => { if (active) { setResult({ data, key, status: "success" }); } })
+      .catch(reason => { if (active) setResult({ key, status: "error", error: reason.message || "Shipments could not be loaded." }); });
     return () => { active = false; };
   }, [allowed, page, status, key, attempt]);
   const navigate = (nextStatus, nextPage) => history.push(`/fulfillment?${new URLSearchParams({ ...(nextStatus ? { status: nextStatus } : {}), ...(nextPage ? { page: nextPage } : {}) })}`);
@@ -116,15 +117,15 @@ function Management({ user }) {
       <div className="flex flex-wrap items-end gap-3"><label className="text-sm font-semibold">Shipment status<select value={status} className="control-input mt-1" onChange={event => navigate(event.target.value, 0)}><option value="">All statuses</option>{shipmentStates.map(value => <option key={value} value={value}>{shipmentLabel(value)}</option>)}</select></label>
         <button className="control-button border border-outline bg-white" onClick={() => setAttempt(value => value + 1)}>Refresh shipments</button></div>
       {message && <p role="status" className="text-success">{message}</p>}
-      {error && <p role="alert" className="text-danger-text">{error}</p>}
-      {result?.key !== key ? <p role="status">Loading shipments…</p> : <>
+      {readState.status === "error" && <p role="alert" className="text-danger-text">{readState.error}</p>}
+      {readState.status === "loading" ? <p role="status">Loading shipments…</p> : readState.status === "success" ? <>
         {!result.data.shipments.length && <p>No shipments match this account and filter.</p>}
         <div className="grid grid-cols-1 items-start gap-6 lg:grid-cols-2">{result.data.shipments.map(shipment => <ShipmentCard key={`${shipment.id}-${shipment.version}-${attempt}`} shipment={shipment}>
           <ShipmentEditor shipment={shipment} admin={role === "admin"} onSaved={saved} />
         </ShipmentCard>)}</div>
         <nav aria-label="Shipment pagination" className="flex items-center gap-3"><button className="control-button border border-outline" disabled={!page} onClick={() => navigate(status, page - 1)}>Previous shipments</button><span className="text-sm">Page {page + 1}</span>
           <button className="control-button border border-outline" disabled={(page + 1) * 10 >= result.data.total} onClick={() => navigate(status, page + 1)}>Next shipments</button></nav>
-      </>}
+      </> : null}
       {role === "admin" && <details className="panel" onToggle={event => setOwnership(event.currentTarget.open)}><summary className="font-semibold text-action">Verified store ownership for future orders</summary>{ownership && <OwnershipPanel />}</details>}
       <p className="text-xs text-muted">Demo fulfillment only. No carrier integration or real payment capture is configured.</p>
     </>}
