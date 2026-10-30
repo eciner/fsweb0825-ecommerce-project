@@ -1,17 +1,22 @@
 # Fixes implemented
 
-Current technical record: 2026-10-20. Latest changes are local, unreleased.
+Current release reconciliation: **30 October 2026 (Europe/Istanbul)**. The deployed
+repair inventory below belongs to frontend `main` at
+`87ca72100902c04ef32862ce458c5d62d4831fb8` and backend `feat/backend-api` at
+`71ea32c90c1438882abb3c457bfc7a659c8493b3`. The unshipped QA/local work is
+listed separately; dated historical ledgers retain their original scope and results.
 The dated historical records below remain evidence of those snapshots. Their older
 state descriptions (including full card records in Redux) are superseded by the
 current summary and [PROJECT_DETAILS.md](PROJECT_DETAILS.md). [README.md](README.md)
 is the current setup guide; [PROJECT_EXTRAS.md](PROJECT_EXTRAS.md) compares scope.
 
-## Current fixes and regression evidence
+## Deployed repairs and regression evidence
 
 The table records symptoms, root cause, effect, solution, source evidence,
 verification/regression and residual limits. Commit references below identify
-published history; later local development is linked to source and tests available
-in the clean publication candidate.
+published history; enhancement development is linked to source and tests present
+in the selected releases. Test names describe repeatable regression coverage;
+only the exact CI runs below establish current accepted-release suite totals.
 
 | Issue/component | Symptoms, root cause and impact | Implemented correction/source evidence | Verification/regression | Remaining limit |
 | --- | --- | --- | --- | --- |
@@ -36,7 +41,19 @@ in the clean publication candidate.
 | AUD-006/WP3 documentation | README migration/routes/test/release statements conflicted | Four canonical English documents, original-task annotations and historical progress positioning | Relative-link/path/commit/claim checks plus fresh setup verification | Historical observations are dated, not current Production PASS |
 | WP6/WP7 CI/cleanup | Implicit workflow token policy; obsolete unconsumed configuration/starter art | Explicit contents:read for checkout/build-only workflows; removed tailwind.config.js and unreferenced React starter SVG | Reference/dynamic/config review, lint/tests/build and browser regressions | history is used by tests; favicon and uncertain archival images retained |
 
-## Stage 2 decisions and limitations
+## Unshipped QA and local fixes
+
+| Work | Recorded evidence | Production status at cutoff |
+| --- | --- | --- |
+| D8 auth/login race guards, fulfillment read-error handling, dependency updates including Zod, and contact-recovery regression coverage | `release/d8-frontend-qa` at `83e2473338047c1868f2cd339a3b1b29d6df69ad`; 199-test pass | QA-only; excluded from selected `main` |
+| Hero slider autoplay patch | Local patch; recorded 204-test pass | Local-only; excluded from selected `main` |
+
+These results do not increase the deployed frontend's 183-test total. No QA merge,
+slider publication or dependency change is part of this documentation reconciliation.
+The extra guards for overlapping login/verify attempts and improved fulfillment
+read-error presentation remain unshipped; the deployed repair table does not claim them.
+
+## Accepted decisions and known security/payment limits
 
 T06 retains the seven supplied contributors, T08 immediately activates accounts,
 and T22 sends no PAN/CVV. These approved differences remain explicit. Legacy saved
@@ -45,14 +62,29 @@ provider, mail service, carrier, proxy-trust or authentication redesign was intr
 Historical image/Figma rights are UNKNOWN / REQUIRES USER REVIEW; Montserrat's OFL
 notice remains. No root project license was invented.
 
-Initial fresh Stage 2 evidence: frontend lint/build PASS, 183 tests in 27 files;
+Accepted-release CI, rechecked on 30 October: [frontend 39695105189](https://github.com/eciner/fsweb0825-ecommerce-project/actions/runs/39695105189)
+passed 183 tests plus lint/build; [backend 39855500412](https://github.com/eciner/fsweb0825-ecommerce-project/actions/runs/39855500412)
+passed 114 tests with zero failures/errors/skips and Maven package PASS. Vercel
+`dpl_HCF6rn5MPUVKjtfPsQuBZVeQURp3` is READY; Render
+`dep-dbd7put9fdbs73ao5io0` is LIVE. PostgreSQL 16 is available, with Free expiration
+listed as 20 November 2026. No latest authenticated E2E, backup/restore, formal
+accessibility or fresh vulnerability-audit result is claimed. Legacy full-PAN APIs
+are demo-only: no real card data, no real payment gateway, not PCI compliant.
+Immediate activation gives no email-ownership proof; authentication throttling is
+not implemented and contact throttling is process-local.
+
+Historical Stage 2 evidence from 2026-10-20: frontend lint/build PASS, 183 tests in 27 files;
 Java 21 isolated clean verify PASS, 112 tests including 23 PostgreSQL, zero failures/
 errors/skips and packaged JAR. A running original local JAR blocked clean in the
 primary checkout; an exact-source temporary build preserved that process and data.
 The clean candidate worktree also passed all 183 frontend tests, 112 backend tests,
 four isolation canaries, one restart test and 27 Edge browser cases (130 route/width
 combinations). Details and warnings are in PROJECT_DETAILS.
-No historical test is promoted to current evidence and no Production write occurred.
+No historical test is promoted to current evidence. Historical Phase 9 purchase/history
+acceptance recorded order creation at 2026-10-04 16:35:11.211 UTC / 19:35:11.211
+Europe/Istanbul for `53b10d82d6b921dea3b919a81f3895a875f860ca`; that is not a
+fresh authenticated pass for the selected releases. This reconciliation performed
+no Production writes. The dated records below retain their original observations.
 
 ## Historical records
 

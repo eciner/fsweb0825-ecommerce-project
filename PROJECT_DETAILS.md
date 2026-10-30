@@ -1,7 +1,10 @@
 # FSWEB0825: project details
 
-Engineering and requirement record, 2026-10-20. This describes the latest local
-application and publication candidates, not a deployed enhancement release.
+Engineering and requirement record reconciled for **30 October 2026 (Europe/Istanbul)**.
+The selected academic submission is the existing Production frontend on `main` at
+`87ca72100902c04ef32862ce458c5d62d4831fb8` and backend on `feat/backend-api` at
+`71ea32c90c1438882abb3c457bfc7a659c8493b3`. Dated local candidate checks remain
+historical evidence; QA work and the local slider patch are excluded from Production.
 [README.md](README.md) provides setup, [FIXES-IMPLEMENTED.md](FIXES-IMPLEMENTED.md)
 records repairs and [PROJECT_EXTRAS.md](PROJECT_EXTRAS.md) compares additions.
 
@@ -17,9 +20,33 @@ transactions and operations independently inspectable while preserving the consu
 Original checkboxes are historical records, not automatic current compliance.
 The original [Project board](https://github.com/users/eciner/projects/1) was read
 through authenticated CLI on 2026-10-20: 23 matching task titles, all administratively
-Done, with unchecked original subtasks still in some bodies. Its T06 manager,
+Done, with unchecked original subtasks still in some bodies. All 23 task records
+were read again for this reconciliation on 2026-10-30. Repository wording,
+formatting and historical checkbox states are preserved; board status alone is
+not evidence of literal implementation or grading acceptance. Its T06 manager,
 T08 activation and T22 payment wording differ from the approved current application.
 Neither board status nor implementation annotations erase these differences.
+
+The original **Full-Stack Backend & Deployment Roadmap, Version 2**, and its
+**Version 2 Codex Markdown transcription** were read together. Roadmap section 2
+orders authority as WorkinTech requirements -> current frontend/tests/Postman/working
+behavior -> established architecture/decisions -> Witshop read-only reference -> general
+best practices. The roadmap is an implementation plan, **not the grading rubric**.
+Sections 5 and 9 select Java 21 / Boot 3.4.x; the deployed patch is 3.4.13, with no
+Boot 4 migration. Sections 6 and 10-12 separate implementation/review from explicit
+staging/commit and user-controlled push. Sections 16-17 require owner isolation,
+no CVV persistence, canonical order totals and transactional inventory. Sections
+19-23 describe deployment and acceptance goals; a goal is not proof of a fresh pass.
+Original planning-baseline statements in Roadmap V2 remain historical.
+
+| Roadmap implementation layer | Assignment / current evidence | Cutoff interpretation |
+| --- | --- | --- |
+| Phases 1-3: foundation, persistence, catalog | T01, T12-T16; `server`, catalog APIs and Flyway | Custom backend is additional engineering replacing the external API |
+| Phase 4: JWT | T08-T11; signup/login/verify and existing frontend contracts | Customer/Store signup, immediate activation; email requirement remains a disclosed deviation |
+| Phase 5: owned resources | T20-T21; address/card controllers and two-user tests | Combined address field preserved; legacy full-PAN API is demo-only and not PCI compliant |
+| Phase 6: transactional orders | T22-T23; OrderService and PostgreSQL tests | Canonical pricing/locks/rollback; no PAN/CVV order payload or payment gateway |
+| Phases 7-8: CI and hosting | Exact backend CI, Render deployment, PostgreSQL 16 | Runtime identity and isolated test evidence are distinct |
+| Phases 9-10: cutover, hardening, documentation | Exact frontend CI/Vercel identity; historical acceptance | Production selected as-is; no latest authenticated E2E or institutional acceptance inferred |
 
 Router 5 and ordinary Redux/Thunk preserve assignment contracts. Feature-oriented
 Spring controllers/services/repositories separate HTTP, business rules and storage.
@@ -40,8 +67,8 @@ Requested a Git/Vite/React project with Redux/Thunk, Router 5, Tailwind, Axios,
 notifications/icons and hosting. `package.json`, `main.jsx`, `App.jsx`, `store.js`,
 Vite and workflows establish the execution chain: React mounts the provider/router,
 Vite compiles route bundles. Lint, tests and build exercise this foundation.
-Classification: literal core setup; historical hosting remains distinct from the
-latest undeployed local work.
+Classification: literal core setup; current hosting uses the separate accepted
+Production branches recorded in the release evidence below.
 
 ### T02: Home and shared layout
 
@@ -234,8 +261,9 @@ PAN/CVV in history and no customer shipment actor ids.
 Dates are Git author dates unless labeled as verification records, not estimates
 of effort. Older July audit text was committed later; its stated activity date is
 not a July Git commit. Board planning dates also do not establish implementation.
-For unpublished enhancements, links identify implementation and regression evidence
-in this candidate; the dates record local development, not publication.
+For enhancement development, links identify implementation and regression evidence;
+the dates record authoring/local checks, not publication. Deployment identity is
+established separately by the 30 October cutoff checkpoint.
 
 | Date | Evidence | Technical purpose |
 | --- | --- | --- |
@@ -253,6 +281,9 @@ in this candidate; the dates record local development, not publication.
 | 2026-10-17 | Local development; [P00-P12 traceability](#enhancement-traceability) and [order replay tests](server/src/test/java/com/eciner/ecommerce/order/PostgresOrderIntegrationTests.java) | P00-P12 persistence/content/replay/account/isolation repairs |
 | 2026-10-19/20 | Started Oct 19; committed locally Oct 20; [E01-E07 traceability](#enhancement-traceability) and [browser regressions](e2e/enhancements.spec.js) | E01-E07 carts, catalog, city and verified fulfillment |
 | 2026-10-20 | Stage 2 local changes | Actor minimization, build/CI configuration and public documentation |
+| 2026-10-22 | Frontend CI completed 2026-10-21 23:42:35 UTC / 2026-10-22 02:42:35 Europe/Istanbul | Accepted `main` SHA; 183 tests and lint/build PASS |
+| 2026-10-23 | Backend deploy finished 2026-10-22 21:18:01.431462 UTC / 2026-10-23 00:18:01.431462 Europe/Istanbul | Accepted backend SHA LIVE; CI 114 tests/package PASS |
+| 2026-10-30 | Final submission cutoff; release identities rechecked | Existing Production selected; QA/Zod and local slider work excluded |
 
 Internal backend phases 1-10 are foundation, persistence, catalog, JWT, owned
 resources, transactional orders, PostgreSQL CI, deployment, frontend cutover and
@@ -336,8 +367,10 @@ management retains them. Historical roles are not guessed from current role data
 
 ## Database evolution
 
-Exactly 13 versioned production migrations exist. The test-only repeatable probe
-is not V14. Stage 2 changes no V1-V13 migration; Hibernate stays validation-oriented.
+Exactly 13 versioned production migrations exist at the accepted source releases.
+The test-only repeatable probe is not V14. Stage 2 changed no V1-V13 migration;
+Hibernate stays validation-oriented. The cutoff records PostgreSQL 16 with V1-V13;
+this documentation task did not query, migrate or write the Production database.
 
 | Version | Evolution and compatibility |
 | --- | --- |
@@ -419,7 +452,33 @@ editable product/address records and future assignments.
 
 ## Verification and CI
 
-Fresh Stage 2 frontend checks on 2026-10-20 used Node 22.19.0/npm 10.9.3:
+| Evidence layer | Exact identity / date | Result and boundary |
+| --- | --- | --- |
+| Production frontend CI | [39695105189](https://github.com/eciner/fsweb0825-ecommerce-project/actions/runs/39695105189), `main` at `87ca72100902c04ef32862ce458c5d62d4831fb8` | 183 tests / 27 files; lint/build PASS; completed 2026-10-21 23:42:35 UTC |
+| Production backend CI | [39855500412](https://github.com/eciner/fsweb0825-ecommerce-project/actions/runs/39855500412), `feat/backend-api` at `71ea32c90c1438882abb3c457bfc7a659c8493b3` | 114 tests, zero failures/errors/skips; Maven package PASS; completed 2026-10-22 21:15:04 UTC |
+| Historical authenticated Production acceptance | Phase 9, `53b10d82d6b921dea3b919a81f3895a875f860ca`; order creation recorded 2026-10-04 16:35:11.211 UTC / 19:35:11.211 Europe/Istanbul | Purchase/history/inventory acceptance then; not a fresh pass for the cutoff releases or current database contents |
+| Historical read-only Production acceptance | Phase 10K, 2026-10-17 00:06 Europe/Istanbul, `173a5786ca41dbef2c9ce0f557900a27d0464323` | Public browser/API checks; no authenticated checkout rerun |
+| QA-only frontend | `release/d8-frontend-qa` at `83e2473338047c1868f2cd339a3b1b29d6df69ad` | Recorded 199-test pass and Zod fix; not Production |
+| Local-only hero slider autoplay patch | Recorded 204-test pass; no selected Production release identity | Not Production; not included in the submission |
+
+The QA-only delta includes overlapping login/verify race guards, fulfillment
+read-error presentation, dependency updates and contact-recovery regression coverage;
+these additions are not attributed to Production.
+
+Remote branch heads, CI run SHA/status/log totals, Vercel identity and Render
+identity were rechecked on 30 October. No CI run, dependency audit, application
+suite or authenticated E2E was initiated by this documentation patch. A recorded
+Production demo account does not publish its credentials or establish a current
+login test. **Fresh authenticated E2E for the selected releases: UNVERIFIED.**
+
+Public-link checks reached the selected storefront and all linked GitHub run pages.
+The API `/health` checks timed out (one 12-second HEAD and one 30-second GET);
+**fresh HTTP health availability is UNVERIFIED in this documentation review**.
+Render's LIVE metadata remains independently confirmed. Original external assignment
+resources with 404/403 responses are disclosed in the editorial annotation in
+[project-phases.md](project-phases.md); their original URLs remain preserved.
+
+Historical Stage 2 frontend checks on 2026-10-20 used Node 22.19.0/npm 10.9.3:
 lint, **183 tests in 27 files**, and explicit-loopback-target build passed.
 Focused Java shipment verification passed **12 tests**, zero failures/errors/skips.
 The assembled clean candidate worktree independently passed the full Java 21
@@ -436,39 +495,52 @@ checks exercise hostile inherited datasource/config/JVM state and fabricated
 connections. A real API restart case checks persisted fulfillment. The five-width
 suite checks 26 routes, 130 combinations, not 130 independent test cases.
 
-Both CI workflows now declare `contents: read`; checkout/testing needs no write
-token. Frontend CI supplies an explicit local build API target. No remote CI run
-was triggered for these unpushed candidates. Historical Phase-10 counts of 73
-frontend tests belong to that source/date, not the current code. Local verification
-is not a deployed release, penetration assessment or accessibility certificate.
+Both CI workflows declare `contents: read`; checkout/testing needs no write
+token. Frontend CI supplies an explicit local build API target. The October 20
+candidate checks preceded the exact-release remote CI listed above. Historical
+Phase-10 counts of 73 frontend tests and Stage 2 counts of 112 backend tests belong
+to those sources/dates; the accepted backend CI has 114. Local verification is not
+a deployed release, penetration assessment or accessibility certificate.
 
 ## Deployment evolution and release gates
 
-Historical application: `173a5786ca41dbef2c9ce0f557900a27d0464323`. Public documentation:
-`13ec2fc39971d69944a1f264a3d8c10a1d8cb761`, a descendant changing four Markdown files.
-Vercel follows main, Render follows feat/backend-api. Their intentional SHA difference
-does not imply a backend failure. [project-progress.md](project-progress.md) retains
-dated CI/deployment observations. Remote refs were rechecked on 2026-10-20; live
-deployment identity/authenticated acceptance were not repeated.
+| Component | Production identity at 30 October 2026 | Public endpoint |
+| --- | --- | --- |
+| Vercel frontend | `main` — `87ca72100902c04ef32862ce458c5d62d4831fb8`; `dpl_HCF6rn5MPUVKjtfPsQuBZVeQURp3`, READY | [Storefront](https://fsweb0825-ecommerce-project.vercel.app/) |
+| Render backend | `feat/backend-api` — `71ea32c90c1438882abb3c457bfc7a659c8493b3`; `dep-dbd7put9fdbs73ao5io0`, LIVE | [API health](https://fsweb0825-ecommerce-api.onrender.com/health) |
+| Render database | PostgreSQL 16, available; Flyway V1-V13 in accepted source | Free database expiration listed as 2026-11-20; no connection details published |
 
-V8 URLs depend on frontend `/catalog/*.svg`, so assets precede backend. The backend
-candidate carries compatible API and V8-V13 from the published backend base; the
-frontend candidate carries matching consumer/assets/public documentation from main.
-Outgoing histories need scanning independently of HEAD: deleting a private document
-at HEAD does not erase its earlier unpublished commit blobs.
+The frontend serves React 19/Vite 7/Redux/Axios; the separate backend serves Java 21 /
+Spring Boot 3.4.13 / Security JWT / JPA and JdbcTemplate / PostgreSQL. Comparing the
+accepted refs shows identical `server/` trees; their whole-repository trees differ
+because frontend and backend branches serve different release responsibilities.
+A different full commit SHA is not itself a contract mismatch.
 
-Future separately authorized sequence: independent review, exact candidate/outgoing
-checks, assets, Production backup/custody/restore readiness, compatible backend/Flyway,
-health/ownership/CORS, frontend with actual HTTPS API target, explicitly authorized
-acceptance and rollback readiness. Stage 2 changes no cloud settings, Production
-database/user/order, remote branch or Project item.
+Historical application `173a5786ca41dbef2c9ce0f557900a27d0464323` and documentation
+`13ec2fc39971d69944a1f264a3d8c10a1d8cb761` remain prior milestones. The earlier
+October 20 candidate sequence was assets -> compatible backend/V8-V13 -> frontend,
+with separate review/backup/acceptance gates. V8 catalog URLs depend on frontend
+`/catalog/*.svg`. Those planning records do not replace the current identities or
+prove backup/restore readiness. Clean publication histories excluded private material;
+this reconciliation does not rewrite or publish the retained private histories.
+
+The owner selected this existing Production for academic submission. QA at
+`83e2473338047c1868f2cd339a3b1b29d6df69ad` and the local slider patch remain
+outside it. Render Free cold starts and the database's listed 20 November expiration
+are operational limitations. Latest authenticated browser acceptance, durable
+backup/restore and rollback readiness are not established by metadata or CI.
+This reconciliation changes documentation only. Publishing the documentation does
+not change the accepted application release identities recorded above or establish
+new application acceptance. The reconciliation involved no cloud configuration,
+database, account, order, branch merge or deployment action.
 
 ## Security, provenance and technical assessment
 
 Server price authority, locked inventory, transaction rollback, owner-scoped access,
 keyed replay, immutable snapshots and role-scoped audit projection are implemented
 and testable. Legacy full-PAN card persistence/API exposure blocks commercial
-payments. Storage is not encrypted; immediate activation proves no email ownership.
+payments. Legacy PAN has no application-level encryption/tokenization; immediate
+activation proves no email ownership.
 Contact throttling is process-local; proxy trust/login throttling and Postman
 expansion remain future work. No V14, payment provider, email or carrier integration
 is included. Historical unknown ownership remains Admin-managed.
@@ -542,7 +614,10 @@ redistribution or licensing compliance. This review neither certifies compliance
 nor authorizes replacing/removing the preserved assets.
 
 
-## Final local candidate QA ? 2026-10-20
+## Historical local candidate QA — 2026-10-20
+
+These results preserve the October 20 candidate snapshot. The current selected-release
+CI is listed above; later 199/204-test results remain QA/local only.
 
 | Gate / actual command | Observed result |
 | --- | --- |
@@ -551,7 +626,7 @@ nor authorizes replacing/removing the preserved assets.
 | `npm.cmd run build` with explicit loopback API | PASS; dist generated, required SVG/font/notice assets retained |
 | Build with VITE_API_URL absent in clean worktree | Expected fail-closed error; explicit target then builds successfully |
 | Java 21 Maven Wrapper `-B clean verify` | PASS; 112 tests, 23 PostgreSQL, zero failures/errors/skips; executable JAR |
-| Fresh V13, synthetic V7?V13 and V12?V13 | PASS; canonical totals/inventory, historical import, snapshots/favorites/contact and unknown ownership preserved |
+| Fresh V13, synthetic V7-to-V13 and V12-to-V13 | PASS; canonical totals/inventory, historical import, snapshots/favorites/contact and unknown ownership preserved |
 | `npm.cmd run test:e2e` | PASS; 4 canaries, 1 restart test, 27 browser cases; 130 route/width combinations |
 | Candidate B/C server comparison | 132 files byte-identical; backend was not blindly replaced over a different published baseline |
 | Historical migration comparison | Published V1-V7 and original enhanced V1-V13 match after newline normalization; no migration edited |

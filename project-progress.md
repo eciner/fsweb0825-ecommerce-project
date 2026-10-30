@@ -4,9 +4,13 @@ Retained on 2026-10-20 as a distinct record of earlier engineering/CI/deployment
 checkpoints. The canonical current explanation is [PROJECT_DETAILS.md](PROJECT_DETAILS.md),
 with [README.md](README.md) for setup. Dated headings and claims below describe
 those checkpoints, not fresh Production identity or the latest local enhancement.
-The current local schema is V13; E01-E07 and Stage 2 are local/unreleased. No earlier
-count or deployment acceptance is relabeled as current. The original source records
-remain useful for exact historical SHAs and intentional frontend/backend identities.
+The October 17/20 local/unreleased statements below describe those historical
+snapshots. E01-E07 and Stage 2 subsequently entered the selected Production source
+releases. The clearly dated [final Production checkpoint](#final-production-release-checkpoint--2026-10-30)
+at the end supersedes earlier current-status headings, pending-delivery claims,
+database lifetime and local-only account assumptions for cutoff reporting. No earlier
+count or deployment acceptance is relabeled as current. Original snapshots below
+remain verbatim and useful for historical SHAs and intentional branch identities.
 
 ---
 
@@ -164,3 +168,58 @@ Historical Phase-7 environment preparation was separately verified with WSL 2, v
 - Address/card load and delete failures remain visible and do not silently mutate checkout state.
 - Node.js 20.19+ is supported; Node 22 is pinned for CI in `.nvmrc` and `.github/workflows/frontend-ci.yml`.
 - The original WorkinTech API returned HTTP 500 for an invalid product ID in a 2026-07-21 observation. The Spring API returns 404; the deployed frontend renders the expected not-found state.
+
+---
+
+## Final Production release checkpoint — 2026-10-30
+
+**Cutoff: 30 October 2026, Europe/Istanbul.** The owner selected existing Production
+for academic submission. Earlier headings containing "Current", "local/unreleased"
+or "pending" are historical statements from their own checkpoints. This checkpoint
+records the accepted releases without rewriting those snapshots.
+
+| Component | Exact cutoff identity | Status / evidence |
+| --- | --- | --- |
+| Frontend | `main` — `87ca72100902c04ef32862ce458c5d62d4831fb8` | Vercel `dpl_HCF6rn5MPUVKjtfPsQuBZVeQURp3`, READY; [storefront](https://fsweb0825-ecommerce-project.vercel.app/) |
+| Backend | `feat/backend-api` — `71ea32c90c1438882abb3c457bfc7a659c8493b3` | Render `dep-dbd7put9fdbs73ao5io0`, LIVE; [API health](https://fsweb0825-ecommerce-api.onrender.com/health) |
+| Database | Render PostgreSQL 16 / Flyway V1-V13 | Available; Free expiration listed as **20 November 2026** at cutoff |
+| Frontend CI | [39695105189](https://github.com/eciner/fsweb0825-ecommerce-project/actions/runs/39695105189), exact `main` SHA | 183 tests / 27 files; lint/build PASS; completed 2026-10-21 23:42:35 UTC |
+| Backend CI | [39855500412](https://github.com/eciner/fsweb0825-ecommerce-project/actions/runs/39855500412), exact accepted backend SHA | 114 tests, zero failures/errors/skips; Maven package PASS; completed 2026-10-22 21:15:04 UTC |
+
+The deployed architecture is React 19 / Vite 7 / Redux / Axios -> Java 21 /
+Spring Boot 3.4.13 / Security JWT / JPA and JdbcTemplate -> PostgreSQL 16. The
+accepted `server/` trees match across the separate frontend/backend refs. No Boot 4
+upgrade is included. Migration history remains V1-V13, with no V14 introduced.
+
+**Evidence boundaries.** Exact remote refs, CI run metadata/log totals and deployment
+metadata were checked on 30 October. These are not a new authenticated browser
+acceptance run. Historical Phase 9 purchase/history acceptance belongs to
+`53b10d82d6b921dea3b919a81f3895a875f860ca`, with order creation recorded at
+**2026-10-04 16:35:11.211 UTC / 19:35:11.211 Europe/Istanbul**. Historical Phase 10K
+acceptance completed on **2026-10-17 00:06 Europe/Istanbul** and was read-only.
+Neither establishes fresh authenticated purchase/history acceptance for the selected
+releases or current database contents. Latest authenticated E2E remains **UNVERIFIED**.
+
+**Excluded work.** `release/d8-frontend-qa` at
+`83e2473338047c1868f2cd339a3b1b29d6df69ad` and its recorded 199-test pass/Zod fix
+are QA-only. The local hero slider autoplay patch with 204 passing tests is also
+not Production. The October 20 local 183/112-test snapshot and earlier 73/65-test
+snapshots remain attached to their original sources/dates; none is relabeled.
+
+**Accepted differences and limits.** T06 retains seven contributors rather than the
+specified manager item; T08 activates immediately without email; T20 combines detail
+in `neighborhood`; T22 omits PAN/CVV. Grid/custom CSS and zero shipping/discount rows
+remain disclosed gaps against literal styling/summary requirements. Legacy full-PAN
+saved-card APIs remain demo-only, with synthetic data only and no real card data.
+There is no real payment gateway; the project is not PCI compliant. Recorded
+Production demo-account existence does not authorize publishing credentials or prove
+current login access. Free-service cold starts, the listed database expiration,
+unverified backup/restore, unresolved asset rights and institutional rubric acceptance
+remain limitations. See [project details](PROJECT_DETAILS.md) for traceability.
+
+**This reconciliation:** exactly six documentation files updated. Historical
+assignment wording/checkmarks and progress snapshots are preserved. The implementation
+and review checkpoint involved no staging, commit, push, merge or deployment, and
+no application, lockfile, workflow, environment, cloud or database modification.
+Subsequent authorized documentation commits and publication remain separate from
+the accepted application releases and do not establish new Production acceptance.
