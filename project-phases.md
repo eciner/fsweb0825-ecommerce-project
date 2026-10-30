@@ -2,7 +2,7 @@
 
 **👨‍💻 Student:** [Emre Ciner](https://github.com/eciner) | **🚀 Live Demo:** [View on Vercel](https://fsweb0825-ecommerce-project.vercel.app/)
 
-> **Implementation note — approved Spring application:** Original task descriptions, examples, ordering and checked/unchecked markers below are preserved as the assignment record. Notes using this label explain the shipped application at approved release `173a5786ca41dbef2c9ce0f557900a27d0464323`; they do not rewrite the original requirements or claim that every requirement was implemented literally. Check the noted differences against the actual academic rubric. Original sample users, dates and payment values are historical examples, not Production credentials or instructions to submit them. Current setup and release evidence are in [README.md](README.md).
+> **Implementation note — approved Spring application:** Original task descriptions, examples, ordering and checked/unchecked markers below are preserved as the assignment record. Current notes explain the 30 October 2026 Production cutoff: frontend `main` at `87ca72100902c04ef32862ce458c5d62d4831fb8`, backend `feat/backend-api` at `71ea32c90c1438882abb3c457bfc7a659c8493b3` (separate deployment branches). Notes explicitly labeled historical retain their dated scope; they do not rewrite the original requirements or claim that every requirement was implemented literally. Check the noted differences against the actual academic rubric. Original sample users, dates and payment values are historical examples, not Production credentials or instructions to submit them. Current setup and release evidence are in [README.md](README.md).
 
 ---
 
@@ -647,7 +647,11 @@ cart: [
 - [x] You can use collapsable panels for order details.
 
 
-## Current local enhancement annotation - 2026-10-17
+## Historical local enhancement annotation - 2026-10-17
+
+This added editorial note records local development on that date. Its implemented
+features subsequently entered the selected Production releases listed above; its
+local status and test references are historical, not a fresh release observation.
 
 Original T01-T23 descriptions, examples and checkboxes above are preserved as the
 assignment/history record. The later enhancement/remediation changes current UI
@@ -671,17 +675,42 @@ release requires [the release gates](PROJECT_DETAILS.md#deployment-evolution-and
 and production writes are not part of this task.
 
 
-## Current local release-review annotation ? 2026-10-20
+## Production reconciliation annotation — 2026-10-30
 
-The original task wording above remains unchanged. The current schema is V1-V13.
+The original T01-T23 task wording and every checklist marker above are unchanged
+by this reconciliation. Roadmap V2 section 2 keeps WorkinTech requirements first;
+the backend roadmap is not the grading rubric. The accepted architecture is React 19 /
+Vite 7 / Redux / Axios -> Java 21 / Spring Boot 3.4.13 -> PostgreSQL 16 / Flyway V1-V13.
+Vercel `dpl_HCF6rn5MPUVKjtfPsQuBZVeQURp3` is READY and Render
+`dep-dbd7put9fdbs73ao5io0` is LIVE at the exact frontend/backend SHAs above.
+Frontend CI [39695105189](https://github.com/eciner/fsweb0825-ecommerce-project/actions/runs/39695105189)
+passed 183 tests and lint/build; backend CI
+[39855500412](https://github.com/eciner/fsweb0825-ecommerce-project/actions/runs/39855500412)
+passed 114 tests and Maven package. PostgreSQL is available; Free expiration is
+listed as 20 November 2026 at cutoff.
 E01-E07 add bounded same-browser carts, collection-independent global search,
 server-side price/stock filters, searchable provinces and verified audited shipment
 management. Customer shipment JSON omits internal actor ids; authorized management
-retains audit. Latest setup, requirement classifications, fresh verification and
-local-versus-deployed distinctions are in [PROJECT_DETAILS.md](PROJECT_DETAILS.md).
+retains audit. Setup, requirement classifications, exact CI and
+historical/local-versus-deployed distinctions are in [PROJECT_DETAILS.md](PROJECT_DETAILS.md).
 T06 seven-person Team, T08 immediate activation and T22 no-PAN/CVV payload remain
 approved deviations. Grid/custom CSS also means literal Flex/Tailwind-only styling
 is not claimed. Shipping/discount remain zero-valued demo rows. Public Admin signup,
 real payment capture, email activation and carrier integration are absent. Legacy
-full-PAN compatibility remains a commercial blocker. No institutional acceptance
-or new Production release is asserted by these annotations.
+full-PAN compatibility remains a commercial blocker: demo-only, no real card data,
+no payment gateway, not PCI compliant. No institutional acceptance is asserted.
+
+QA `release/d8-frontend-qa` at `83e2473338047c1868f2cd339a3b1b29d6df69ad`,
+its 199-test pass/Zod fix, and the local hero slider autoplay patch with 204 passing
+tests are not Production. No merge or release is performed by these annotations.
+Fresh authenticated browser E2E for the selected releases remains UNVERIFIED.
+Historical Phase 9 acceptance recorded order creation at 2026-10-04 16:35:11.211 UTC /
+19:35:11.211 Europe/Istanbul at `53b10d82d6b921dea3b919a81f3895a875f860ca`;
+it is not evidence of current account, order or inventory state. Original sample
+account/payment values remain assignment examples, never deployed credentials.
+
+Original external resource links are retained for assignment provenance. Bounded
+30 October checks returned 404 for the original WorkinTech API; the original Figma
+resource returned 404 to HEAD and 403 to GET, and the npm pagination resource returned
+403 to HEAD. Access to those references is not established here. Current application
+URLs and setup are in [README.md](README.md); original requirements are not replaced.

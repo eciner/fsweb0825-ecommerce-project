@@ -1,12 +1,28 @@
 # Engineering beyond the original capstone
 
-Updated 2026-10-20. [T01-T23](project-phases.md) expected a React storefront using
-the external WorkinTech API. Catalog/auth/cart/address/card/order UI is original
+Reconciled for the 30 October 2026 Production cutoff. [T01-T23](project-phases.md)
+expected a React storefront using the external WorkinTech API. Catalog/auth/cart/
+address/card/order UI is original
 scope. Independently implementing the server is additional engineering, while
-preserving a required UI is not automatically a new product feature. All latest
-enhancements here remain local. See [PROJECT_DETAILS.md](PROJECT_DETAILS.md) for
-task traceability/results, [README.md](README.md) for setup and
+preserving a required UI is not automatically a new product feature. The
+capabilities below are present in the selected Production source releases, except
+where explicitly described as local test tooling or a limitation. See
+[PROJECT_DETAILS.md](PROJECT_DETAILS.md) for task traceability/results, [README.md](README.md) for setup and
 [FIXES-IMPLEMENTED.md](FIXES-IMPLEMENTED.md) for repairs.
+
+Production uses frontend `main` at `87ca72100902c04ef32862ce458c5d62d4831fb8`
+and backend `feat/backend-api` at `71ea32c90c1438882abb3c457bfc7a659c8493b3`.
+Vercel is READY and Render is LIVE, with PostgreSQL 16/Flyway V1-V13. Exact-release
+CI [39695105189](https://github.com/eciner/fsweb0825-ecommerce-project/actions/runs/39695105189)
+records 183 frontend tests plus lint/build PASS; backend CI
+[39855500412](https://github.com/eciner/fsweb0825-ecommerce-project/actions/runs/39855500412)
+records 114 tests/package PASS. The [release evidence](PROJECT_DETAILS.md#verification-and-ci)
+separates historical acceptance from current metadata.
+
+**Excluded from deployed extras:** QA branch `release/d8-frontend-qa` at
+`83e2473338047c1868f2cd339a3b1b29d6df69ad`, its 199-test pass/Zod fix, and the
+local hero slider autoplay patch with 204 passing tests. They are not Production.
+No latest authenticated browser E2E pass is inferred from the capabilities below.
 
 ## Alternative implementation and infrastructure
 
@@ -21,7 +37,8 @@ with every unused endpoint of the external API; it adds operational responsibili
 owned resources, orders, snapshots, favorites, contact and fulfillment. Additive
 schema evolution preserves old records; Hibernate validates instead of creating
 Production tables. Testcontainers covers fresh V13, V7→V13 and V12→V13 synthetic
-upgrades, transactions and locks. No Production backup/migration is inferred.
+upgrades, transactions and locks. Tests do not independently prove Production
+backup/restore or a fresh migration run.
 
 **Security/JWT: independent implementation of T08-T11.** `auth` adds password
 hashing, signed expiring tokens, raw-header compatibility, Bearer support and exact
@@ -32,8 +49,10 @@ Immediate activation has no email-ownership proof; auth throttling is future wor
 **CI/deployment: engineering enhancement.** Workflows validate frontend lint/tests/
 build and Java 21/PostgreSQL/package with read-only token permissions. The frontend
 build requires explicit API configuration. Vercel and Render follow separate
-branches with PostgreSQL/Flyway. Latest candidate checks are local; no new remote
-CI or deployment is claimed. Runtime cloud acceptance requires a separate release.
+branches with PostgreSQL/Flyway. Exact-release remote CI and the accepted
+Vercel/Render identities are recorded above. Historical candidate checks remain
+dated local evidence. CI and live metadata
+do not prove a new authenticated browser purchase, backup/restore or commercial readiness.
 
 ## Stronger shopping and orders
 
@@ -146,8 +165,11 @@ a green build alone proves neither privacy nor redistribution rights.
 ## Boundaries
 
 T06 seven-person Team, T08 immediate activation and T22 no-PAN/CVV decisions remain.
-No V14, payment provider, carrier, mail system, auth redesign or cloud modification
-is included. Historical image/Figma-derived rights remain **UNKNOWN / REQUIRES USER
-REVIEW**. Montserrat OFL is retained; no root project license or commercial-readiness
+Legacy saved-card endpoints store/return full PAN for capstone compatibility;
+use synthetic data only and no real card data. There is no real payment gateway
+and the project is not PCI compliant. No V14, payment provider, carrier or mail
+system is included. Database expiration is listed as 20 November 2026 at cutoff;
+Free-service availability and backup readiness are separate operational concerns.
+Historical image/Figma-derived rights remain **UNKNOWN / REQUIRES USER REVIEW**. Montserrat OFL is retained; no root project license or commercial-readiness
 claim is implied. Licensing, academic acceptance and Production release are separate
 owner decisions.
